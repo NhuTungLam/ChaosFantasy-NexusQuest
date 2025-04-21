@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5f492b6088b91445b67e171e9f47267, type: 3}
   m_Name: Knight
   m_EditorClassIdentifier: 
-  className: 
+  className: Knight
   classIcon: {fileID: 0}
   maxHP: 0
   maxMana: 0

@@ -27,8 +27,16 @@ namespace ChaosFantasy.Controllers
             // Cập nhật animator (View)
             if (animator)
             {
-
-                animator.SetBool("isMoving", moveInput != Vector2.zero);
+                if (moveInput != Vector2.zero)
+                {
+                    animator.SetFloat("isMoving", 1f);
+                    animator.SetFloat("Speed", moveSpeed/5f);
+                }
+                else
+                {
+                    animator.SetFloat("isMoving", 0f);
+                    animator.SetFloat("Speed", 1f);
+                }
             }
         }
 

@@ -1,21 +1,26 @@
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using ChaosFantasy.Models;
+using ChaosFantasy.Models; // để dùng PlayerStats
 
-namespace ChaosFantasy.Views
+public class HealthBarUI : MonoBehaviour
 {
-    public class HealthBarUI : MonoBehaviour
-    {
-        public Slider healthSlider;
-        public PlayerStats stats;
+    public PlayerStats stats;
 
-        void Update()
-        {
-            if (stats != null && healthSlider != null)
-            {
-                healthSlider.value = stats.currentHP / stats.maxHP;
-            }
-        }
+    public Slider hpSlider;
+    public Slider armorSlider;
+    public Slider manaSlider;
+
+    void Start()
+    {
+        hpSlider.maxValue = stats.maxHP;
+        armorSlider.maxValue = stats.maxArmor;
+        manaSlider.maxValue = stats.maxMana;
+    }
+
+    void Update()
+    {
+        hpSlider.value = stats.currentHP;
+        armorSlider.value = stats.currentArmor;
+        manaSlider.value = stats.currentMana;
     }
 }

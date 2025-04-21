@@ -1,18 +1,24 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform target; // Gán Player vào đây
-    public float smoothSpeed = 0.125f;
-    public Vector3 offset; // Dùng nếu muốn đặt camera lệch
+    public GameObject objToFollow;
 
+    //i'll do the teleport, max distance etc later
+    private Transform cam;
+    void Start()
+    {
+        cam = transform;
+    }
+
+    // Update is called once per frame
     void LateUpdate()
     {
-        if (target == null) return;
-
-        Vector3 desiredPosition = target.position + offset;
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-
-        transform.position = new Vector3(smoothedPosition.x, smoothedPosition.y, transform.position.z);
+        Vector3 target = objToFollow.transform.position + new Vector3(0, 0, -10);
+        float smoothSpeed = 1f; // càng nhỏ càng mượt
+        cam.position = Vector3.Lerp(cam.position, target, smoothSpeed);
     }
+
 }

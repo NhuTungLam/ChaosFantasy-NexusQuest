@@ -17,7 +17,8 @@ public class PlayerAnimationController : MonoBehaviour
     {
         Vector2 move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        animator.SetBool("isMoving", move != Vector2.zero);
+        animator.SetFloat("Speed", move == Vector2.zero?0:1);
+        animator.SetFloat("isMoving", move == Vector2.zero ? 0 : 1);
 
         // Xử lý Flip khi sang trái
         if (move.x > 0)

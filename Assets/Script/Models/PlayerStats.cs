@@ -1,4 +1,4 @@
-
+﻿using System;
 using UnityEngine;
 
 namespace ChaosFantasy.Models
@@ -8,43 +8,45 @@ namespace ChaosFantasy.Models
         public float maxHP = 100f;
         public float currentHP;
 
+        public float maxArmor = 30f;
+        public float currentArmor;
+
         public float maxMana = 50f;
         public float currentMana;
-
-        public float moveSpeed = 5f;
-        public float attackSpeed = 1f;
 
         void Start()
         {
             currentHP = maxHP;
+            currentArmor = maxArmor;
             currentMana = maxMana;
         }
 
-        public void TakeDamage(float amount)
+        void Update()
         {
-            currentHP -= amount;
-            if (currentHP <= 0)
+            // Test giảm máu, giáp, mana khi nhấn phím T
+            if (Input.GetKeyDown(KeyCode.T))
             {
-                currentHP = 0;
-                Die();
+                TestDamage();
             }
         }
 
-        public void UseMana(float amount)
+        public void TestDamage(float hpLoss = 5f, float armorLoss = 3f, float manaLoss = 10f)
         {
-            currentMana -= amount;
-            if (currentMana < 0)
-                currentMana = 0;
+            currentArmor -= armorLoss;
+            if (currentArmor < 0) currentArmor = 0;
+
+            currentHP -= hpLoss;
+            if (currentHP < 0) currentHP = 0;
+
+            currentMana -= manaLoss;
+            if (currentMana < 0) currentMana = 0;
+
+            Debug.Log($"[TEST DAMAGE] HP: {currentHP}, Armor: {currentArmor}, Mana: {currentMana}");
         }
 
-        public void RegenerateMana(float amount)
+        internal void UseMana(float manaCost)
         {
-            currentMana = Mathf.Min(currentMana + amount, maxMana);
-        }
-
-        void Die()
-        {
-            Debug.Log("Player Died!");
+            throw new NotImplementedException();
         }
     }
 }
