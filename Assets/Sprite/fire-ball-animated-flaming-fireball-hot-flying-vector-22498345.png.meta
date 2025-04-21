@@ -1,0 +1,584 @@
+fileFormatVersion: 2
+guid: 2897bd422a0a6c7489ba0b71e7640fe7
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1693491976851137184
+    second: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_0
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 32
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_0
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 667
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline:
+      - - {x: 202, y: -400}
+        - {x: 492, y: -400}
+        - {x: 492, y: -143}
+        - {x: 202, y: -143}
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0a2af2efafd708710800000000000000
+      internalID: 1693491976851137184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_1
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 667
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 943d03a91603c2a42a64660f512f4c22
+      internalID: -1605483845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_2
+      rect:
+        serializedVersion: 2
+        x: 505
+        y: 667
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60a86d676f36ea94e9a281e3c2a73aa9
+      internalID: -1311454174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_3
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 667
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7c8571e1449080341818ab894366f853
+      internalID: -27125730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_4
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 529
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3f07366f175a8994088ff1ac1a6e65b0
+      internalID: 1879080375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_5
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 529
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1db224817f9cd594ebed9a9fd334eda1
+      internalID: -1979028591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_6
+      rect:
+        serializedVersion: 2
+        x: 505
+        y: 529
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 56214a09f25924c4c8e40b0cebeb3b1c
+      internalID: -506091572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_7
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 529
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 892412e3902be944fbc3947153064e2c
+      internalID: -1352189457
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_8
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 391
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2224e1d91eeb8034d82cc48ec90877d2
+      internalID: -155511306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_9
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 391
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59e233af726926048afc4868bf7057f8
+      internalID: 1376816357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_10
+      rect:
+        serializedVersion: 2
+        x: 505
+        y: 391
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c17e34324bd912947a02396e481c5335
+      internalID: -1159979561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_11
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 391
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: af46aadc6b7cf0d4c93ac95bd1a4b6cd
+      internalID: -1320026219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_12
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 253
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 57ec7760b0f2abd4a92eb4f1bbd153de
+      internalID: 1337157171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_13
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 253
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ced5c6ebd2d4ab843b0497b782c157cd
+      internalID: -365692674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_14
+      rect:
+        serializedVersion: 2
+        x: 505
+        y: 253
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8ee5078f634bfd4797c76497f9fe29f
+      internalID: -265500873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_15
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 253
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b54568d1557cc349ac49d3b7f4d9b14
+      internalID: -1843571700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_16
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 115
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4aecdf6500483a54c912b3b0ad3229de
+      internalID: 2056021538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_17
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 115
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 406dbc6ced32d8d4f9c0c539ccbfef32
+      internalID: 207179029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_18
+      rect:
+        serializedVersion: 2
+        x: 505
+        y: 115
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 10ac6ce83bebcc945bd8e419b825c31d
+      internalID: -697641604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_19
+      rect:
+        serializedVersion: 2
+        x: 742
+        y: 115
+        width: 237
+        height: 138
+      alignment: 9
+      pivot: {x: 3.94, y: 0.74}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d3ba144e00d353244a11eba4577e1681
+      internalID: 1019895704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: cb5a327f9eb60ce4a9f52d8cbfe3d3b7
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_0: 1693491976851137184
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_1: -1605483845
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_10: -1159979561
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_11: -1320026219
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_12: 1337157171
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_13: -365692674
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_14: -265500873
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_15: -1843571700
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_16: 2056021538
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_17: 207179029
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_18: -697641604
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_19: 1019895704
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_2: -1311454174
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_3: -27125730
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_4: 1879080375
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_5: -1979028591
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_6: -506091572
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_7: -1352189457
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_8: -155511306
+      fire-ball-animated-flaming-fireball-hot-flying-vector-22498345_9: 1376816357
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
