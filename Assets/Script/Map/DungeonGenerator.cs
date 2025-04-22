@@ -1,180 +1,190 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class DungeonGenerator : MonoBehaviour
 {
-    public int roomCount = 10;
-    public GameObject startRoomPrefab;
-    public GameObject normalRoomPrefab;
-    public GameObject specialRoomPrefab;
-    public GameObject bossRoomPrefab;
-    public GameObject corridorPrefab;
-    public int roomSpacing = 20;
+    public GameObject[] roomPrefabs;
+    public GameObject[] bossRooms;
+    public GameObject[] specialRooms;
+    public GameObject[] corridorPrefabs;
 
-    private Dictionary<Vector2Int, RoomData> dungeonMap = new();
-    private Dictionary<Vector2Int, GameObject> spawnedRooms = new();
+    public int dungeonSize = 10;
+    public int maxComplexRooms = 3;
+    public int maxSpecialRoom = 2;
+    public Vector2Int roomSize = new Vector2Int(10, 10);
 
-    Vector2Int[] directions = {
-        Vector2Int.up, Vector2Int.down,
-        Vector2Int.left, Vector2Int.right
-    };
+    private Dictionary<Vector2Int, (Room room, Direction dir, int depth)> spawnedRooms = new();
+    private Vector2Int lastSpawnedRoom;
+    private Dictionary<Vector2Int, int> roomDepths = new();
+    private List<Vector2Int> deadEnds = new();
+    private int currentComplexRoomCount = 0;
 
-    void Start()
+    [ContextMenu("gen")]
+    public void GenerateDungeon()
     {
-        GenerateDungeon();
-        SpawnDungeon();
-    }
+        currentComplexRoomCount = 0;
+        lastSpawnedRoom = Vector2Int.zero;
+        spawnedRooms.Clear();
+        roomDepths.Clear();
+        deadEnds.Clear();
 
-    void GenerateDungeon()
-    {
         Vector2Int startPos = Vector2Int.zero;
-        dungeonMap[startPos] = new RoomData
+        GenerateRoom(startPos, Direction.Bottom, 0, 2);
+        while (spawnedRooms.Count < dungeonSize)
         {
-            gridPos = startPos,
-            type = RoomType.Start,
-            roomPrefab = startRoomPrefab
-        };
+            var pair = spawnedRooms[lastSpawnedRoom];
+            spawnedRooms.Remove(lastSpawnedRoom);
+            roomDepths.Remove(lastSpawnedRoom);
+            deadEnds.Remove(lastSpawnedRoom);
+            Destroy(pair.room.gameObject);
 
-        // ➤ Tạo đúng 1 phòng nối từ Start Room
-        List<Vector2Int> shuffledDirs = directions.OrderBy(x => Random.value).ToList();
-        Vector2Int usedDir = shuffledDirs[0];
-        Vector2Int firstRoomPos = startPos + usedDir;
-
-        dungeonMap[firstRoomPos] = new RoomData
-        {
-            gridPos = firstRoomPos,
-            type = RoomType.Normal,
-            roomPrefab = normalRoomPrefab
-        };
-
-        List<Vector2Int> potentialDeadEnds = new List<Vector2Int> { firstRoomPos };
-
-        for (int i = 2; i < roomCount; i++)
-        {
-            Vector2Int basePos = potentialDeadEnds[Random.Range(0, potentialDeadEnds.Count)];
-            Vector2Int nextPos;
-            int retry = 0;
-
-            do
-            {
-                Vector2Int tryDir = directions[Random.Range(0, directions.Length)];
-                nextPos = basePos + tryDir;
-
-                // ❌ Không cho phòng nào xuất hiện cạnh Start trừ firstRoomPos
-                bool isAdjacentToStart = directions
-                    .Select(d => startPos + d)
-                    .Any(p => p == nextPos && p != firstRoomPos);
-
-                if (isAdjacentToStart)
-                {
-                    retry++;
-                    continue;
-                }
-
-                retry++;
-            } while ((dungeonMap.ContainsKey(nextPos) || CountNeighbors(nextPos) > 2) && retry < 50);
-
-            if (retry >= 50) continue;
-
-            dungeonMap[nextPos] = new RoomData
-            {
-                gridPos = nextPos,
-                type = RoomType.Normal,
-                roomPrefab = normalRoomPrefab
-            };
-
-            potentialDeadEnds.Add(nextPos);
-
-            if (CountNeighbors(nextPos) > 1)
-                potentialDeadEnds.Remove(basePos);
+            GenerateRoom(lastSpawnedRoom, pair.dir, pair.depth, RoomConCount(true));
         }
-
-        // 🔍 Gán boss & special từ dead-ends
-        List<Vector2Int> deadEnds = new();
-        foreach (var kv in dungeonMap)
-        {
-            if (kv.Value.type == RoomType.Normal && CountNeighbors(kv.Key) == 1)
-                deadEnds.Add(kv.Key);
-        }
-
-        if (deadEnds.Count > 0)
-        {
-            Vector2Int bossPos = deadEnds[Random.Range(0, deadEnds.Count)];
-            dungeonMap[bossPos].type = RoomType.Boss;
-            dungeonMap[bossPos].roomPrefab = bossRoomPrefab;
-            deadEnds.Remove(bossPos);
-        }
-
-        int specialRoomCount = Mathf.Min(2, deadEnds.Count);
-        for (int i = 0; i < specialRoomCount; i++)
-        {
-            Vector2Int specialPos = deadEnds[Random.Range(0, deadEnds.Count)];
-            dungeonMap[specialPos].type = RoomType.Special;
-            dungeonMap[specialPos].roomPrefab = specialRoomPrefab;
-            deadEnds.Remove(specialPos);
-        }
+        PlaceSpecialRooms();
     }
 
-    void SpawnDungeon()
+    public int RoomConCount(bool reroll = false)
     {
-        foreach (var kv in dungeonMap)
+        if (reroll)
         {
-            Vector3 worldPos = new Vector3(kv.Key.x * roomSpacing, kv.Key.y * roomSpacing, 0);
-            GameObject roomGO = Instantiate(kv.Value.roomPrefab, worldPos, Quaternion.identity);
-            spawnedRooms[kv.Key] = roomGO;
+            return Random.Range(0, 4) == 0 ? 3 : 2;
         }
 
-        HashSet<string> createdCorridors = new();
-        foreach (var kv in dungeonMap)
+        int count = spawnedRooms.Count;
+        if (count >= dungeonSize)
+            return 1;
+
+        int weight1 = count;
+        int weight2 = weight1 / 2;
+        int weight3 = (currentComplexRoomCount < maxComplexRooms) ? 3 : 0;
+        int weight4 = (currentComplexRoomCount < maxComplexRooms) ? 1 : 0;
+
+        List<int> choices = new();
+        for (int i = 0; i < weight1; i++) choices.Add(1);
+        for (int i = 0; i < weight2; i++) choices.Add(2);
+        for (int i = 0; i < weight3; i++) choices.Add(3);
+        for (int i = 0; i < weight4; i++) choices.Add(4);
+
+        int selected = choices[Random.Range(0, choices.Count)];
+        if (selected >= 3) currentComplexRoomCount++;
+        return selected;
+    }
+
+    private bool GenerateRoom(Vector2Int position, Direction fromDir, int depth, int conCount)
+    {
+        if (spawnedRooms.ContainsKey(position))
+            return false;
+
+        Room fromRoom = null;
+        Vector2Int previousPos = position - DirectionHelper.ToVector2Int(fromDir);
+        if (spawnedRooms.TryGetValue(previousPos, out var previous))
         {
-            Vector2Int currentPos = kv.Key;
-            Room currentRoom = spawnedRooms[currentPos].GetComponent<Room>();
+            fromRoom = previous.room;
+        }
 
-            foreach (var dir in directions)
+        GameObject prefab = roomPrefabs[Random.Range(0, roomPrefabs.Length)];
+        GameObject roomGO = Instantiate(prefab, (Vector2)position * roomSize, Quaternion.identity);
+        roomGO.name = "" + spawnedRooms.Count;
+        Room room = roomGO.GetComponent<Room>();
+        spawnedRooms[position] = (room, fromDir, depth);
+        roomDepths[position] = depth;
+        lastSpawnedRoom = position;
+
+        if (fromRoom != null)
+        {
+            room.DisableDoor(DirectionHelper.GetOpposite(fromDir));
+            fromRoom.DisableDoor(fromDir);
+            SpawnCorridor(position, previousPos, fromDir);
+        }
+        else
+        {
+            room.EnableDoor(DirectionHelper.GetOpposite(fromDir));
+        }
+
+        List<Direction> directions = new List<Direction>((Direction[])System.Enum.GetValues(typeof(Direction)));
+        Shuffle(directions);
+        directions.Remove(DirectionHelper.GetOpposite(fromDir));
+
+        for (int i = 0; i < directions.Count; i++)
+        {
+            int targetCon = RoomConCount();
+            if (i < conCount - 1)
             {
-                Vector2Int neighborPos = currentPos + dir;
-                if (!dungeonMap.ContainsKey(neighborPos)) continue;
-
-                string key = currentPos.ToString() + neighborPos.ToString();
-                string reverseKey = neighborPos.ToString() + currentPos.ToString();
-                if (createdCorridors.Contains(key) || createdCorridors.Contains(reverseKey)) continue;
-
-                createdCorridors.Add(key);
-
-                Direction currentDir = ToDir(dir);
-                Direction neighborDir = DirectionHelper.GetOpposite(currentDir);
-
-                Room neighborRoom = spawnedRooms[neighborPos].GetComponent<Room>();
-                currentRoom?.DisableDoor(currentDir);
-                neighborRoom?.DisableDoor(neighborDir);
-
-                Vector3 posA = new Vector3(currentPos.x, currentPos.y, 0);
-                Vector3 posB = new Vector3(neighborPos.x, neighborPos.y, 0);
-                Vector3 corridorPos = Vector3.Lerp(posA, posB, 0.5f) * roomSpacing;
-
-                Quaternion rotation = (dir == Vector2Int.up || dir == Vector2Int.down)
-                    ? Quaternion.Euler(0, 0, 90)
-                    : Quaternion.identity;
-
-                Instantiate(corridorPrefab, corridorPos, rotation);
+                Vector2Int nextPos = position + DirectionHelper.ToVector2Int(directions[i]);
+                if (!GenerateRoom(nextPos, directions[i], depth + 1, targetCon))
+                    room.DisableDoor(directions[i]);
+            }
+            else
+            {
+                room.EnableDoor(directions[i]);
             }
         }
+
+        if (conCount == 1)
+            deadEnds.Add(position);
+
+        return true;
     }
 
-    int CountNeighbors(Vector2Int pos)
+    private void SpawnCorridor(Vector2Int from, Vector2Int to, Direction dir)
     {
-        int count = 0;
-        foreach (var dir in directions)
-            if (dungeonMap.ContainsKey(pos + dir)) count++;
-        return count;
+        Vector2 mid = ((Vector2)(from + to)) / 2f;
+        Vector3 worldPos = (Vector2)mid * roomSize;
+
+        Quaternion rotation = Quaternion.identity;
+        if (dir == Direction.Top || dir == Direction.Bottom)
+            rotation = Quaternion.Euler(0, 0, 90);
+
+        if (corridorPrefabs != null && corridorPrefabs.Length > 0)
+        {
+            GameObject selected = corridorPrefabs[Random.Range(0, corridorPrefabs.Length)];
+            Instantiate(selected, worldPos, rotation);
+        }
     }
 
-    Direction ToDir(Vector2Int dir)
+    private void PlaceSpecialRooms()
     {
-        if (dir == Vector2Int.up) return Direction.Top;
-        if (dir == Vector2Int.down) return Direction.Bottom;
-        if (dir == Vector2Int.left) return Direction.Left;
-        return Direction.Right;
+        if (deadEnds.Count == 0) return;
+        var orderedDeadEnds = deadEnds.OrderBy(pos => roomDepths[pos]).ToList();
+        Vector2Int bossPos = orderedDeadEnds[^1];
+        ReplaceRoomWith(bossRooms, bossPos);
+
+        for (int i = 0; i < Mathf.Min(maxSpecialRoom, orderedDeadEnds.Count - 1); i++)
+        {
+            ReplaceRoomWith(specialRooms, orderedDeadEnds[i]);
+        }
+    }
+
+    private void ReplaceRoomWith(GameObject[] roomOptions, Vector2Int position)
+    {
+        if (!spawnedRooms.ContainsKey(position)) return;
+
+        var oldRoom = spawnedRooms[position];
+        Vector3 pos = oldRoom.room.transform.position;
+        Quaternion rot = oldRoom.room.transform.rotation;
+        Destroy(oldRoom.room.gameObject);
+
+        GameObject selected = roomOptions[Random.Range(0, roomOptions.Length)];
+        GameObject newRoomGO = Instantiate(selected, pos, rot);
+        Room newRoom = newRoomGO.GetComponent<Room>();
+        spawnedRooms[position] = (newRoom, oldRoom.dir, oldRoom.depth);
+
+        foreach (Direction dir in (Direction[])System.Enum.GetValues(typeof(Direction)))
+        {
+            if (dir == DirectionHelper.GetOpposite(oldRoom.dir))
+                newRoom.DisableDoor(dir);
+            else
+                newRoom.EnableDoor(dir);
+        }
+    }
+
+    private void Shuffle<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int rnd = Random.Range(0, i + 1);
+            (list[i], list[rnd]) = (list[rnd], list[i]);
+        }
     }
 }
