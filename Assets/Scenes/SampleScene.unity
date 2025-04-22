@@ -240,16 +240,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 97094918}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04d4053205d4c57429f114ba99ef90b6, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e7dd1f9efcd94e478a76e0e5f618e32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomCount: 15
-  startRoomPrefab: {fileID: 7728795948799874477, guid: b72fbbae69ecf61439932abab88fde2d, type: 3}
-  normalRoomPrefab: {fileID: 8836693188907468201, guid: 51a4f75b8d70ec84597d5e538e77190f, type: 3}
-  specialRoomPrefab: {fileID: 6714402413358947614, guid: 73b44df7426a6e54baa6f6ffd51dbf6d, type: 3}
-  bossRoomPrefab: {fileID: 4843577782144643279, guid: f2092a5680c8c1f46b34636843dd0f87, type: 3}
-  corridorPrefab: {fileID: 4387791055791827641, guid: 26908ab967373944aa8e9ea2dd3c7160, type: 3}
-  roomSpacing: 20
+  roomPrefabs:
+  - {fileID: 4843577782144643279, guid: 6b9ea9318f1b72a44b009c00808283a6, type: 3}
+  bossRooms:
+  - {fileID: 4843577782144643279, guid: f2092a5680c8c1f46b34636843dd0f87, type: 3}
+  specialRooms:
+  - {fileID: 6714402413358947614, guid: 73b44df7426a6e54baa6f6ffd51dbf6d, type: 3}
+  corridorPrefabs:
+  - {fileID: 4387791055791827641, guid: 26908ab967373944aa8e9ea2dd3c7160, type: 3}
+  dungeonSize: 10
+  maxComplexRooms: 3
+  maxSpecialRoom: 2
+  roomSize: {x: 20, y: 12}
 --- !u!1 &361204459
 GameObject:
   m_ObjectHideFlags: 0
