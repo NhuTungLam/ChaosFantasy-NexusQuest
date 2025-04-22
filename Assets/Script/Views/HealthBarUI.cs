@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using ChaosFantasy.Models; // để dùng PlayerStats
+using ChaosFantasy.Models;
 
 public class HealthBarUI : MonoBehaviour
 {

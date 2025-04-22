@@ -471,9 +471,8 @@ GameObject:
   m_Component:
   - component: {fileID: 552390385}
   - component: {fileID: 552390384}
-  - component: {fileID: 552390386}
   m_Layer: 5
-  m_Name: SliderHP (2)
+  m_Name: SliderMana
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -552,22 +551,6 @@ RectTransform:
   m_AnchoredPosition: {x: -360.65216, y: 110.9}
   m_SizeDelta: {x: 76.2889, y: 22.8943}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &552390386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 552390383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6333bac189f0df34ab2df685766b7d8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stats: {fileID: 0}
-  hpSlider: {fileID: 0}
-  armorSlider: {fileID: 0}
-  manaSlider: {fileID: 0}
 --- !u!1 &791333451
 GameObject:
   m_ObjectHideFlags: 0
@@ -578,9 +561,8 @@ GameObject:
   m_Component:
   - component: {fileID: 791333453}
   - component: {fileID: 791333452}
-  - component: {fileID: 791333454}
   m_Layer: 5
-  m_Name: SliderHP (1)
+  m_Name: SliderArmor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -659,22 +641,6 @@ RectTransform:
   m_AnchoredPosition: {x: -360.65216, y: 136.5}
   m_SizeDelta: {x: 76.2889, y: 22.8943}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &791333454
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 791333451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6333bac189f0df34ab2df685766b7d8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stats: {fileID: 0}
-  hpSlider: {fileID: 0}
-  armorSlider: {fileID: 0}
-  manaSlider: {fileID: 0}
 --- !u!1 &862691516
 GameObject:
   m_ObjectHideFlags: 0
@@ -685,10 +651,10 @@ GameObject:
   m_Component:
   - component: {fileID: 862691523}
   - component: {fileID: 862691522}
-  - component: {fileID: 862691521}
   - component: {fileID: 862691524}
   - component: {fileID: 862691525}
   - component: {fileID: 862691526}
+  - component: {fileID: 862691521}
   - component: {fileID: 862691527}
   - component: {fileID: 862691528}
   m_Layer: 0
@@ -773,7 +739,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1242417169}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1019,53 +986,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1157267481
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1157267483}
-  - component: {fileID: 1157267482}
-  m_Layer: 0
-  m_Name: GameObject (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1157267482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157267481}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bcaf453bf5e70049a9ebe1420780613, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fileName: 
-  sprites: []
-  fps: 5
---- !u!4 &1157267483
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157267481}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.6092005, y: -1.2051476, z: -0.8338272}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1181694370
 GameObject:
   m_ObjectHideFlags: 0
@@ -1216,8 +1136,8 @@ RectTransform:
   - {fileID: 1745952030}
   - {fileID: 791333453}
   - {fileID: 552390385}
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_Father: {fileID: 862691523}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1493,7 +1413,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1745952030}
   - component: {fileID: 1745952031}
-  - component: {fileID: 1745952032}
   m_Layer: 5
   m_Name: SliderHP
   m_TagString: Untagged
@@ -1574,22 +1493,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1745952032
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1745952029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6333bac189f0df34ab2df685766b7d8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stats: {fileID: 0}
-  hpSlider: {fileID: 0}
-  armorSlider: {fileID: 0}
-  manaSlider: {fileID: 0}
 --- !u!1 &1777859116
 GameObject:
   m_ObjectHideFlags: 0
