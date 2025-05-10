@@ -5,6 +5,8 @@ using TMPro;
 
 public class LoginRequest : MonoBehaviour
 {
+    public GameObject loginPanel;
+    public GameObject classSelectPanel;
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
     public TMP_Text resultText;
@@ -44,17 +46,14 @@ public class LoginRequest : MonoBehaviour
 
             if (json.StartsWith("{"))
             {
-                // Đăng nhập thành công
                 resultText.text = "Đăng nhập thành công!";
                 Debug.Log("Dữ liệu nhận được: " + json);
 
-                // Giải mã JSON nếu cần (class, level...)
                 PlayerProfile profile = JsonUtility.FromJson<PlayerProfile>(json);
                 Debug.Log("Class: " + profile.@class + ", Level: " + profile.level);
             }
             else
             {
-                // Đăng nhập thất bại → server trả về text
                 resultText.text = json;
             }
         }

@@ -135,7 +135,6 @@ GameObject:
   - component: {fileID: 383151649}
   - component: {fileID: 383151648}
   - component: {fileID: 383151647}
-  - component: {fileID: 383151646}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -143,20 +142,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &383151646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 383151645}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b19ae2c50f9e54e4faa5218397005200, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  roomNameInput: {fileID: 0}
-  dungeonSceneName: DungeonScene
 --- !u!114 &383151647
 MonoBehaviour:
   m_ObjectHideFlags: 0

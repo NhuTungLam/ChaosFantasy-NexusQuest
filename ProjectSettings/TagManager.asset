@@ -3,12 +3,14 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Enemy
+  - Bullet
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Enemy
   - Water
   - UI
   - 
@@ -40,4 +42,19 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 435643903
+    locked: 0
+  - name: Ground
+    uniqueID: 3407748465
+    locked: 0
+  - name: Entity
+    uniqueID: 859120589
+    locked: 0
+  - name: Effect
+    uniqueID: 2830281567
+    locked: 0
+  - name: Ui
+    uniqueID: 2846659573
     locked: 0

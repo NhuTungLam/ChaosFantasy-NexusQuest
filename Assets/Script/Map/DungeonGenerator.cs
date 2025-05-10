@@ -4,6 +4,11 @@ using System.Linq;
 
 public class DungeonGenerator : MonoBehaviour
 {
+    void Start()
+    {
+        GenerateDungeon();
+    }
+
     public GameObject[] roomPrefabs;
     public GameObject[] bossRooms;
     public GameObject[] specialRooms;
@@ -42,6 +47,10 @@ public class DungeonGenerator : MonoBehaviour
             GenerateRoom(lastSpawnedRoom, pair.dir, pair.depth, RoomConCount(true));
         }
         PlaceSpecialRooms();
+        foreach( var pair in spawnedRooms.Values)
+        {
+            pair.room.getActiveDoor();
+        }
     }
 
     public int RoomConCount(bool reroll = false)
@@ -126,7 +135,7 @@ public class DungeonGenerator : MonoBehaviour
 
         return true;
     }
-
+    
     private void SpawnCorridor(Vector2Int from, Vector2Int to, Direction dir)
     {
         Vector2 mid = ((Vector2)(from + to)) / 2f;

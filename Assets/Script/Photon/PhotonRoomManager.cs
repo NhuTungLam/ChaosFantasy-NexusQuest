@@ -1,44 +1,47 @@
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using TMPro;
 
 public class PhotonRoomManager : MonoBehaviourPunCallbacks
 {
+    [Header("UI")]
     public TMP_InputField roomNameInput;
-    public string dungeonSceneName = "Dungeon";
+    public string dungeonSceneName = "Dungeon"; 
 
     void Start()
     {
+        PhotonNetwork.NickName = "Player" + Random.Range(1000, 9999);
+
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.ConnectUsingSettings();
-            Debug.Log("[PhotonRoomManager] Đang kết nối tới Photon...");
         }
     }
 
     public void CreateRoom()
     {
-        string roomName = roomNameInput.text;
-        if (string.IsNullOrEmpty(roomName))
+        if (string.IsNullOrEmpty(roomNameInput.text))
         {
-            roomName = "Room_" + Random.Range(1000, 9999);
+            Debug.LogWarning("Room name is empty!");
+            return;
         }
 
-        RoomOptions options = new RoomOptions();
-        options.MaxPlayers = 4;
-        PhotonNetwork.CreateRoom(roomName, options);
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 4;
+
+        PhotonNetwork.CreateRoom(roomNameInput.text, roomOptions);
     }
 
     public void JoinRoom()
     {
-        string roomName = roomNameInput.text;
-        if (!string.IsNullOrEmpty(roomName))
+        if (string.IsNullOrEmpty(roomNameInput.text))
         {
-            PhotonNetwork.JoinRoom(roomName);
+            Debug.LogWarning("Room name is empty!");
+            return;
         }
+
+        PhotonNetwork.JoinRoom(roomNameInput.text);
     }
 
     public void QuickStart()
@@ -48,31 +51,25 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        string roomName = "QuickRoom_" + Random.Range(1000, 9999);
-        RoomOptions options = new RoomOptions();
-        options.MaxPlayers = 4;
-        PhotonNetwork.CreateRoom(roomName, options);
-    }
-
-    public override void OnConnectedToMaster()
-    {
-        Debug.Log("[PhotonRoomManager] Đã kết nối thành công đến Photon.");
-        PhotonNetwork.AutomaticallySyncScene = true;
+        Debug.Log("Join random failed, creating new room...");
+        string randomRoomName = "Room_" + Random.Range(1000, 9999);
+        RoomOptions options = new RoomOptions { MaxPlayers = 4 };
+        PhotonNetwork.CreateRoom(randomRoomName, options);
     }
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("[PhotonRoomManager] Đã vào phòng: " + PhotonNetwork.CurrentRoom.Name);
-        PhotonNetwork.LoadLevel(dungeonSceneName);
+        Debug.Log($"[PhotonRoomManager] Đã vào phòng: {PhotonNetwork.CurrentRoom.Name}");
+        PhotonNetwork.LoadLevel(dungeonSceneName); 
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        Debug.LogWarning("[PhotonRoomManager] Tạo phòng thất bại: " + message);
+        Debug.LogError("Create room failed: " + message);
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        Debug.LogWarning("[PhotonRoomManager] Vào phòng thất bại: " + message);
+        Debug.LogError("Join room failed: " + message);
     }
 }
