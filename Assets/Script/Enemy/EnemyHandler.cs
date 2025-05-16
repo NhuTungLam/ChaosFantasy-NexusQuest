@@ -47,6 +47,10 @@ public class EnemyHandler : MonoBehaviour, IDamageable
         player = GameObject.FindGameObjectWithTag("Player");
         currentDamage = enemyData.Damage;
         currentHealth = enemyData.MaxHealth;
+        if (animator != null && enemyData.animatorController != null)
+        {
+            animator.runtimeAnimatorController = enemyData.animatorController;
+        }
         if (GetComponent<EnemyMovement>() != null)
         {
             Destroy(GetComponent<EnemyMovement>());

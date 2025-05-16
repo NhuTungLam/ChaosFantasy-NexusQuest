@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemylist:
   - {fileID: 11400000, guid: da1985a194ccb7a4d98c7061b2d62f50, type: 2}
-  enemycount: 05000000
+  - {fileID: 11400000, guid: dbcda34770a38124596b9aaeebb55dd4, type: 2}
+  enemycount: 0100000001000000

@@ -23,4 +23,10 @@ public class EnemyData : ScriptableObject
     public float AtkSpeed { get => atkSpeed; set => atkSpeed = value; }
 
     public string movementScriptName;
+    [SerializeField]
+    private float projectileSpeed;
+    public float ProjectileSpeed { get => projectileSpeed; set => projectileSpeed = value; }
+
+    public RuntimeAnimatorController animatorController;
+
 }

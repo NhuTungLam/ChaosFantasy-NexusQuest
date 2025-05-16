@@ -1469,7 +1469,7 @@ Animator:
   m_GameObject: {fileID: 568268856}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 713d27c9c6d93bd4088f34fa091d54ab, type: 2}
+  m_Controller: {fileID: 9100000, guid: ee730db55c937644db85511364111c02, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -2682,7 +2682,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20d700955d605694bbf7756da0991f1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: 
+  fileName: Tower
   sprites: []
   fps: 5
 --- !u!1 &1399841386

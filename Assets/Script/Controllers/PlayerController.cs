@@ -4,9 +4,11 @@ using Photon.Pun;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviourPunCallbacks
 {
+
     public float currentMoveSpeed = 5f;
     private Rigidbody2D rb;
     private Vector2 moveInput;
+    private Vector2 lastMoveDirection = Vector2.right;
 
     private Camera mainCamera;
     public Animator animator;
@@ -19,7 +21,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (!photonView.IsMine)
         {
-            Destroy(rb); // tránh điều khiển đối tượng không phải của mình
+            Destroy(rb);
             enabled = false;
         }
     }
@@ -31,19 +33,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
         moveInput.x = Input.GetAxisRaw("Horizontal");
         moveInput.y = Input.GetAxisRaw("Vertical");
         moveInput.Normalize();
-        // Gán animation "isMoving"
+
+        if (moveInput != Vector2.zero)
+        {
+            lastMoveDirection = moveInput;
+        }
+
         if (animator)
         {
-            if (moveInput != Vector2.zero)
-            {
-                animator.SetFloat("isMoving", 1f);
-                animator.SetFloat("Speed", currentMoveSpeed / 5f);
-            }
-            else
-            {
-                animator.SetFloat("isMoving", 0f);
-                animator.SetFloat("Speed", 1f);
-            }
+            animator.SetFloat("isMoving", moveInput != Vector2.zero ? 1f : 0f);
+            animator.SetFloat("Speed", currentMoveSpeed / 5f);
         }
 
         RotatePlayerToMouse();
@@ -52,7 +51,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void FixedUpdate()
     {
         if (!photonView.IsMine) return;
-        rb.MovePosition(rb.position + (moveInput * currentMoveSpeed * Time.fixedDeltaTime));
+
+        var handler = GetComponent<CharacterHandler>();
+        Vector2 move = moveInput * currentMoveSpeed;
+
+        if (handler != null && handler.isDashing)
+        {
+            move = handler.dashDirection * handler.dashSpeed; 
+        }
+        else
+        {
+            move = moveInput * currentMoveSpeed;
+        }
+
+
+        rb.MovePosition(rb.position + (move * Time.fixedDeltaTime));
+
         Transform canvas = transform.Find("Canvas");
         if (canvas != null)
         {
@@ -62,23 +76,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    public Vector2 GetMoveDirection()
+    {
+        return lastMoveDirection;
+    }
+
     void RotatePlayerToMouse()
     {
         Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-
-        // Kiểm tra hướng của chuột so với người chơi
-        if (mousePos.x < transform.position.x)
-        {
-            transform.localScale = new Vector3(-1, 1, 1); 
-        }
-        else
-        {
-            transform.localScale = new Vector3(1, 1, 1); 
-        }
-        //
-        
-
+        transform.localScale = new Vector3(mousePos.x < transform.position.x ? -1 : 1, 1, 1);
     }
+
     public void SetAnimator(RuntimeAnimatorController controller)
     {
         if (!animator)
@@ -86,10 +94,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         animator.runtimeAnimatorController = controller;
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.tag.Equals("Enemy")){
-            rb.velocity = Vector2.zero;       
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            rb.velocity = Vector2.zero;
         }
     }
 }

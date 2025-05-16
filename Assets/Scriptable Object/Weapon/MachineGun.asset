@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MachineGun
   m_EditorClassIdentifier: 
   weaponName: Machinegun1
-  weaponSprite: {fileID: 21300000, guid: 05a71b3d5da41404f883b8ecc1bc1bbe, type: 3}
+  weaponSprite: {fileID: 21300000, guid: 12280480f7cf6d64a92bde68bf19d238, type: 3}
   animatorController: {fileID: 9100000, guid: 455f52d464ec0c0458dfbfbbbee09740, type: 2}
   damage: 10
   cooldown: 0.1

@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 10
   cooldown: 0
+  weaponData: {fileID: 0}
   attackRange: 3
   hitMask:
     serializedVersion: 2
@@ -69,7 +70,7 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.13407408, y: 0.5}
     oldSize: {x: 1.875, y: 0.625}
     newSize: {x: 1.875, y: 0.625}
     adaptiveTilingThreshold: 0.5
@@ -120,7 +121,7 @@ SpriteRenderer:
   m_SortingLayerID: -1464685729
   m_SortingLayer: 4
   m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 2b6a82f217fdab54fabf7d3fbae79eaf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -128,7 +129,7 @@ SpriteRenderer:
   m_Size: {x: 1.875, y: 0.625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!95 &2344513576325899280
@@ -141,7 +142,7 @@ Animator:
   m_GameObject: {fileID: 4229092340474187871}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 05072eb2639aa254a9afc32f4f5a3824, type: 2}
+  m_Controller: {fileID: 0}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

@@ -36,13 +36,18 @@ public class MeleeEnemy : EnemyMovement
     }
     protected override void Movement()
     {
+        Vector2 dir = player.position - transform.position;
+
+        if (dir.x < 0)  
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else if (dir.x > 0) 
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
 
         float distance = attackCD > 0 ? 3.5f : 2f;
-        Vector2 dir = player.position - transform.position;
-        if (Vector2.Distance(player.position, transform.position) <= distance)
-        {
-            dir*=-1;
-        }
         dir.Normalize();
         rb.MovePosition(rb.position + (dir * 6f * Time.deltaTime));
     }

@@ -1,72 +1,40 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+public enum RoomType { Normal, Boss, Special }
+
 public class Room : MonoBehaviour
 {
+    [Header("Room Setup")]
+    public RoomType roomType;
+    public List<EnewaveData> enewaveDatas = new();
+    public bool needCloseDoor = true;
 
-    public bool needCloseDoor;
-    public List<Direction> directions = new List<Direction>();
+    [Header("Chest")]
+    public ChestData chestData;
+    public Transform chestSpawnPoint;
 
+    [Header("Doors")]
     public GameObject topDoor, bottomDoor, leftDoor, rightDoor;
+
+    private List<Direction> directions = new();
     private bool isTriggered = false;
     private bool doorsClosed = false;
-    public List<EnewaveData> enewaveDatas = new List<EnewaveData>();
-    private void Awake()
-    {
-        
-    }
+    private bool chestSpawned = false;
 
-
-    public bool IsDoorOpen(Direction direction)
-    {
-        return GetDoor(direction).activeSelf;
-    }
-
-    public void EnableDoor(Direction dir)
-    {
-        GetDoor(dir)?.SetActive(true);
-    }
-
-    public void DisableDoor(Direction dir)
-    {
-        GetDoor(dir)?.SetActive(false);
-    }
-
-    private GameObject GetDoor(Direction dir)
-    {
-        return dir switch
-        {
-            Direction.Top => topDoor,
-            Direction.Bottom => bottomDoor,
-            Direction.Left => leftDoor,
-            Direction.Right => rightDoor,
-            _ => null
-        };
-    }
-
-    public void getActiveDoor()
-    {
-        directions.Clear();
-        if (!IsDoorOpen(Direction.Top)) directions.Add(Direction.Top);
-        if (!IsDoorOpen(Direction.Bottom)) directions.Add(Direction.Bottom);
-        if (!IsDoorOpen(Direction.Left)) directions.Add(Direction.Left);
-        if (!IsDoorOpen(Direction.Right)) directions.Add(Direction.Right);
-    }
+    public EnemySpawner enemySpawner;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (isTriggered) return;
+        if (isTriggered || !other.CompareTag("Player")) return;
 
-        if (other.CompareTag("Player"))
+        isTriggered = true;
+
+        if (needCloseDoor)
         {
-            isTriggered = true;
-
-            if (needCloseDoor)
-            {
-                getActiveDoor();
-                CloseDoors();
-                EnemySpawner.Instance.RoomSpawner(enewaveDatas, transform.position);
-            }
+            getActiveDoor();
+            CloseDoors();
+            EnemySpawner.Instance.RoomSpawner(enewaveDatas, transform.position);
         }
     }
 
@@ -76,8 +44,34 @@ public class Room : MonoBehaviour
         {
             OpenDoors();
             doorsClosed = false;
-            Debug.Log("[Room] Opened doors after clearing enemies.");
+
+            if (!chestSpawned && chestData != null && chestSpawnPoint != null)
+            {
+                SpawnChest();
+                chestSpawned = true;
+            }
+
+            Debug.Log("[Room] Cleared - Opened doors & spawned chest.");
         }
+    }
+
+    private void SpawnChest()
+    {
+        GameObject chestObj = Instantiate(chestData.chestPrefab, chestSpawnPoint.position, Quaternion.identity);
+        Chest chest = chestObj.GetComponent<Chest>();
+        if (chest != null)
+        {
+            chest.ApplyData(chestData);
+        }
+    }
+
+    public void getActiveDoor()
+    {
+        directions.Clear();
+        if (!IsDoorOpen(Direction.Top)) directions.Add(Direction.Top);
+        if (!IsDoorOpen(Direction.Bottom)) directions.Add(Direction.Bottom);
+        if (!IsDoorOpen(Direction.Left)) directions.Add(Direction.Left);
+        if (!IsDoorOpen(Direction.Right)) directions.Add(Direction.Right);
     }
 
     private void CloseDoors()
@@ -97,6 +91,34 @@ public class Room : MonoBehaviour
             DisableDoor(dir);
         }
     }
+
+    public void EnableDoor(Direction dir)
+    {
+        GetDoor(dir)?.SetActive(true);
+    }
+
+    public void DisableDoor(Direction dir)
+    {
+        GetDoor(dir)?.SetActive(false);
+    }
+
+    public bool IsDoorOpen(Direction dir)
+    {
+        return GetDoor(dir)?.activeSelf ?? false;
+    }
+
+    private GameObject GetDoor(Direction dir)
+    {
+        return dir switch
+        {
+            Direction.Top => topDoor,
+            Direction.Bottom => bottomDoor,
+            Direction.Left => leftDoor,
+            Direction.Right => rightDoor,
+            _ => null
+        };
+    }
+
 }
 
 public enum Direction { Top, Bottom, Left, Right }

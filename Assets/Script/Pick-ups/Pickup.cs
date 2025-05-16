@@ -7,7 +7,7 @@ public class Pickup : MonoBehaviour, IKnockback
     protected float speed;
     
     Vector3 knockbackVelocity;
-    float knockbackDuration;
+    public float knockbackDuration;
 
     [Header("Bonuses")]
     public int expGranted;

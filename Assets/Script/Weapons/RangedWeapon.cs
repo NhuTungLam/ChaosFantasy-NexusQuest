@@ -7,8 +7,12 @@ public class RangedWeapon : WeaponBase
     public Transform firePoint;
     void Update()
     {
-        RotateTowardMouse();
+        if (transform.parent != null) 
+        {
+            RotateTowardMouse();
+        }
     }
+
 
     public override void Attack(CharacterHandler user)
     {

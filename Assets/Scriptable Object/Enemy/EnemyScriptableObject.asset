@@ -19,3 +19,5 @@ MonoBehaviour:
   damage: 1
   atkSpeed: 5
   movementScriptName: MeleeEnemy
+  projectileSpeed: 1
+  animatorController: {fileID: 9100000, guid: eb14b43d84c3d83499dbc3ed9f5e5c98, type: 2}
