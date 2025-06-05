@@ -48,7 +48,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -986,14 +986,14 @@ TextureImporter:
       All Tiles Free Ver._18: -915925891
       All Tiles Free Ver._9: -989650266
       All Tiles Free Ver._11: 2048571840
-      All Tiles Free Ver._33: -627478154
+      All Tiles Free Ver._35: 917015817
       All Tiles Free Ver._5: -468348271
       All Tiles Free Ver._1: 1130490610234345169
       All Tiles Free Ver._12: -1904643720
       All Tiles Free Ver._28: -1073175669
       All Tiles Free Ver._29: 1138367675
       All Tiles Free Ver._36: 2020812529
-      All Tiles Free Ver._25: -189971280
+      All Tiles Free Ver._26: -130574688
       All Tiles Free Ver._19: 1888326975
       All Tiles Free Ver._40: 1484781713
       All Tiles Free Ver._6: 1105940558
@@ -1012,17 +1012,17 @@ TextureImporter:
       All Tiles Free Ver._24: -800703173
       All Tiles Free Ver._27: -33139797
       All Tiles Free Ver._31: 1329555031
+      All Tiles Free Ver._34: 192632424
       All Tiles Free Ver._7: 1559563813
-      All Tiles Free Ver._0: 2291722561330040327
       All Tiles Free Ver._38: -1121867326
-      All Tiles Free Ver._26: -130574688
+      All Tiles Free Ver._0: 2291722561330040327
       All Tiles Free Ver._10: 781768642
       All Tiles Free Ver._14: -658176708
-      All Tiles Free Ver._34: 192632424
+      All Tiles Free Ver._16: 1344822724
       All Tiles Free Ver._4: 1924393603
       All Tiles Free Ver._2: -1519284869
-      All Tiles Free Ver._16: 1344822724
-      All Tiles Free Ver._35: 917015817
+      All Tiles Free Ver._25: -189971280
+      All Tiles Free Ver._33: -627478154
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

@@ -25,5 +25,6 @@ public class ChestSpawner : MonoBehaviour
     {
         hasSpawned = false;
     }
+
 }
 

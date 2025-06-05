@@ -1,29 +1,47 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using System.Linq;
 
 public class DungeonGenerator : MonoBehaviour
 {
-    void Start()
-    {
-        GenerateDungeon();
-    }
-
     public GameObject[] roomPrefabs;
     public GameObject[] bossRooms;
     public GameObject[] specialRooms;
-    public GameObject[] corridorPrefabs;
-
     public int dungeonSize = 10;
     public int maxComplexRooms = 3;
     public int maxSpecialRoom = 2;
     public Vector2Int roomSize = new Vector2Int(10, 10);
 
+    public Tilemap corridorTilemap;
+    public Tilemap wallTilemap;
+
+    public TileBase corridorTile;
+    public TileBase wallTileRight;
+    public TileBase wallTileLeft;
+    public TileBase wallTileTop;
+    public TileBase wallTileBottom;
+
     private Dictionary<Vector2Int, (Room room, Direction dir, int depth)> spawnedRooms = new();
     private Vector2Int lastSpawnedRoom;
     private Dictionary<Vector2Int, int> roomDepths = new();
     private List<Vector2Int> deadEnds = new();
+    private HashSet<Vector3Int> corridorPositionsVertical = new();
+    private HashSet<Vector3Int> corridorPositionsHorizontal = new();
+    private static readonly List<Vector3Int> directions8 = new()
+    {
+        new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0),
+        new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
+        new Vector3Int(1, 1, 0), new Vector3Int(-1, 1, 0),
+        new Vector3Int(1, -1, 0), new Vector3Int(-1, -1, 0)
+    };
+
     private int currentComplexRoomCount = 0;
+
+    public void Start()
+    {
+        GenerateDungeon();
+    }
 
     [ContextMenu("gen")]
     public void GenerateDungeon()
@@ -33,9 +51,14 @@ public class DungeonGenerator : MonoBehaviour
         spawnedRooms.Clear();
         roomDepths.Clear();
         deadEnds.Clear();
+        corridorTilemap.ClearAllTiles();
+        wallTilemap.ClearAllTiles();
+        corridorPositionsVertical.Clear();
+        corridorPositionsHorizontal.Clear();
 
         Vector2Int startPos = Vector2Int.zero;
         GenerateRoom(startPos, Direction.Bottom, 0, 2);
+
         while (spawnedRooms.Count < dungeonSize)
         {
             var pair = spawnedRooms[lastSpawnedRoom];
@@ -46,11 +69,11 @@ public class DungeonGenerator : MonoBehaviour
 
             GenerateRoom(lastSpawnedRoom, pair.dir, pair.depth, RoomConCount(true));
         }
+
         PlaceSpecialRooms();
-        foreach( var pair in spawnedRooms.Values)
-        {
-            pair.room.getActiveDoor();
-        }
+        MergeAllRoomTilemaps();
+        GenerateAllCorridors();
+        GenerateCorridorWalls();
     }
 
     public int RoomConCount(bool reroll = false)
@@ -61,8 +84,7 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         int count = spawnedRooms.Count;
-        if (count >= dungeonSize)
-            return 1;
+        if (count >= dungeonSize) return 1;
 
         int weight1 = count;
         int weight2 = weight1 / 2;
@@ -82,8 +104,7 @@ public class DungeonGenerator : MonoBehaviour
 
     private bool GenerateRoom(Vector2Int position, Direction fromDir, int depth, int conCount)
     {
-        if (spawnedRooms.ContainsKey(position))
-            return false;
+        if (spawnedRooms.ContainsKey(position)) return false;
 
         Room fromRoom = null;
         Vector2Int previousPos = position - DirectionHelper.ToVector2Int(fromDir);
@@ -104,14 +125,13 @@ public class DungeonGenerator : MonoBehaviour
         {
             room.DisableDoor(DirectionHelper.GetOpposite(fromDir));
             fromRoom.DisableDoor(fromDir);
-            SpawnCorridor(position, previousPos, fromDir);
         }
         else
         {
             room.EnableDoor(DirectionHelper.GetOpposite(fromDir));
         }
 
-        List<Direction> directions = new List<Direction>((Direction[])System.Enum.GetValues(typeof(Direction)));
+        List<Direction> directions = new((Direction[])System.Enum.GetValues(typeof(Direction)));
         Shuffle(directions);
         directions.Remove(DirectionHelper.GetOpposite(fromDir));
 
@@ -134,22 +154,6 @@ public class DungeonGenerator : MonoBehaviour
             deadEnds.Add(position);
 
         return true;
-    }
-    
-    private void SpawnCorridor(Vector2Int from, Vector2Int to, Direction dir)
-    {
-        Vector2 mid = ((Vector2)(from + to)) / 2f;
-        Vector3 worldPos = (Vector2)mid * roomSize;
-
-        Quaternion rotation = Quaternion.identity;
-        if (dir == Direction.Top || dir == Direction.Bottom)
-            rotation = Quaternion.Euler(0, 0, 90);
-
-        if (corridorPrefabs != null && corridorPrefabs.Length > 0)
-        {
-            GameObject selected = corridorPrefabs[Random.Range(0, corridorPrefabs.Length)];
-            Instantiate(selected, worldPos, rotation);
-        }
     }
 
     private void PlaceSpecialRooms()
@@ -188,6 +192,94 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
+    private void MergeAllRoomTilemaps()
+    {
+        foreach (var kvp in spawnedRooms)
+        {
+            TilemapMerger.Instance.MergePrefabTilesIntoBigTilemap(kvp.Value.room.gameObject);
+        }
+    }
+
+    private void GenerateAllCorridors()
+    {
+        foreach (var kvp in spawnedRooms)
+        {
+            Vector2Int pos = kvp.Key;
+            Direction dir = DirectionHelper.GetOpposite(kvp.Value.dir);
+            
+            Vector2Int neighborPos = pos + DirectionHelper.ToVector2Int(dir);
+            if (spawnedRooms.ContainsKey(neighborPos))
+            {
+                SpawnCorridor(pos, neighborPos, dir);
+            }
+        }
+    }
+
+    private void SpawnCorridor(Vector2Int from, Vector2Int to, Direction dir)
+    {
+        bool vertical = from.x == to.x;
+        Vector2Int start = from * roomSize;
+        Vector2Int end = to * roomSize;
+        Vector2Int current = start;
+
+        while (current.x != end.x)
+        {
+            SetCorridorTile(current, vertical);
+            current.x += end.x > current.x ? 1 : -1;
+        }
+
+        while (current.y != end.y)
+        {
+            SetCorridorTile(current, vertical);
+            current.y += end.y > current.y ? 1 : -1;
+        }
+
+        SetCorridorTile(current, vertical);
+    }
+
+    private void SetCorridorTile(Vector2Int position, bool vertical)
+    {
+        for (int x = -2; x <= 1; x++)
+        {
+            for (int y = -2; y <= 1; y++)
+            {
+                Vector3Int offset = new(position.x + x, position.y + y, 0);
+                corridorTilemap.SetTile(offset, corridorTile);
+                if (vertical) corridorPositionsVertical.Add(offset);
+                else corridorPositionsHorizontal.Add(offset);
+            }
+        }
+    }
+
+    private void GenerateCorridorWalls()
+    {
+        foreach (var pos in corridorPositionsVertical)
+        {
+            foreach (var dir in directions8)
+            {
+                Vector3Int neighbor = pos + dir;
+                if (!corridorPositionsVertical.Contains(neighbor) && corridorTilemap.GetTile(neighbor) == null)
+                {
+                    TileBase tileToSet = dir.x > 0 ? wallTileRight : wallTileLeft;
+                    wallTilemap.SetTile(neighbor, tileToSet);
+                }
+            }
+        }
+
+        foreach (var pos in corridorPositionsHorizontal)
+        {
+            foreach (var dir in directions8)
+            {
+                Vector3Int neighbor = pos + dir;
+                if (!corridorPositionsHorizontal.Contains(neighbor) && corridorTilemap.GetTile(neighbor) == null)
+                {
+                    TileBase tileToSet = dir.y > 0 ? wallTileTop : wallTileBottom;
+                    wallTilemap.SetTile(neighbor, tileToSet);
+                }
+            }
+        }
+    }
+
     private void Shuffle<T>(List<T> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
@@ -195,5 +287,10 @@ public class DungeonGenerator : MonoBehaviour
             int rnd = Random.Range(0, i + 1);
             (list[i], list[rnd]) = (list[rnd], list[i]);
         }
+    }
+
+    public static Vector2Int ToVector2Int(Vector3 input)
+    {
+        return Vector2Int.RoundToInt(input - new Vector3(0.5f, 0.5f));
     }
 }

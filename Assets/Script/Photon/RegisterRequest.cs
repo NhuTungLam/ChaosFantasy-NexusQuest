@@ -1,15 +1,11 @@
-using System.Collections;
-using UnityEngine;
-using UnityEngine.Networking;
 using TMPro;
+using UnityEngine;
 
 public class RegisterRequest : MonoBehaviour
 {
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
     public TMP_Text resultText;
-
-    public string registerUrl = "http://localhost/chaosapi/register.php";
 
     public void OnRegisterClick()
     {
@@ -22,25 +18,13 @@ public class RegisterRequest : MonoBehaviour
             return;
         }
 
-        StartCoroutine(SendRegisterRequest(username, password));
-    }
-
-    IEnumerator SendRegisterRequest(string username, string password)
-    {
-        WWWForm form = new WWWForm();
-        form.AddField("username", username);
-        form.AddField("password", password);
-
-        UnityWebRequest www = UnityWebRequest.Post(registerUrl, form);
-        yield return www.SendWebRequest();
-
-        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+        if (MockAuthService.Register(username, password))
         {
-            resultText.text = "Lỗi: " + www.error;
+            resultText.text = "Đăng ký thành công!";
         }
         else
         {
-            resultText.text = www.downloadHandler.text;
+            resultText.text = "Username đã tồn tại.";
         }
     }
 }

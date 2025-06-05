@@ -1,9 +1,12 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class MeleeEnemy : EnemyMovement
 {
+    [SerializeField] private Transform target;
     private float attackCD;
 
     protected override void Attack()
@@ -13,22 +16,25 @@ public class MeleeEnemy : EnemyMovement
             attackCD -= Time.deltaTime;
             return;
         }
-        if (Vector2.Distance(player.position, transform.position)<=2)
+        if (player == null || transform == null) return;
+        if (Vector2.Distance(player.position, transform.position) <= 2)
         {
-            var attack = EnemyProjectileManager.Instance.GetFromPool("enemyslash");
-            attack.transform.SetParent(transform, false);
-            attack.transform.localPosition = Vector2.zero;
-            attack.GetComponent<Animator>().Rebind();
-            var attackHitBox = attack.GetComponent<EnemyHitBox>();
-            attackHitBox.lifespan = 1f;
-            attackHitBox.HitEffect= DealDamage;
-            attackHitBox.OnDestroy = () => 
-            {
-                EnemyProjectileManager.Instance.ReturnToPool(attack,"enemyslash");
-            };
+
+            Vector2 dir = (player.position - transform.position).normalized;
+            float speed = 0f;
+
+            photonView.RPC("RPC_FireProjectile", RpcTarget.All,
+                "enemyslash",
+                transform.position,
+                dir,
+                speed,
+                1f,
+                enemyHandler.currentDamage
+            );
+
             attackCD = enemyHandler.enemyData.AtkSpeed;
-            Debug.Log("Enemy attack");
         }
+
     }
     private void DealDamage()
     {
@@ -36,6 +42,7 @@ public class MeleeEnemy : EnemyMovement
     }
     protected override void Movement()
     {
+        if (player == null || transform == null || rb == null) return;
         Vector2 dir = player.position - transform.position;
 
         if (dir.x < 0)  

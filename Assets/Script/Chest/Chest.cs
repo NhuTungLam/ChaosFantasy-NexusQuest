@@ -28,41 +28,56 @@ public class Chest : MonoBehaviour, IInteractable
 
     private void SpawnLoot()
     {
-        CharacterHandler player = FindObjectOfType<CharacterHandler>();
+        int dropIndex = 0;
 
+        //  Weapon
         if (Random.value < data.weaponDropRate && data.weaponItems.Length > 0)
         {
-            WeaponData weaponData = data.weaponItems[Random.Range(0, data.weaponItems.Length)];
-            if (weaponData.weaponPrefab != null)
+            WeaponData weapon = data.weaponItems[Random.Range(0, data.weaponItems.Length)];
+            Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 3); 
+            GameObject dropped = Instantiate(weapon.weaponPrefab, dropPos, Quaternion.identity);
+
+            if (dropped.TryGetComponent(out PickupWeapon pickup))
             {
-                GameObject drop = Instantiate(weaponData.weaponPrefab, transform.position, Quaternion.identity);
+                pickup.weaponData = weapon;
+            }
 
-                WeaponBase weapon = drop.GetComponent<WeaponBase>();
-                if (weapon != null)
-                {
-                    weapon.weaponData = weaponData;
-                    weapon.damage = weaponData.damage;
-                    weapon.cooldown = weaponData.cooldown;
-
-                    // Không gán Animator ? ?ây
-                    // Gán sprite (n?u có) ?? hi?n th?
-                    SpriteRenderer sr = weapon.GetComponent<SpriteRenderer>();
-                    if (sr != null && weaponData.weaponSprite != null)
-                    {
-                        sr.sprite = weaponData.weaponSprite;
-                    }
-                }
+            if (dropped.TryGetComponent(out WeaponBase weaponBase))
+            {
+                weaponBase.weaponData = weapon;
+                weaponBase.SetFromData(weapon);
             }
         }
 
-
-        if (Random.value < data.passiveSkillDropRate && data.passiveSkillCards.Length > 0)
-            Instantiate(data.passiveSkillCards[Random.Range(0, data.passiveSkillCards.Length)], transform.position, Quaternion.identity);
-
+        //Active skill
         if (Random.value < data.activeSkillDropRate && data.activeSkillCards.Length > 0)
-            Instantiate(data.activeSkillCards[Random.Range(0, data.activeSkillCards.Length)], transform.position, Quaternion.identity);
+        {
+            GameObject prefab = data.activeSkillCards[Random.Range(0, data.activeSkillCards.Length)];
+            Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 3);
+            Instantiate(prefab, dropPos, Quaternion.identity);
+        }
 
+        // Passive skill
+        if (Random.value < data.passiveSkillDropRate && data.passiveSkillCards.Length > 0)
+        {
+            GameObject prefab = data.passiveSkillCards[Random.Range(0, data.passiveSkillCards.Length)];
+            Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 3);
+            Instantiate(prefab, dropPos, Quaternion.identity);
+        }
+        // Other Items (e.g., Health Potion)
         if (Random.value < data.otherItemDropRate && data.otherItems.Length > 0)
-            Instantiate(data.otherItems[Random.Range(0, data.otherItems.Length)], transform.position, Quaternion.identity);
+        {
+            GameObject prefab = data.otherItems[Random.Range(0, data.otherItems.Length)];
+            Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 4);
+            Instantiate(prefab, dropPos, Quaternion.identity);
+        }
+
     }
+    private Vector3 GetOffsetByIndex(int index, int total, float radius = 1f)
+    {
+        float angle = 360f / total * index;
+        float rad = angle * Mathf.Deg2Rad;
+        return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad)) * radius;
+    }
+
 }

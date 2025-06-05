@@ -1,7 +1,10 @@
+using Photon.Pun;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class StationaryRangedEnemy : EnemyMovement
 {
+    [SerializeField] private Transform target;
     private float attackCooldown;
 
     private Animator animator;
@@ -13,47 +16,42 @@ public class StationaryRangedEnemy : EnemyMovement
 
     protected override void Attack()
     {
+
+        Vector2 dir1 = (player.position - transform.position).normalized;
+        SetAnimationDirection(dir1);
         if (attackCooldown > 0)
         {
             attackCooldown -= Time.deltaTime;
             return;
         }
-        if (player == null || enemyHandler == null)
+        if (player == null || player.transform == null || enemyHandler == null)
         {
             Debug.LogError("Player or EnemyHandler is not assigned!");
             return;
         }
         if (Vector2.Distance(player.position, transform.position) <= 7)
         {
-            GameObject proj = EnemyProjectileManager.Instance.GetFromPool("enemyProjectile");
-            proj.transform.position = transform.position;
-
             Vector2 dir = (player.position - transform.position).normalized;
             float speed = enemyHandler.enemyData.ProjectileSpeed;
+            float atkSpeed = enemyHandler.enemyData.AtkSpeed;
 
-            var hitbox = proj.GetComponent<EnemyHitBox>();
-            hitbox.lifespan = 3f;
+            photonView.RPC("RPC_FireProjectile", RpcTarget.All,
+                "enemyProjectile",
+                transform.position,
+                dir,
+                speed,
+                3f,
+                enemyHandler.currentDamage
+            );
 
-            hitbox.UpdateFunc = () =>
-            {
-                proj.transform.position += (Vector3)(dir * speed * Time.deltaTime);
-            };
-
-            hitbox.HitEffect = DealDamage;
-
-            hitbox.OnDestroy = () =>
-            {
-                EnemyProjectileManager.Instance.ReturnToPool(proj, "enemyProjectile");
-            };
-
-            attackCooldown = enemyHandler.enemyData.AtkSpeed;
-
-            SetAnimationDirection(dir);
+            attackCooldown = atkSpeed;
         }
+
     }
 
     protected override void Movement()
     {
+
     }
 
     private void DealDamage()
@@ -63,10 +61,10 @@ public class StationaryRangedEnemy : EnemyMovement
 
     private void SetAnimationDirection(Vector2 direction)
     {
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        int directionIndex = GetDirectionIndex(angle);
+        direction.Normalize();
+        animator.SetFloat("X",direction.x); 
+        animator.SetFloat("Y",direction.y);
 
-        animator.SetInteger("DirectionIndex", directionIndex);
     }
 
     private int GetDirectionIndex(float angle)

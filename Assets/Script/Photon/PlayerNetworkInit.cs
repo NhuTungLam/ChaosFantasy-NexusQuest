@@ -1,26 +1,35 @@
-using UnityEngine;
-public class PlayerNetworkInit : MonoBehaviour
+﻿using UnityEngine;
+using Photon.Pun;
+
+public class PlayerNetworkInit : MonoBehaviourPun, IPunInstantiateMagicCallback
 {
-    public SpriteRenderer spriteRenderer;
-    public Animator animator;
+    private CharacterHandler handler;
 
-    void Start()
+    public void OnPhotonInstantiate(PhotonMessageInfo info)
     {
-        CharacterData selectedClass = CharacterSelector.LoadData();
+        handler = GetComponent<CharacterHandler>();
 
+        object[] data = photonView.InstantiationData;
+        string className = (string)data[0];
 
-        if (selectedClass == null)
+        CharacterData characterData = Resources.Load<CharacterData>("Characters/" + className);
+        if (characterData == null)
         {
-            Debug.LogError("No class selected! CharacterSelector returned null.");
+            Debug.LogError("❌ Không tìm thấy CharacterData: " + className);
             return;
         }
 
-        if (spriteRenderer) spriteRenderer.sprite = selectedClass.PlayerSprite;
-        if (animator) animator.runtimeAnimatorController = selectedClass.AnimationController;
+        handler.Init(characterData);
+        Debug.Log($"✅ [{(photonView.IsMine ? "Local" : "Remote")}] Player Init with class: {className}");
 
-        if (selectedClass.StartingWeapon)
+        if (photonView.IsMine)
         {
-            Instantiate(selectedClass.StartingWeapon, transform.position, Quaternion.identity, transform);
+            // ⚠️ Gán chính xác TagObject TẠI ĐÂY, chỉ cho player local
+            PhotonNetwork.LocalPlayer.TagObject = this.gameObject;
+
+            if (CameraFollow.Instance != null)
+                CameraFollow.Instance.objToFollow = this.gameObject;
         }
     }
+
 }

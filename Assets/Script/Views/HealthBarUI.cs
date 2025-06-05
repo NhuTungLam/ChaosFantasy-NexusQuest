@@ -11,7 +11,7 @@ public class HealthBarUI : MonoBehaviour
 
     void Update()
     {
-        if (character != null && !initialized)
+        if (character != null && character.characterData != null && !initialized)
         {
             if (hpSlider != null)
                 hpSlider.maxValue = character.characterData.MaxHealth;
@@ -22,10 +22,11 @@ public class HealthBarUI : MonoBehaviour
             initialized = true;
         }
 
-        if (character != null)
+        if (character != null && character.characterData != null)
         {
             if (hpSlider != null) hpSlider.value = character.currentHealth;
             if (manaSlider != null) manaSlider.value = character.currentMana;
         }
     }
+
 }

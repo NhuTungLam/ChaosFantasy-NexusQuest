@@ -1,17 +1,18 @@
+// ObjectController.cs (s?a l?i ?? phù h?p 1 prefab dùng nhi?u enemyData)
 using System.Collections.Generic;
 using UnityEngine;
 
-// ObjectController pre-initiates all the objects that the game need
 public class ObjectController : MonoBehaviour
 {
-    public List<EnemyHandler> enemyPrefabs;
+    public EnemyHandler enemyBasePrefab;
+    public DamagePopUp popUpPrefab;
 
     void Awake()
     {
-        // Clear the pool when enter a new Gameplay Scene
         ObjectPools.ClearPools();
 
-        for (int i = 0; i < enemyPrefabs.Count; i++)
-            ObjectPools.SetupPool(enemyPrefabs[i], 50, enemyPrefabs[i].enemyData.name);
+        ObjectPools.SetupPool(enemyBasePrefab, 20, "EnemyBase");
+
+        ObjectPools.SetupPool(popUpPrefab, 10, "DamagePopUp");
     }
 }

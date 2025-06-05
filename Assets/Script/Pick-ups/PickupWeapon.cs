@@ -1,25 +1,25 @@
 using UnityEngine;
 
-public class PickupWeapon : Pickup
+public class PickupWeapon : MonoBehaviour, IInteractable
 {
     public WeaponData weaponData;
+    private bool isPicked = false;
 
-    protected override void Update()
+    public bool CanInteract()
     {
-        base.Update();
+        return !isPicked && weaponData != null;
+    }
 
-        // Khi ?ang g?n ng??i ch?i
-        if (target && knockbackDuration <= 0)
+    public void Interact()
+    {
+        if (isPicked || weaponData == null) return;
+
+        CharacterHandler player = FindObjectOfType<CharacterHandler>();
+        if (player != null)
         {
-            // Cho phép nh?t khi nh?n E
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                if (weaponData != null)
-                {
-                    target.EquipWeapon(weaponData);
-                    Destroy(gameObject);
-                }
-            }
+            player.EquipWeapon(weaponData);
+            isPicked = true;
+            Destroy(gameObject);
         }
     }
 }

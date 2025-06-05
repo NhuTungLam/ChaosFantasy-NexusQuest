@@ -1,7 +1,5 @@
-using System.Collections;
-using UnityEngine;
-using UnityEngine.Networking;
 using TMPro;
+using UnityEngine;
 
 public class LoginRequest : MonoBehaviour
 {
@@ -11,7 +9,7 @@ public class LoginRequest : MonoBehaviour
     public TMP_InputField passwordInput;
     public TMP_Text resultText;
 
-    public string loginUrl = "http://localhost/chaosapi/login.php";
+    public static string currentUsername;
 
     public void OnLoginClick()
     {
@@ -24,47 +22,26 @@ public class LoginRequest : MonoBehaviour
             return;
         }
 
-        StartCoroutine(SendLoginRequest(username, password));
-    }
-
-    IEnumerator SendLoginRequest(string username, string password)
-    {
-        WWWForm form = new WWWForm();
-        form.AddField("username", username);
-        form.AddField("password", password);
-
-        UnityWebRequest www = UnityWebRequest.Post(loginUrl, form);
-        yield return www.SendWebRequest();
-
-        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+        if (MockAuthService.Login(username, password, out var profile))
         {
-            resultText.text = "Lỗi: " + www.error;
+            currentUsername = username;
+            resultText.text = "Đăng nhập thành công!";
+
+            if (!string.IsNullOrEmpty(profile.@class))
+            {
+                var data = Resources.Load<CharacterData>("Characters/" + profile.@class);
+                if (data != null)
+                {
+                    CharacterSelector.Instance.SelectCharacter(data);
+                }
+            }
+
+            loginPanel.SetActive(false);
+            classSelectPanel.SetActive(true);
         }
         else
         {
-            string json = www.downloadHandler.text;
-
-            if (json.StartsWith("{"))
-            {
-                resultText.text = "Đăng nhập thành công!";
-                Debug.Log("Dữ liệu nhận được: " + json);
-
-                PlayerProfile profile = JsonUtility.FromJson<PlayerProfile>(json);
-                Debug.Log("Class: " + profile.@class + ", Level: " + profile.level);
-            }
-            else
-            {
-                resultText.text = json;
-            }
+            resultText.text = "Sai tài khoản hoặc mật khẩu.";
         }
     }
-}
-
-[System.Serializable]
-public class PlayerProfile
-{
-    public string @class;
-    public int level;
-    public int exp;
-    public int gold;
 }

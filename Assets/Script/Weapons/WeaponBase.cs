@@ -7,7 +7,8 @@ public abstract class WeaponBase : MonoBehaviour, IInteractable
     protected float nextAttackTime;
     protected Animator animator;
     public bool isEquipped = false;
-    public WeaponData weaponData; // Gán khi spawn t? chest
+    public WeaponData weaponData;
+    
 
     protected virtual void Awake()
     {
@@ -31,4 +32,19 @@ public abstract class WeaponBase : MonoBehaviour, IInteractable
             Destroy(gameObject);
         }
     }
+    public virtual void SetFromData(WeaponData data)
+    {
+        weaponData = data;
+        damage = data.damage;
+        cooldown = data.cooldown;
+
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null && data.weaponSprite != null)
+            sr.sprite = data.weaponSprite;
+
+        Animator anim = GetComponent<Animator>();
+        if (anim != null && data.animatorController != null)
+            anim.runtimeAnimatorController = data.animatorController;
+    }
+
 }

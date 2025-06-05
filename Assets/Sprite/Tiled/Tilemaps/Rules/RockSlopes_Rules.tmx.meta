@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: c5cc8a3415709624d96c6342e7cf9e6a
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 1fa25d03934ea624a82bf2fcee6f0873, type: 3}
+  missingFiles:
+  - :/automap-tiles.tsx
+  errors:
+  - Errors detected in tileset '../../Tilesets/Tileset_RockSlope.tsx'. Check the
+    tileset inspector for more details. Your map may be broken until these are fixed.
+  - 'Missing tileset asset: :/automap-tiles.tsx'
+  warnings: []
+  missingSortingLayers: []
+  missingLayers: []
+  missingTags: []
+  importerVersion: 26
+  pixelsPerUnit: 100
+  edgesPerEllipse: 32
+  numberOfObjectsImported: 2
+  tilesAsObjects: 0
+  sortingMode: 0
+  isIsometric: 0
+  customImporterClassName: 
+  internalTilesets: []

@@ -12,8 +12,8 @@ public class CharacterData : ScriptableObject
     public RuntimeAnimatorController AnimationController { get => animationController; private set => animationController = value; }
 
     [SerializeField]
-    private GameObject startingWeapon;
-    public GameObject StartingWeapon { get => startingWeapon; private set => startingWeapon = value; }
+    public WeaponData startingWeapon;
+    public WeaponData StartingWeapon { get => startingWeapon; private set => startingWeapon = value; }
 
     [SerializeField]
     private float maxHealth;

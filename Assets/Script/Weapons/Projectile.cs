@@ -8,7 +8,7 @@ public class Projectile : MonoBehaviour
     private Vector2 direction;
     public LayerMask hitMask;
     private Rigidbody2D rb;
-
+    public bool canPierce;
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -21,13 +21,11 @@ public class Projectile : MonoBehaviour
         damage = dmg;
     }
 
-    void FixedUpdate()
+    void Update()
     {
-        if (rb != null)
-            rb.velocity = direction * speed; 
+        transform.position += (Vector3)direction * speed * Time.deltaTime;
     }
-
-    void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (((1 << collision.gameObject.layer) & hitMask) != 0)
         {
@@ -35,9 +33,12 @@ public class Projectile : MonoBehaviour
             {
                 target.TakeDamage(damage);
             }
-
-            Destroy(gameObject);
+            if (canPierce == false)
+            {
+                Destroy(gameObject);
+            }
         }
-    }
 
+    }
+    
 }

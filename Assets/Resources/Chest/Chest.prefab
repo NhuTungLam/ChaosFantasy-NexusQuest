@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4462476813573030325}
   - component: {fileID: 4597002141673732770}
   - component: {fileID: 2980505400395642537}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,3 +124,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cecd824dad1e66458eab0f84dc08952, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponItems: []

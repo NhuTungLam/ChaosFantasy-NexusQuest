@@ -15,15 +15,19 @@ public class Pickup : MonoBehaviour, IKnockback
 
     public virtual bool Collect(CharacterHandler target, float speed)
     {
-        if (!this.target)
+        if (target == null) return false; 
+
+        if (this.target == null)
         {
             this.target = target;
             this.speed = speed;
+
             Knockback(10f, 0.1f);
             return true;
         }
         return false;
     }
+
 
     protected virtual void Update()
     {

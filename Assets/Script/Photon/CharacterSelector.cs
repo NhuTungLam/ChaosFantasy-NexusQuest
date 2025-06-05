@@ -11,6 +11,18 @@ public class CharacterSelector : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Auto-load class từ PlayerPrefs nếu có
+            string savedClass = PlayerPrefs.GetString("AutoSelectedCharacter", null);
+            if (!string.IsNullOrEmpty(savedClass))
+            {
+                var loaded = Resources.Load<CharacterData>("Characters/" + savedClass);
+                if (loaded != null)
+                {
+                    characterData = loaded;
+                    Debug.Log("[CharacterSelector] Auto-loaded character from PlayerPrefs: " + savedClass);
+                }
+            }
         }
         else
         {
@@ -33,11 +45,12 @@ public class CharacterSelector : MonoBehaviour
     public void SelectCharacter(CharacterData character)
     {
         characterData = character;
+
+        // Nếu đang test local, có thể lưu lại tên class để auto load
+        PlayerPrefs.SetString("AutoSelectedCharacter", character.name);
+        PlayerPrefs.Save();
     }
 
-    /// <summary>
-    /// Gọi khi không còn cần giữ singleton nữa (ví dụ: logout)
-    /// </summary>
     public static void DestroySelector()
     {
         if (Instance != null)

@@ -15,8 +15,10 @@ MonoBehaviour:
   weaponName: Sword1
   weaponSprite: {fileID: 21300000, guid: 2b6a82f217fdab54fabf7d3fbae79eaf, type: 3}
   animatorController: {fileID: 9100000, guid: 5f4a144725193ae44b896e79ea6efb0d, type: 2}
-  damage: 10
+  damage: 20
   cooldown: 1
   range: 0
   weaponPrefab: {fileID: 4229092340474187871, guid: 2dfa2be19631b2042b818f191a1f037f, type: 3}
   type: 0
+  useFullBodyAnimation: 0
+  delayBeforeFire: 0.3

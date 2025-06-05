@@ -28,5 +28,12 @@ public class EnemyData : ScriptableObject
     public float ProjectileSpeed { get => projectileSpeed; set => projectileSpeed = value; }
 
     public RuntimeAnimatorController animatorController;
+    [SerializeField]
+    private Vector2 colliderOffset;
+    public Vector2 ColliderOffset => colliderOffset;
+
+    [SerializeField]
+    private Vector2 colliderSize;
+    public Vector2 ColliderSize => colliderSize;
 
 }

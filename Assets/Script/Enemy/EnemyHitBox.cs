@@ -5,9 +5,10 @@ using UnityEngine;
 
 public class EnemyHitBox : MonoBehaviour
 {
-    public Action HitEffect, UpdateFunc, OnDestroy;
+    public Action UpdateFunc, OnDestroy;
     public float lifespan;
-
+    public Action<CharacterHandler> HitEffect;
+    public bool canPierce = false;
     private void Update()
     {
         UpdateFunc?.Invoke();
@@ -21,7 +22,14 @@ public class EnemyHitBox : MonoBehaviour
     {
         if (collision.gameObject.tag.Equals("Player"))
         {
-            HitEffect?.Invoke();
+            if (collision.gameObject.TryGetComponent<CharacterHandler>(out CharacterHandler handler))
+            {
+                HitEffect?.Invoke(handler);
+            }
+            if (canPierce == false)
+            {
+                OnDestroy?.Invoke();
+            }
         }
     }
 }

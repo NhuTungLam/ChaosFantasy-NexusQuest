@@ -12,9 +12,12 @@ EditorBuildSettings:
     path: Assets/Scenes/Nexus.unity
     guid: 14efb0ef56fc6264cbbdb55709333476
   - enabled: 1
+    path: Assets/Scenes/Enter_Dungeon.unity
+    guid: ca6f08baa0d31b549ae0c9b2893491bc
+  - enabled: 1
     path: Assets/Scenes/Dungeon.unity
     guid: 975326d4bfe3134499887efc1e445c37
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   m_configObjects: {}

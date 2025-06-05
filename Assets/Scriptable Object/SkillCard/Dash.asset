@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dash
   m_EditorClassIdentifier: 
   skillName: dash
-  icon: {fileID: -1433664987, guid: bfa50240bc5205f4697ba4c5608576a0, type: 3}
+  icon: {fileID: -1603932861, guid: 0fcd47896b4b35f4b83f6baeb68d59c1, type: 3}
   description: dash
-  skillEffectPrefab: {fileID: 4818234652911098146, guid: 4684a55e39864c84c8ee6e9df58127b0, type: 3}
+  skillEffectPrefab: {fileID: 6965445986163103271, guid: 413192a1eb7338347982fa83ae2ee620, type: 3}
   cooldown: 0

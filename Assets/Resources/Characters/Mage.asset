@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 065b214fd51e1674ea3184f47dcac5f6, type: 3}
+  m_Name: Mage
+  m_EditorClassIdentifier: 
+  playerSprite: {fileID: -1689735009, guid: b0743d974546fc1488a2846afa114b67, type: 3}
+  animationController: {fileID: 9100000, guid: 6dea6c2ffd886894590b7c5ef259b54d, type: 2}
+  startingWeapon: {fileID: 11400000, guid: 7a9f37954e838f447914b489f64773c2, type: 2}
+  maxHealth: 100
+  maxMana: 0
+  moveSpeed: 10
+  recovery: 0
+  might: 0
+  projectileSpeed: 2
+  magnet: 0
+  cooldownReduction: 2

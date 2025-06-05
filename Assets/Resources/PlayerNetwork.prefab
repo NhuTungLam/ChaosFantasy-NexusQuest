@@ -31,7 +31,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 573044310939534578}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!58 &9201647583571490343
 CircleCollider2D:
@@ -62,6 +62,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pullSpeed: 5
+--- !u!1 &1985169541305712038
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8644990238530750680}
+  m_Layer: 6
+  m_Name: WeaponHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8644990238530750680
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1985169541305712038}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.277, y: -0.394, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 573044310939534578}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3293402300519869722
 GameObject:
   m_ObjectHideFlags: 0
@@ -100,6 +131,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8644990238530750680}
   - {fileID: 3945263100366000846}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -166,15 +198,15 @@ SpriteRenderer:
   m_SortingLayerID: 859120589
   m_SortingLayer: 3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -1553185568, guid: eae0a9cc54f367148a422f05de01c487, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.35, y: 0.1}
+  m_Size: {x: 1, y: 1.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &2728572820400667995
@@ -273,15 +305,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19089fe60a7bb9343a39cffd9d65a127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  profile:
+    userId: 
+    username: 
+    password: 
+    class: 
+    level: 1
+    exp: 0
+    gold: 0
+    winCount: 0
+    totalMatches: 0
+    totalPlayTime: 0
+  state:
+    userId: 
+    class: 
+    hp: 0
+    mana: 0
+    position:
+      x: 0
+      y: 0
+  characterData: {fileID: 0}
+  weaponData: {fileID: 0}
+  interactionDistance: 2
+  activeSkill: {fileID: 0}
+  weaponHolder: {fileID: 8644990238530750680}
   isDashing: 0
   dashSpeed: 30
   dashDirection: {x: 0, y: 0}
   lastMoveDirection: {x: 1, y: 0}
-  characterData: {fileID: 0}
-  weaponData: {fileID: 11400000, guid: 90466d07d7c843b4180c1db0a21f1477, type: 2}
-  movement: {fileID: 0}
-  interactionDistance: 2
-  activeSkill: {fileID: 11400000, guid: dba29490994afd14b89b89a1ef92b0b6, type: 2}
+  interactableLayer:
+    serializedVersion: 2
+    m_Bits: 128
   currentHealth: 0
   currentMana: 0
   currentRecovery: 0
@@ -289,8 +343,6 @@ MonoBehaviour:
   currentProjectileSpeed: 0
   currentMagnet: 0
   currentCooldownReduction: 0
-  healthSlider: {fileID: 0}
-  manaSlider: {fileID: 0}
   invincibilityDuration: 2
   levelRanges:
   - startLevel: 1
@@ -316,8 +368,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 028a97b0c0c2a2840bfd37fe172afa25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spriteRenderer: {fileID: 3349989010457042767}
-  animator: {fileID: -8252723398280213842}
 --- !u!114 &-7212995401428473214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -330,7 +380,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74f3db48770f0774c897a48fd94024cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentMoveSpeed: 5
   animator: {fileID: 0}
 --- !u!61 &2275969679067169656
 BoxCollider2D:
@@ -350,7 +399,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 1, y: 1.5}
-    newSize: {x: 0.35, y: 0.1}
+    newSize: {x: 1, y: 1.5}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0

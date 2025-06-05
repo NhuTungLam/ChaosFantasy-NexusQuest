@@ -11,6 +11,12 @@ public class WeaponData : ScriptableObject
     public float range;
     public GameObject weaponPrefab;
     public WeaponType type;
+    public bool useFullBodyAnimation = false;
+    [Range(0f, 1f)]
+    public float delayBeforeFire = 0.3f;
+    [Header("Mana")]
+    public float manaCost = 1f;
+
 }
 
 public enum WeaponType

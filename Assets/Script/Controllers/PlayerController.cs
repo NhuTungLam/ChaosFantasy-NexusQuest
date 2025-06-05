@@ -2,10 +2,10 @@
 using Photon.Pun;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class PlayerController : MonoBehaviourPunCallbacks
+public class PlayerController : MonoBehaviourPunCallbacks, IMovementController
 {
 
-    public float currentMoveSpeed = 5f;
+    public float currentMoveSpeed { get; set; } = 5f;
     private Rigidbody2D rb;
     private Vector2 moveInput;
     private Vector2 lastMoveDirection = Vector2.right;
@@ -15,15 +15,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        
+
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         mainCamera = Camera.main;
 
-        if (!photonView.IsMine)
-        {
-            Destroy(rb);
-            enabled = false;
-        }
+
     }
 
     void Update()
@@ -83,9 +81,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void RotatePlayerToMouse()
     {
+        if (!photonView.IsMine) return;
+
         Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         transform.localScale = new Vector3(mousePos.x < transform.position.x ? -1 : 1, 1, 1);
     }
+
 
     public void SetAnimator(RuntimeAnimatorController controller)
     {
@@ -102,4 +103,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
             rb.velocity = Vector2.zero;
         }
     }
+    public void PlayDashAnimation()
+    {
+        if (animator) animator.SetTrigger("Dash");
+    }
+
+    public void PlayDieAnimation()
+    {
+        if (animator) animator.SetTrigger("Die");
+    }
+
 }

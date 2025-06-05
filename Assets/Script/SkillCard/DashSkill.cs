@@ -3,11 +3,12 @@ using UnityEngine;
 public class DashSkill : ActiveSkillBase
 {
     public float dashSpeed = 30f;
-    public float dashDuration = 1f;
+    public float dashDuration = 0.1f;
 
     public override void Activate(CharacterHandler player)
     {
-        player.StartCoroutine(DashRoutine(player));
+        player.StartCoroutine(DashRoutine(player)); 
+        player.GetComponent<PlayerController>()?.PlayDashAnimation();
     }
 
     private System.Collections.IEnumerator DashRoutine(CharacterHandler player)

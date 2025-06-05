@@ -1,25 +1,37 @@
-﻿using Photon.Realtime;
+﻿using Photon.Pun;
+using Photon.Realtime;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DungeonSystem;
 
-public class CharacterHandler : MonoBehaviour
+public class CharacterHandler : MonoBehaviourPun
 {
-    public bool isDashing = false;
+    public PlayerProfile profile; // Account-level persistent data
+    public DungeonPlayerState state;     // In-room transient combat state
 
-    [Header("Dash Settings")]
-    public float dashSpeed = 30f;
-    [HideInInspector] public Vector2 dashDirection;
-    [HideInInspector] public Vector2 lastMoveDirection = Vector2.right;
     public CharacterData characterData;
     public WeaponData weaponData;
-    public PlayerController movement;
+    public IMovementController movement;
     public float interactionDistance = 2f;
     private IInteractable currentInteractable;
     public ActiveSkillCard activeSkill;
     private IActiveSkill activeSkillEffect;
     private float skillCooldownTimer;
+    public Transform weaponHolder;
+
+    public bool isDashing = false;
+    private List<PassiveSkillCard> passiveSkills = new List<PassiveSkillCard>();
+
+    [Header("Dash Settings")]
+    public float dashSpeed = 30f;
+    [HideInInspector] public Vector2 dashDirection;
+    [HideInInspector] public Vector2 lastMoveDirection = Vector2.right;
+
+    [Header("Interaction")]
+    public LayerMask interactableLayer;
 
     [Header("Stats")]
     [HideInInspector] public float currentHealth;
@@ -40,10 +52,6 @@ public class CharacterHandler : MonoBehaviour
         public int expCapIncrease;
     }
 
-    [Header("UI")]
-    public Slider healthSlider;
-    public Slider manaSlider;
-
     [Header("I-Frames")]
     public float invincibilityDuration;
     private float invincibilityTimer;
@@ -59,24 +67,8 @@ public class CharacterHandler : MonoBehaviour
 
     public void Awake()
     {
-        characterData = CharacterSelector.LoadData();
-
-        collector = GetComponentInChildren<PlayerCollector>();
-        movement = GetComponent<PlayerController>();
-        movement.currentMoveSpeed = characterData.MoveSpeed;
-
-        currentHealth = characterData.MaxHealth;
-        currentMana = characterData.MaxMana;
-        currentRecovery = characterData.Recovery;
-        currentMight = characterData.Might;
-        currentProjectileSpeed = characterData.ProjectileSpeed;
-        currentMagnet = characterData.Magnet;
-        currentCooldownReduction = characterData.CooldownReduction;
-
-        collector.SetRadius(currentMagnet);
-        movement.SetAnimator(characterData.AnimationController);
-
-        EquipWeapon(weaponData); 
+        if (GetComponent<Rigidbody2D>() == null)
+            Debug.LogError("CharacterHandler: Missing Rigidbody2D");
     }
 
     void Start()
@@ -88,11 +80,15 @@ public class CharacterHandler : MonoBehaviour
             playerCanvas.sortingLayerName = "Ui";
         }
 
-        HealthBarUI ui = FindObjectOfType<HealthBarUI>();
-        if (ui != null)
+        if (photonView == null || photonView.IsMine)
         {
-            ui.character = this;
+            HealthBarUI ui = FindObjectOfType<HealthBarUI>();
+            if (ui != null)
+            {
+                ui.character = this;
+            }
         }
+
         if (activeSkill != null)
         {
             GameObject skillObj = Instantiate(activeSkill.skillEffectPrefab, transform);
@@ -100,11 +96,32 @@ public class CharacterHandler : MonoBehaviour
             skillCooldownTimer = 0f;
         }
 
-        UpdateHealthBar();
+        // Initialize player state from profile
+        if (profile != null)
+        {
+            Position playerPos = new Position
+            {
+                x = transform.position.x,
+                y = transform.position.y
+            };
+
+            state = new DungeonPlayerState
+            {
+                userId = profile.userId,
+                @class = profile.@class,
+                hp = currentHealth,
+                mana = currentMana,
+                position = playerPos
+            };
+
+        }
     }
+
 
     void Update()
     {
+        if (photonView != null && !photonView.IsMine) return;
+
         if (invincibilityTimer > 0)
             invincibilityTimer -= Time.deltaTime;
         else if (isInvincible)
@@ -116,20 +133,27 @@ public class CharacterHandler : MonoBehaviour
         {
             currentWeapon.Attack(this);
         }
-        if (Input.GetKeyDown(KeyCode.E) )
+
+        if (Input.GetKeyDown(KeyCode.E))
         {
             TryInteract();
         }
+
         if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkillEffect != null)
         {
             activeSkillEffect.Activate(this);
             skillCooldownTimer = activeSkill.cooldown;
         }
+
         if (skillCooldownTimer > 0f)
         {
             skillCooldownTimer -= Time.deltaTime;
         }
 
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            TakeDamage(10);
+        }
     }
 
     public void TakeDamage(float dmg)
@@ -143,12 +167,17 @@ public class CharacterHandler : MonoBehaviour
         if (currentHealth <= 0)
             Die();
 
-        UpdateHealthBar();
         Debug.Log($"[TEST DAMAGE] HP: {currentHealth}");
     }
 
     [ContextMenu("testdie")]
-    public virtual void Die() { }
+    public virtual void Die()
+    {
+        if (movement is PlayerController pc)
+            pc.PlayDieAnimation();
+        else if (movement is PlayerOffController poc)
+            poc.PlayDieAnimation();
+    }
 
     void Recover()
     {
@@ -157,17 +186,15 @@ public class CharacterHandler : MonoBehaviour
         currentHealth += currentRecovery * Time.deltaTime;
         if (currentHealth > characterData.MaxHealth)
             currentHealth = characterData.MaxHealth;
-
-        UpdateHealthBar();
     }
 
     public void EquipWeapon(WeaponData newData)
     {
         DropWeapon();
 
-        GameObject wp = Instantiate(newData.weaponPrefab, transform.position, Quaternion.identity, transform);
-        currentWeapon = wp.GetComponent<WeaponBase>();
+        GameObject wp = Instantiate(newData.weaponPrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
 
+        currentWeapon = wp.GetComponent<WeaponBase>();
         currentWeapon.weaponData = newData;
         currentWeapon.damage = newData.damage;
         currentWeapon.cooldown = newData.cooldown;
@@ -180,27 +207,32 @@ public class CharacterHandler : MonoBehaviour
         SpriteRenderer sr = wp.GetComponent<SpriteRenderer>();
         if (sr != null && newData.weaponSprite != null)
             sr.sprite = newData.weaponSprite;
+
+        currentWeapon.transform.localPosition = Vector3.zero;
+        currentWeapon.transform.localRotation = Quaternion.identity;
     }
 
     private void DropWeapon()
     {
-        if (currentWeapon == null || currentWeapon.weaponData == null)
-            return;
+        if (currentWeapon == null || currentWeapon.weaponData == null) return;
 
         WeaponData oldData = currentWeapon.weaponData;
-
         GameObject dropped = Instantiate(oldData.weaponPrefab, transform.position, Quaternion.identity);
 
-        PickupWeapon pickup = dropped.GetComponent<PickupWeapon>();
-        if (pickup != null)
+        if (dropped.TryGetComponent(out PickupWeapon pickup))
+        {
             pickup.weaponData = oldData;
+        }
+
+        if (dropped.TryGetComponent(out WeaponBase weaponBase))
+        {
+            weaponBase.weaponData = oldData;
+            weaponBase.SetFromData(oldData);
+        }
 
         Destroy(currentWeapon.gameObject);
         currentWeapon = null;
     }
-
-
-
 
     public void AcquirePassiveItem(GameObject item)
     {
@@ -208,26 +240,23 @@ public class CharacterHandler : MonoBehaviour
         spawnedItem.transform.SetParent(this.transform);
         itemId += 1;
     }
+
     public void SetActiveSkill(ActiveSkillCard skill)
     {
         activeSkill = skill;
         if (activeSkillEffect != null)
             Destroy(((MonoBehaviour)activeSkillEffect).gameObject);
 
-        GameObject go = Instantiate(skill.skillEffectPrefab, transform);
+        GameObject go = Instantiate(skill.skillEffectPrefab);
         activeSkillEffect = go.GetComponent<IActiveSkill>();
     }
+
     public void SetInvincible(bool value)
     {
         isInvincible = value;
         invincibilityTimer = value ? Mathf.Infinity : 0f;
     }
 
-    public void UpdateHealthBar()
-    {
-        if (healthSlider != null)
-            healthSlider.value = currentHealth;
-    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.TryGetComponent<IInteractable>(out var interactable))
@@ -243,9 +272,10 @@ public class CharacterHandler : MonoBehaviour
             currentInteractable = null;
         }
     }
+
     void TryInteract()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 1f); // Bán kính detect
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, interactionDistance, interactableLayer);
 
         foreach (var hit in hits)
         {
@@ -257,4 +287,54 @@ public class CharacterHandler : MonoBehaviour
         }
     }
 
+    public void ApplyPassiveSkill(PassiveSkillCard skill)
+    {
+        if (skill == null) return;
+
+        passiveSkills.Add(skill);
+        currentMight += skill.bonusDamage;
+        Debug.Log($"[Passive Skill] Acquired: {skill.skillName} (+{skill.bonusDamage} dmg, +{skill.bonusSpeed} speed)");
+    }
+
+    public IEnumerator FireProjectileDelayed(Transform origin, Vector2 direction, float delay, GameObject projectilePrefab, float damage)
+    {
+        yield return new WaitForSeconds(delay);
+        GameObject proj = Instantiate(projectilePrefab, origin.position, Quaternion.identity);
+        Projectile projectile = proj.GetComponent<Projectile>();
+        projectile.Initialize(direction, damage);
+    }
+
+    public void Init(CharacterData data)
+    {
+        characterData = data;
+
+        if (characterData == null)
+        {
+            Debug.LogError("CharacterHandler.Init(): characterData is null");
+            return;
+        }
+
+        collector = GetComponentInChildren<PlayerCollector>();
+        if (collector != null)
+            collector.SetRadius(characterData.Magnet);
+
+        movement = GetComponent<IMovementController>();
+        if (movement != null)
+        {
+            movement.currentMoveSpeed = characterData.MoveSpeed;
+            movement.SetAnimator(characterData.AnimationController);
+        }
+
+        currentHealth = characterData.MaxHealth;
+        currentMana = characterData.MaxMana;
+        currentRecovery = characterData.Recovery;
+        currentMight = characterData.Might;
+        currentProjectileSpeed = characterData.ProjectileSpeed;
+        currentMagnet = characterData.Magnet;
+        currentCooldownReduction = characterData.CooldownReduction;
+
+        weaponData = characterData.StartingWeapon;
+        if (weaponData != null)
+            EquipWeapon(weaponData);
+    }
 }

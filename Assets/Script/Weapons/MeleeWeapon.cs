@@ -4,25 +4,44 @@ public class MeleeWeapon : WeaponBase
 {
     public float attackRange;
     public LayerMask hitMask;
+    public GameObject hitboxPrefab;
 
     public override void Attack(CharacterHandler user)
     {
+        if (user.currentMana < weaponData.manaCost)
+        {
+            Debug.Log("[Weapon] Not enough mana.");
+            return;
+        }
+
+        user.currentMana -= weaponData.manaCost;
         if (Time.time < nextAttackTime) return;
         nextAttackTime = Time.time + cooldown;
 
         if (animator != null)
             animator.SetTrigger("Attack");
 
-        Vector2 origin = user.transform.position + user.transform.right * (attackRange / 2);
-        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, attackRange, hitMask);
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mouseWorld - user.transform.position).normalized;
+        bool isLeft = mouseWorld.x < user.transform.position.x;
 
-        foreach (var hit in hits)
+        float offset = 0.5f;
+        Vector3 spawnPos = user.transform.position + (Vector3)(direction * offset);
+
+        GameObject go = GameObject.Instantiate(hitboxPrefab, spawnPos, Quaternion.identity);
+
+        // Flip sprite n?u bên trái
+        if (go.TryGetComponent(out SpriteRenderer sr))
         {
-            if (hit.TryGetComponent(out IDamageable target))
-            {
-                target.TakeDamage(damage);
-            }
+            sr.flipX = isLeft;
         }
-    }
 
+        // ? N?u prefab có Projectile ? g?i Initialize ?? slash di chuy?n và gây damage
+        if (go.TryGetComponent(out Projectile proj))
+        {
+            proj.Initialize(direction, damage);
+        }
+
+        Destroy(go, 0.2f);
+    }
 }
