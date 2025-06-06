@@ -31,7 +31,7 @@ public class RoomStateManager : MonoBehaviour
             playerIds.Add(p.userId);
         }
 
-        string roomStateJson = JsonUtility.ToJson(currentState); // serialize RoomState trước khi gửi
+        string roomStateJson = JsonUtility.ToJson(currentState);
 
         if (apiClient != null)
         {
@@ -41,12 +41,18 @@ public class RoomStateManager : MonoBehaviour
                 playerIds,
                 roomStateJson
             ));
+
+            // ✅ Lưu lại roomId để resume sau này
+            PlayerPrefs.SetString("lastRoomId", currentState.currentRoomId);
+            Debug.Log("Saved room id: " + PlayerPrefs.GetString("lastRoomId"));
+
         }
         else
         {
             Debug.LogWarning("[Room Save] API Client not assigned.");
         }
     }
+
 
     // Debug test khi bắt đầu game
     void Start()

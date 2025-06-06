@@ -1,5 +1,15 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
+using System.Text;
+using System.Collections;
+
+[System.Serializable]
+public class RegisterPayload
+{
+    public string username;
+    public string password;
+}
 
 public class RegisterRequest : MonoBehaviour
 {
@@ -18,13 +28,38 @@ public class RegisterRequest : MonoBehaviour
             return;
         }
 
-        if (MockAuthService.Register(username, password))
+        StartCoroutine(RegisterCoroutine(username, password));
+    }
+
+    IEnumerator RegisterCoroutine(string username, string password)
+    {
+        var payload = new RegisterPayload { username = username, password = password };
+        string json = JsonUtility.ToJson(payload);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest("http://localhost:5058/api/account/register", "POST"))
         {
-            resultText.text = "Đăng ký thành công!";
-        }
-        else
-        {
-            resultText.text = "Username đã tồn tại.";
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                resultText.text = "Đăng ký thành công!";
+            }
+            else if (request.responseCode == 409)
+            {
+                resultText.text = "Username đã tồn tại.";
+            }
+            else
+            {
+                Debug.LogError($"[Register] Error {request.responseCode}: {request.downloadHandler.text}");
+                resultText.text = "Đăng ký thất bại (lỗi khác).";
+            }
+
         }
     }
+
 }

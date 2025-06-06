@@ -1,5 +1,21 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
+using System.Text;
+using System.Collections;
+
+[System.Serializable]
+public class LoginPayload
+{
+    public string username;
+    public string password;
+}
+
+[System.Serializable]
+public class LoginResult
+{
+    public int id;
+}
 
 public class LoginRequest : MonoBehaviour
 {
@@ -10,6 +26,7 @@ public class LoginRequest : MonoBehaviour
     public TMP_Text resultText;
 
     public static string currentUsername;
+    public static int currentUserId;
 
     public void OnLoginClick()
     {
@@ -22,26 +39,37 @@ public class LoginRequest : MonoBehaviour
             return;
         }
 
-        if (MockAuthService.Login(username, password, out var profile))
-        {
-            currentUsername = username;
-            resultText.text = "Đăng nhập thành công!";
+        StartCoroutine(LoginCoroutine(username, password));
+    }
 
-            if (!string.IsNullOrEmpty(profile.@class))
+    IEnumerator LoginCoroutine(string username, string password)
+    {
+        var payload = new LoginPayload { username = username, password = password };
+        string json = JsonUtility.ToJson(payload);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest("http://localhost:5058/api/account/login", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
             {
-                var data = Resources.Load<CharacterData>("Characters/" + profile.@class);
-                if (data != null)
-                {
-                    CharacterSelector.Instance.SelectCharacter(data);
-                }
-            }
+                LoginResult res = JsonUtility.FromJson<LoginResult>(request.downloadHandler.text);
+                currentUsername = username;
+                currentUserId = res.id;
+                resultText.text = "Đăng nhập thành công!";
 
-            loginPanel.SetActive(false);
-            classSelectPanel.SetActive(true);
-        }
-        else
-        {
-            resultText.text = "Sai tài khoản hoặc mật khẩu.";
+                loginPanel.SetActive(false);
+                classSelectPanel.SetActive(true);
+            }
+            else
+            {
+                resultText.text = "Sai tài khoản hoặc mật khẩu.";
+            }
         }
     }
 }

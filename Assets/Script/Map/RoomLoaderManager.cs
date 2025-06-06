@@ -1,5 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
 
 public class RoomLoaderManager : MonoBehaviourPunCallbacks
 {
@@ -39,13 +41,42 @@ public class RoomLoaderManager : MonoBehaviourPunCallbacks
             Debug.LogWarning("[RoomLoader] No saved room ID");
             return;
         }
+
+        Debug.Log("[RoomLoader] Attempting to resume room: " + roomIdToLoad);
+
+        // Th? join l?i room c?, n?u không có thì t?o l?i
         PhotonNetwork.JoinRoom(roomIdToLoad);
-        Debug.Log("[RoomLoader] Attempting to rejoin room: " + roomIdToLoad);
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        if (returnCode == ErrorCode.GameDoesNotExist && !string.IsNullOrEmpty(roomIdToLoad))
+        {
+            Debug.Log("[RoomLoader] Room does not exist. Creating new room with ID: " + roomIdToLoad);
+
+            RoomOptions options = new RoomOptions
+            {
+                MaxPlayers = 4,
+                CustomRoomProperties = new Hashtable
+                {
+                    { "roomOwner", PhotonNetwork.LocalPlayer.UserId }
+                },
+                CustomRoomPropertiesForLobby = new string[] { "roomOwner" }
+            };
+
+            PhotonNetwork.CreateRoom(roomIdToLoad, options, TypedLobby.Default);
+        }
+        else
+        {
+            Debug.LogWarning($"[RoomLoader] Join room failed ({returnCode}): {message}");
+            StartNewGame();
+        }
     }
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("[RoomLoader] Rejoined room. Attempting to restore dungeon...");
+        Debug.Log("[RoomLoader] Rejoined or created room. Restoring RoomState...");
+
         if (apiClient != null && stateRestorer != null && !string.IsNullOrEmpty(roomIdToLoad))
         {
             StartCoroutine(apiClient.LoadProgress(roomIdToLoad, (json) =>
@@ -58,6 +89,8 @@ public class RoomLoaderManager : MonoBehaviourPunCallbacks
         {
             Debug.LogWarning("[RoomLoader] Missing references or empty roomId during OnJoinedRoom");
         }
+
+        optPanel?.SetActive(false);
     }
 
     void Start()
