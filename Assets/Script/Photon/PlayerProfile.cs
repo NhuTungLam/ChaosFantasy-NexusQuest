@@ -14,3 +14,4 @@ public class PlayerProfile
     public int totalMatches = 0;      
     public float totalPlayTime = 0f;   
 }
+

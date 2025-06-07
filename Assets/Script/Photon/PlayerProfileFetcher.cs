@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
@@ -14,17 +14,18 @@ public class PlayerProfileFetcher : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            CurrentProfile = null;
             DontDestroyOnLoad(gameObject);
         }
         else Destroy(gameObject);
     }
 
-    public void FetchProfile(int userId)
+    public void FetchProfile(int userId, System.Action<PlayerProfile> onDone = null)
     {
-        StartCoroutine(FetchProfileCoroutine(userId));
+        StartCoroutine(FetchProfileCoroutine(userId, onDone));
     }
 
-    IEnumerator FetchProfileCoroutine(int userId)
+    IEnumerator FetchProfileCoroutine(int userId, System.Action<PlayerProfile> onDone = null)
     {
         string url = $"http://localhost:5058/api/profile/{userId}";
 
@@ -36,13 +37,20 @@ public class PlayerProfileFetcher : MonoBehaviour
             {
                 CurrentProfile = JsonUtility.FromJson<PlayerProfile>(request.downloadHandler.text);
                 Debug.Log($"[Profile] Class: {CurrentProfile.@class}, Level: {CurrentProfile.level}, Gold: {CurrentProfile.gold}");
+
+                onDone?.Invoke(CurrentProfile); // ← Callback
             }
             else
             {
                 Debug.LogError("Failed to fetch profile: " + request.error);
             }
         }
+        if (MainMenu.Instance != null)
+        {
+            MainMenu.Instance.ShowPlayerProfile(CurrentProfile);
+        }
     }
+
 
     public void UpdateProfile()
     {

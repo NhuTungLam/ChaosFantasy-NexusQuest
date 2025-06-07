@@ -19,11 +19,8 @@ public class LoginResult
 
 public class LoginRequest : MonoBehaviour
 {
-    public GameObject loginPanel;
-    public GameObject classSelectPanel;
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
-    public TMP_Text resultText;
 
     public static string currentUsername;
     public static int currentUserId;
@@ -35,7 +32,7 @@ public class LoginRequest : MonoBehaviour
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
-            resultText.text = "Vui lòng nhập đầy đủ username và password";
+            MessageBoard.Show("Username or Password cannot be empty!");
             return;
         }
 
@@ -61,14 +58,18 @@ public class LoginRequest : MonoBehaviour
                 LoginResult res = JsonUtility.FromJson<LoginResult>(request.downloadHandler.text);
                 currentUsername = username;
                 currentUserId = res.id;
-                resultText.text = "Đăng nhập thành công!";
+                MessageBoard.Show("Login Successfully!");
 
-                loginPanel.SetActive(false);
-                classSelectPanel.SetActive(true);
+                PlayerProfileFetcher.Instance.FetchProfile(currentUserId, (profile) =>
+                {
+                    MessageBoard.Show($"Loaded profile for {currentUsername}: Lv {profile.level}, Gold {profile.gold}");
+                    MainMenu.Instance.HideLogin();
+                });
+
             }
             else
             {
-                resultText.text = "Sai tài khoản hoặc mật khẩu.";
+                MessageBoard.Show("Wrong username or password!");
             }
         }
     }
