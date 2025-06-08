@@ -6,6 +6,8 @@ public class MeleeWeapon : WeaponBase
     public LayerMask hitMask;
     public GameObject hitboxPrefab;
 
+    public System.Action onAttack; // ?? thêm event
+
     public override void Attack(CharacterHandler user)
     {
         if (user.currentMana < weaponData.manaCost)
@@ -30,18 +32,19 @@ public class MeleeWeapon : WeaponBase
 
         GameObject go = GameObject.Instantiate(hitboxPrefab, spawnPos, Quaternion.identity);
 
-        // Flip sprite n?u bên trái
         if (go.TryGetComponent(out SpriteRenderer sr))
         {
             sr.flipX = isLeft;
         }
 
-        // ? N?u prefab có Projectile ? g?i Initialize ?? slash di chuy?n và gây damage
         if (go.TryGetComponent(out Projectile proj))
         {
             proj.Initialize(direction, damage);
         }
 
         Destroy(go, 0.2f);
+
+        onAttack?.Invoke();
     }
 }
+

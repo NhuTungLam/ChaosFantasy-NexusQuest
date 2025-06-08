@@ -333,6 +333,7 @@ MonoBehaviour:
   dashSpeed: 30
   dashDirection: {x: 0, y: 0}
   lastMoveDirection: {x: 1, y: 0}
+  isBlocking: 0
   interactableLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -340,9 +341,14 @@ MonoBehaviour:
   currentMana: 0
   currentRecovery: 0
   currentMight: 0
+  baseMight: 0
   currentProjectileSpeed: 0
   currentMagnet: 0
   currentCooldownReduction: 0
+  baseCritRate: 0
+  currentCritRate: 0
+  baseCritDamage: 0
+  currentCritDamage: 0
   invincibilityDuration: 2
   levelRanges:
   - startLevel: 1

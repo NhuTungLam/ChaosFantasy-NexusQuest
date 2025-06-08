@@ -18,12 +18,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0234c3e0e3ec45c4c8d27d5c228d6ad2, type: 2}
   - {fileID: 11400000, guid: 7a9f37954e838f447914b489f64773c2, type: 2}
   passiveSkillCards:
-  - {fileID: 4818234652911098146, guid: a10da6609e9379a45b34bbe0881811e9, type: 3}
+  - {fileID: 4818234652911098146, guid: 08a9e33c5a7591548b83e8f2e2cf7b45, type: 3}
   activeSkillCards:
   - {fileID: 4818234652911098146, guid: 4684a55e39864c84c8ee6e9df58127b0, type: 3}
+  - {fileID: 4818234652911098146, guid: e11ffb75ac162774088a59280aad7b9c, type: 3}
   otherItems:
   - {fileID: 3327940096715508744, guid: 78c4e9e67f3b6204383df000754519e7, type: 3}
   weaponDropRate: 0.85
-  passiveSkillDropRate: 0.3
+  passiveSkillDropRate: 1
   activeSkillDropRate: 0.9
   otherItemDropRate: 1

@@ -21,14 +21,20 @@ public class CharacterHandler : MonoBehaviourPun
     private IActiveSkill activeSkillEffect;
     private float skillCooldownTimer;
     public Transform weaponHolder;
+    public delegate float DamageModifier(float dmg);
+    public event DamageModifier OnBeforeTakeDamage;
 
     public bool isDashing = false;
     private List<PassiveSkillCard> passiveSkills = new List<PassiveSkillCard>();
+    private List<IPassiveSkill> passiveLogicSkills = new List<IPassiveSkill>();
 
     [Header("Dash Settings")]
     public float dashSpeed = 30f;
     [HideInInspector] public Vector2 dashDirection;
     [HideInInspector] public Vector2 lastMoveDirection = Vector2.right;
+   
+    [Header("Shield Settings")]
+    [HideInInspector] public bool isBlocking = false;
 
     [Header("Interaction")]
     public LayerMask interactableLayer;
@@ -38,9 +44,15 @@ public class CharacterHandler : MonoBehaviourPun
     [HideInInspector] public float currentMana;
     [HideInInspector] public float currentRecovery;
     [HideInInspector] public float currentMight;
+    [HideInInspector] public float baseMight;
     [HideInInspector] public float currentProjectileSpeed;
     [HideInInspector] public float currentMagnet;
     [HideInInspector] public float currentCooldownReduction;
+    [HideInInspector] public float baseCritRate;
+    [HideInInspector] public float currentCritRate;
+
+    [HideInInspector] public float baseCritDamage;
+    [HideInInspector] public float currentCritDamage;
 
     PlayerCollector collector;
 
@@ -154,11 +166,23 @@ public class CharacterHandler : MonoBehaviourPun
         {
             TakeDamage(10);
         }
+        foreach (var logic in passiveLogicSkills)
+            logic.Tick();
+
     }
 
     public void TakeDamage(float dmg)
     {
         if (isInvincible) return;
+
+        // Shield Block
+        if (isBlocking)
+            dmg *= 0.5f;
+
+        // Passive damage modifiers (e.g., Mana Shield)
+        if (OnBeforeTakeDamage != null)
+            foreach (DamageModifier modifier in OnBeforeTakeDamage.GetInvocationList())
+                dmg = modifier.Invoke(dmg);
 
         currentHealth -= dmg;
         invincibilityTimer = invincibilityDuration;
@@ -167,8 +191,9 @@ public class CharacterHandler : MonoBehaviourPun
         if (currentHealth <= 0)
             Die();
 
-        Debug.Log($"[TEST DAMAGE] HP: {currentHealth}");
+        Debug.Log($"[Damage] Final HP: {currentHealth}, Mana: {currentMana}");
     }
+
 
     [ContextMenu("testdie")]
     public virtual void Die()
@@ -177,6 +202,23 @@ public class CharacterHandler : MonoBehaviourPun
             pc.PlayDieAnimation();
         else if (movement is PlayerOffController poc)
             poc.PlayDieAnimation();
+    }
+    public void RecalculateStats()
+    {
+        currentMight = baseMight;
+        currentCritRate = baseCritRate;
+        currentCritDamage = baseCritDamage;
+
+        foreach (var passive in passiveSkills)
+        {
+            currentCritRate += passive.bonusCritRate;
+            currentCritDamage += passive.bonusCritDamage; 
+        }
+
+        foreach (var passive in passiveSkills)
+        {
+            currentMight += passive.bonusDamage;
+        }
     }
 
     void Recover()
@@ -234,12 +276,7 @@ public class CharacterHandler : MonoBehaviourPun
         currentWeapon = null;
     }
 
-    public void AcquirePassiveItem(GameObject item)
-    {
-        GameObject spawnedItem = Instantiate(item, transform.position, Quaternion.identity);
-        spawnedItem.transform.SetParent(this.transform);
-        itemId += 1;
-    }
+    
 
     public void SetActiveSkill(ActiveSkillCard skill)
     {
@@ -287,15 +324,25 @@ public class CharacterHandler : MonoBehaviourPun
         }
     }
 
-    public void ApplyPassiveSkill(PassiveSkillCard skill)
+    public void ApplyPassiveSkill(PickupPassiveSkill skill)
     {
         if (skill == null) return;
 
-        passiveSkills.Add(skill);
-        currentMight += skill.bonusDamage;
-        Debug.Log($"[Passive Skill] Acquired: {skill.skillName} (+{skill.bonusDamage} dmg, +{skill.bonusSpeed} speed)");
-    }
+        passiveSkills.Add(skill.skillData);
+        currentMight += skill.skillData.bonusDamage;
 
+        skill.gameObject.transform.SetParent(transform, false);
+        var logic = skill.GetComponent<IPassiveSkill>();
+        if (logic != null)
+        {
+            logic.Initialize(this);
+            passiveLogicSkills.Add(logic);
+        }
+       
+
+        Debug.Log($"[Passive Skill] Acquired: {skill.skillData.skillName} (+{skill.skillData.bonusDamage} dmg)");
+    }
+   
     public IEnumerator FireProjectileDelayed(Transform origin, Vector2 direction, float delay, GameObject projectilePrefab, float damage)
     {
         yield return new WaitForSeconds(delay);
@@ -328,13 +375,32 @@ public class CharacterHandler : MonoBehaviourPun
         currentHealth = characterData.MaxHealth;
         currentMana = characterData.MaxMana;
         currentRecovery = characterData.Recovery;
-        currentMight = characterData.Might;
+        baseMight = characterData.Might;
+        currentMight = baseMight;
         currentProjectileSpeed = characterData.ProjectileSpeed;
         currentMagnet = characterData.Magnet;
         currentCooldownReduction = characterData.CooldownReduction;
+        baseCritRate = characterData.BaseCritRate;
+        baseCritDamage = characterData.BaseCritDamage;
+
+        currentCritRate = baseCritRate;
+        currentCritDamage = baseCritDamage;
 
         weaponData = characterData.StartingWeapon;
         if (weaponData != null)
             EquipWeapon(weaponData);
     }
+    public void ClearCurrentInteractable(IInteractable target)
+    {
+        if (currentInteractable == target)
+        {
+            currentInteractable = null;
+        }
+    }
+    public float GetCurrentHealthPercent()
+    {
+        return currentHealth / characterData.MaxHealth;
+    }
+
+
 }

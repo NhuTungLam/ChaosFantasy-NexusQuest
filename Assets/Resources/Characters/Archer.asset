@@ -16,10 +16,12 @@ MonoBehaviour:
   animationController: {fileID: 9100000, guid: 590af42f6188b2d45b5b5265e4915898, type: 2}
   startingWeapon: {fileID: 11400000, guid: 90466d07d7c843b4180c1db0a21f1477, type: 2}
   maxHealth: 100
-  maxMana: 10
+  maxMana: 1000
   moveSpeed: 10
   recovery: 0
   might: 0
   projectileSpeed: 1
   magnet: 1
   cooldownReduction: 1
+  baseCritRate: 0
+  baseCritDamage: 2
