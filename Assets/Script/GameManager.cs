@@ -56,13 +56,15 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogWarning("[GameManager] RoomStateManager not assigned!");
         }
-
+        OnResumeButton();
         StartCoroutine(LeaveRoomAndLoadNexus());
     }
 
     private IEnumerator LeaveRoomAndLoadNexus()
     {
         Time.timeScale = 1; // reset nếu đang pause
+        BlackScreen.Instance.BlackIn();
+        yield return new WaitForSecondsRealtime(1.2f);
 
         if (PhotonNetwork.InRoom)
         {
@@ -81,6 +83,7 @@ public class GameManager : MonoBehaviour
 
         PhotonRoomManager.skipAutoCreateRoom = false;
         Debug.Log("🔁 Returning to Nexus...");
+
         SceneManager.LoadScene("Nexus");
     }
 

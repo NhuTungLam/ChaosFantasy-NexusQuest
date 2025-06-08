@@ -31,7 +31,8 @@ public class SceneController : MonoBehaviour
             Debug.Log("?? SceneController: Connecting to Photon...");
         }
 
-        SceneManager.LoadScene("Nexus");
+        BlackScreen.Instance.BlackIn();
+        this.Invoke(() => SceneManager.LoadScene("Nexus"), 1.2f);
     }
 
     public void OnQuitButton()
