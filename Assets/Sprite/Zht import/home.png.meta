@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 23953107e454fb2458066e2fa6a64d30
+guid: d6961cb606d4a294cab45657896e78fd
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -106,7 +106,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -118,7 +118,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -129,7 +129,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MenusIcons_34x34_0
+      name: home_0
       rect:
         serializedVersion: 2
         x: 0
@@ -143,14 +143,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f4fe93eb762dcba47b2073bc8df415f8
-      internalID: -363189345
+      spriteID: a3c20b13d0aac044a80a709fa15b2b05
+      internalID: -290439873
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MenusIcons_34x34_1
+      name: home_1
       rect:
         serializedVersion: 2
         x: 34
@@ -164,50 +164,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6bc114ec32d9c1742b3578cc9ece591a
-      internalID: -1385103194
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MenusIcons_34x34_2
-      rect:
-        serializedVersion: 2
-        x: 68
-        y: 0
-        width: 34
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8214b776a131b0e4d80266a92a98fd04
-      internalID: 1989639961
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MenusIcons_34x34_3
-      rect:
-        serializedVersion: 2
-        x: 102
-        y: 0
-        width: 34
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 163e36c3a94f2a44bab4982465490d43
-      internalID: 196976502
+      spriteID: 012991648876f054d93438fed4feaa5b
+      internalID: 18786924
       vertices: []
       indices: 
       edges: []
@@ -223,10 +181,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      MenusIcons_34x34_2: 1989639961
-      MenusIcons_34x34_3: 196976502
-      MenusIcons_34x34_1: -1385103194
-      MenusIcons_34x34_0: -363189345
+      home_1: 18786924
+      home_0: -290439873
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

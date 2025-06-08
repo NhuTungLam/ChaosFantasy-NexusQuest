@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
@@ -24,6 +25,24 @@ public class MainMenu : MonoBehaviour
             ShowCharacter();
         }
     }
+    private void Start()
+    {
+        SettingPanel = GameObject.FindGameObjectWithTag("Setting").GetComponent<RectTransform>();
+        SettingPanel.transform.Find("home").gameObject.SetActive(false);
+        SettingPanel.transform.Find("close").GetComponent<Button>().onClick.RemoveAllListeners();
+        SettingPanel.transform.Find("close").GetComponent<Button>().onClick.AddListener(() => HideSetting());
+    }
+    private RectTransform SettingPanel;
+    public void ShowSetting()
+    {
+        if (SettingPanel != null)
+            ShowPanel(SettingPanel);
+    }
+    public void HideSetting()
+    {
+        if (SettingPanel != null) 
+            HidePanel(SettingPanel);
+    }
 
     [Header("Animation Settings")]
     public float duration = 0.5f;
@@ -37,7 +56,14 @@ public class MainMenu : MonoBehaviour
     }
     public void ShowPlayerProfile(PlayerProfile profile = null)
     {
-        PlayerProfilePanel.gameObject.SetActive(profile != null);
+        if (profile == null)
+        {
+            PlayerProfilePanel.DOAnchorPosY(200, 1).SetEase(Ease.InCubic);   
+        }
+        else
+        {
+            PlayerProfilePanel.DOAnchorPosY(-50, 1).SetEase(Ease.OutCubic);
+        }
     }
     public void ShowLogin()
     {

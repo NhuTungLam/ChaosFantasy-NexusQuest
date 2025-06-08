@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-
+using UnityEngine.SceneManagement;
 public class DontDestroyOnLoad : MonoBehaviour
 {
     [Tooltip("Unique identifier for this persistent object.")]
@@ -25,7 +25,15 @@ public class DontDestroyOnLoad : MonoBehaviour
         {
             instances[persistentID] = this;
             DontDestroyOnLoad(gameObject);
+
         }
+        SceneManager.activeSceneChanged += (s, a) =>
+        {
+            if (TryGetComponent<Canvas>(out var canvas))
+            {
+                canvas.worldCamera = Camera.main;
+            }
+        };
     }
 
     void OnDestroy()
