@@ -1,13 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
-
 
 public class PlayerProfileFetcher : MonoBehaviour
 {
     public static PlayerProfileFetcher Instance { get; private set; }
     public static PlayerProfile CurrentProfile;
+
+    private const string PlayerPrefsUserIdKey = "LastLoggedInUserId";
 
     void Awake()
     {
@@ -15,16 +16,24 @@ public class PlayerProfileFetcher : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Try auto-load
+            if (PlayerPrefs.HasKey(PlayerPrefsUserIdKey))
+            {
+                int savedId = PlayerPrefs.GetInt(PlayerPrefsUserIdKey);
+                Debug.Log($"[ProfileFetcher] Auto-fetching saved user ID: {savedId}");
+                FetchProfile(savedId);
+            }
         }
         else Destroy(gameObject);
     }
 
-    public void FetchProfile(int userId)
+    public void FetchProfile(int userId, System.Action<PlayerProfile> onDone = null)
     {
-        StartCoroutine(FetchProfileCoroutine(userId));
+        StartCoroutine(FetchProfileCoroutine(userId, onDone));
     }
 
-    IEnumerator FetchProfileCoroutine(int userId)
+    IEnumerator FetchProfileCoroutine(int userId, System.Action<PlayerProfile> onDone = null)
     {
         string url = $"http://localhost:5058/api/profile/{userId}";
 
@@ -35,12 +44,23 @@ public class PlayerProfileFetcher : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 CurrentProfile = JsonUtility.FromJson<PlayerProfile>(request.downloadHandler.text);
+                PlayerPrefs.SetInt(PlayerPrefsUserIdKey, userId); // Save to PlayerPrefs
+                PlayerPrefs.Save();
+
                 Debug.Log($"[Profile] Class: {CurrentProfile.@class}, Level: {CurrentProfile.level}, Gold: {CurrentProfile.gold}");
+
+                onDone?.Invoke(CurrentProfile);
+
             }
             else
             {
                 Debug.LogError("Failed to fetch profile: " + request.error);
+                onDone?.Invoke(null);
             }
+        }
+        if (MainMenu.Instance != null)
+        {
+            MainMenu.Instance.ShowPlayerProfile(CurrentProfile);
         }
     }
 
@@ -71,8 +91,23 @@ public class PlayerProfileFetcher : MonoBehaviour
             }
             else
             {
-                Debug.LogError("Failed to update profile: " + request.error);
+                MainMenu.Instance.ShowPlayerProfile(CurrentProfile);
             }
+        }
+    }
+
+    public void SignOut()
+    {
+        Debug.Log("[Profile] Signed out.");
+
+        CurrentProfile = null;
+        PlayerPrefs.DeleteKey(PlayerPrefsUserIdKey);
+        PlayerPrefs.Save();
+
+        // Optional: go back to login screen or main menu
+        if (MainMenu.Instance != null)
+        {
+            //MainMenu.Instance.GoToLoginScreen(); // ← implement this if needed
         }
     }
 }

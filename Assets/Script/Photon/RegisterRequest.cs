@@ -13,9 +13,10 @@ public class RegisterPayload
 
 public class RegisterRequest : MonoBehaviour
 {
+    public static string currentUsername;
+    public static int currentUserId;
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
-    public TMP_Text resultText;
 
     public void OnRegisterClick()
     {
@@ -24,7 +25,7 @@ public class RegisterRequest : MonoBehaviour
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
-            resultText.text = "Vui lòng nhập đầy đủ username và password";
+            MessageBoard.Show("Username or Password cannot be empty!");
             return;
         }
 
@@ -47,19 +48,43 @@ public class RegisterRequest : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                resultText.text = "Đăng ký thành công!";
+                // Parse new user ID
+                var loginResult = JsonUtility.FromJson<LoginResult>(request.downloadHandler.text);
+                currentUsername = username;
+                currentUserId = loginResult.id;
+
+                MessageBoard.Show("Registration successful!");
+
+                // Fetch the newly created profile
+                PlayerProfileFetcher.Instance.FetchProfile(currentUserId, (profile) =>
+                {
+                    if (profile != null)
+                    {
+                        MessageBoard.Show($"Profile created for {currentUsername}: Class = {profile.@class}");
+                        MainMenu.Instance.HideRegister();
+                        // Optionally: open class selection screen here
+                        // e.g. classSelectPanel.SetActive(true);
+                    }
+                    else
+                    {
+                        MainMenu.Instance.ShowLoginFromRegister();
+                        MessageBoard.Show("Profile fetch failed. Try logging in with the new username and password.");
+                        Debug.LogError($"[Register] Profile fetch returned null for user ID {currentUserId}.");
+                    }
+                });
+
             }
             else if (request.responseCode == 409)
             {
-                resultText.text = "Username đã tồn tại.";
+                MessageBoard.Show("Username already exists!");
             }
             else
             {
                 Debug.LogError($"[Register] Error {request.responseCode}: {request.downloadHandler.text}");
-                resultText.text = "Đăng ký thất bại (lỗi khác).";
+                MessageBoard.Show("Failed. Unknown Error!");
             }
-
         }
     }
+
 
 }
