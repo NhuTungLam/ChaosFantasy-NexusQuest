@@ -26,26 +26,28 @@ public class DungeonApiClient : MonoBehaviour
             playerList = playerList ?? new List<string>(),
             roomState = roomStateJson ?? "{}"
         };
-
         string json = JsonUtility.ToJson(data);
-        Debug.Log("[DEBUG] Sending JSON:\n" + json);
-
-        var request = new UnityWebRequest(apiBase + "/save-progress", "POST");
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
 
-        yield return request.SendWebRequest();
+        using (UnityWebRequest request = new UnityWebRequest(apiBase + "/save-progress", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
 
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError($"[API] Save failed: {request.error}");
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Success: " + request.downloadHandler.text);
+            }
+            else
+            {
+                Debug.LogError("Error: " + request.error);
+            }
         }
-        else
-        {
-            Debug.Log("[API] Dungeon progress saved successfully.");
-        }
+
+        
     }
 
     public IEnumerator LoadProgress(string roomId, System.Action<string> onLoaded)

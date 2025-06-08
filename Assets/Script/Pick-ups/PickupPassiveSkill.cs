@@ -10,7 +10,7 @@ public class PickupPassiveSkill : MonoBehaviour, IInteractable
         return !isPicked && skillData != null;
     }
 
-    public void Interact()
+    public void Interact(CharacterHandler user = null)
     {
         if (isPicked) return;
         isPicked = true; // ??t ngay ? ??u ?? tránh double trigger

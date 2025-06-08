@@ -11,7 +11,7 @@ public class Chest : MonoBehaviour, IInteractable
         data = chestData;
     }
 
-    public void Interact()
+    public void Interact(CharacterHandler player = null)
     {
         if (!CanInteract()) return;
 

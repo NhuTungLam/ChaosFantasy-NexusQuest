@@ -23,7 +23,7 @@ public abstract class WeaponBase : MonoBehaviour, IInteractable
         return weaponData != null && transform.parent == null;
     }
 
-    public void Interact()
+    public void Interact(CharacterHandler user=null)
     {
         CharacterHandler player = FindObjectOfType<CharacterHandler>();
         if (player != null && CanInteract())

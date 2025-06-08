@@ -11,9 +11,8 @@ GameObject:
   - component: {fileID: 5125073725075142934}
   - component: {fileID: 5104845105035549176}
   - component: {fileID: 315707128364193289}
-  - component: {fileID: -7576441606687035927}
   - component: {fileID: 2647018847181990601}
-  - component: {fileID: 7558264383973169265}
+  - component: {fileID: -4275390539213904662}
   m_Layer: 7
   m_Name: SlashCard
   m_TagString: Untagged
@@ -83,19 +82,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &-7576441606687035927
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4818234652911098146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ed1605ba3195704c9bb54c45f5069e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: 6fa7354274f301f48b836d5ee27ce3d4, type: 2}
 --- !u!212 &2647018847181990601
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -148,7 +134,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &7558264383973169265
+--- !u!114 &-4275390539213904662
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -157,8 +143,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 4818234652911098146}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b455198de4b38e479d6176787f30e54, type: 3}
+  m_Script: {fileID: 11500000, guid: b4ca3f4eccd8b90488da9b423cb0688f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isActiveCard: 0
+  CardName: 
+  Icon: {fileID: 0}
+  CardDescription: 
+  cooldown: 2
+  hasPick: 0
   slashProjectilePrefab: {fileID: 5545222976611199574, guid: 1684b617ad31ffc4b896e91960b43045, type: 3}
   damageMultiplier: 1

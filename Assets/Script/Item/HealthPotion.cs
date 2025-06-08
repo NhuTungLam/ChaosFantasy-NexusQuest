@@ -10,7 +10,7 @@ public class HealthPotion : MonoBehaviour, IInteractable
         return !isPicked;
     }
 
-    public void Interact()
+    public void Interact(CharacterHandler user = null)
     {
         if (isPicked) return;
 

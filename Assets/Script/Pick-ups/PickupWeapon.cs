@@ -10,7 +10,7 @@ public class PickupWeapon : MonoBehaviour, IInteractable
         return !isPicked && weaponData != null;
     }
 
-    public void Interact()
+    public void Interact(CharacterHandler user=null)
     {
         if (isPicked || weaponData == null) return;
 

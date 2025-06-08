@@ -15,5 +15,5 @@ MonoBehaviour:
   skillName: 
   icon: {fileID: 0}
   description: 
-  skillEffectPrefab: {fileID: 0}
+  skillEffectPrefab: {fileID: 7720089092928214411, guid: 3a4e80bc143f60344b82834aaffd9d24, type: 3}
   cooldown: 0

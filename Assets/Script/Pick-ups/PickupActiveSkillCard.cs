@@ -10,7 +10,7 @@ public class PickupActiveSkillCard : MonoBehaviour, IInteractable
         return !isPicked && skillData != null;
     }
 
-    public void Interact()
+    public void Interact(CharacterHandler user = null)
     {
         if (isPicked || skillData == null) return;
 

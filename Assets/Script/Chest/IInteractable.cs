@@ -1,5 +1,5 @@
 public interface IInteractable 
 {
-    void Interact();
+    void Interact(CharacterHandler player=null);
     bool CanInteract();
 }

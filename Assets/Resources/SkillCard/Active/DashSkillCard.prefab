@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5125073725075142934}
-  - component: {fileID: -5113200579980272131}
   - component: {fileID: -3568334315419956450}
   - component: {fileID: 5104845105035549176}
   - component: {fileID: 315707128364193289}
+  - component: {fileID: 8428603401158936606}
   m_Layer: 7
   m_Name: DashSkillCard
   m_TagString: Untagged
@@ -35,19 +35,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-5113200579980272131
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4818234652911098146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dcef0e6a62059447ace4ae2dc1618fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: dba29490994afd14b89b89a1ef92b0b6, type: 2}
 --- !u!212 &-3568334315419956450
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -147,3 +134,22 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &8428603401158936606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4818234652911098146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42aeb8893a78ffb4994f48a39433a59e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isActiveCard: 1
+  CardName: Dash
+  Icon: {fileID: 0}
+  CardDescription: 
+  hasPick: 0
+  dashSpeed: 30
+  dashDuration: 0.1

@@ -17,16 +17,15 @@ public class CharacterHandler : MonoBehaviourPun
     public IMovementController movement;
     public float interactionDistance = 2f;
     private IInteractable currentInteractable;
-    public ActiveSkillCard activeSkill;
-    private IActiveSkill activeSkillEffect;
+    private SkillCardBase activeSkill;
+    
     private float skillCooldownTimer;
     public Transform weaponHolder;
     public delegate float DamageModifier(float dmg);
     public event DamageModifier OnBeforeTakeDamage;
 
     public bool isDashing = false;
-    private List<PassiveSkillCard> passiveSkills = new List<PassiveSkillCard>();
-    private List<IPassiveSkill> passiveLogicSkills = new List<IPassiveSkill>();
+    private List<SkillCardBase> passiveSkills = new List<SkillCardBase>();
 
     [Header("Dash Settings")]
     public float dashSpeed = 30f;
@@ -101,12 +100,6 @@ public class CharacterHandler : MonoBehaviourPun
             }
         }
 
-        if (activeSkill != null)
-        {
-            GameObject skillObj = Instantiate(activeSkill.skillEffectPrefab, transform);
-            activeSkillEffect = skillObj.GetComponent<IActiveSkill>();
-            skillCooldownTimer = 0f;
-        }
 
         // Initialize player state from profile
         if (profile != null)
@@ -151,10 +144,9 @@ public class CharacterHandler : MonoBehaviourPun
             TryInteract();
         }
 
-        if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkillEffect != null)
+        if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkill != null)
         {
-            activeSkillEffect.Activate(this);
-            skillCooldownTimer = activeSkill.cooldown;
+            activeSkill.Activate(this);
         }
 
         if (skillCooldownTimer > 0f)
@@ -166,8 +158,6 @@ public class CharacterHandler : MonoBehaviourPun
         {
             TakeDamage(10);
         }
-        foreach (var logic in passiveLogicSkills)
-            logic.Tick();
 
     }
 
@@ -203,23 +193,23 @@ public class CharacterHandler : MonoBehaviourPun
         else if (movement is PlayerOffController poc)
             poc.PlayDieAnimation();
     }
-    public void RecalculateStats()
-    {
-        currentMight = baseMight;
-        currentCritRate = baseCritRate;
-        currentCritDamage = baseCritDamage;
+    //public void RecalculateStats()
+    //{
+    //    currentMight = baseMight;
+    //    currentCritRate = baseCritRate;
+    //    currentCritDamage = baseCritDamage;
 
-        foreach (var passive in passiveSkills)
-        {
-            currentCritRate += passive.bonusCritRate;
-            currentCritDamage += passive.bonusCritDamage; 
-        }
+    //    foreach (var passive in passiveSkills)
+    //    {
+    //        currentCritRate += passive.bonusCritRate;
+    //        currentCritDamage += passive.bonusCritDamage; 
+    //    }
 
-        foreach (var passive in passiveSkills)
-        {
-            currentMight += passive.bonusDamage;
-        }
-    }
+    //    foreach (var passive in passiveSkills)
+    //    {
+    //        currentMight += passive.bonusDamage;
+    //    }
+    //}
 
     void Recover()
     {
@@ -276,16 +266,19 @@ public class CharacterHandler : MonoBehaviourPun
         currentWeapon = null;
     }
 
-    
-
-    public void SetActiveSkill(ActiveSkillCard skill)
+    public void SetActiveSkill(SkillCardBase skill)
     {
         activeSkill = skill;
-        if (activeSkillEffect != null)
-            Destroy(((MonoBehaviour)activeSkillEffect).gameObject);
-
-        GameObject go = Instantiate(skill.skillEffectPrefab);
-        activeSkillEffect = go.GetComponent<IActiveSkill>();
+        skill.gameObject.transform.SetParent(transform, false);
+    }
+    public void SetPassiveSkill(SkillCardBase skill)
+    {
+        passiveSkills.Add(skill);
+        skill.gameObject.transform.SetParent(transform, false);
+    }
+    public void SetActiveSkill(ActiveSkillCard skill)
+    {
+        
     }
 
     public void SetInvincible(bool value)
@@ -318,7 +311,7 @@ public class CharacterHandler : MonoBehaviourPun
         {
             if (hit.TryGetComponent<IInteractable>(out var interactable) && interactable.CanInteract())
             {
-                interactable.Interact();
+                interactable.Interact(this);
                 break;
             }
         }
@@ -326,21 +319,7 @@ public class CharacterHandler : MonoBehaviourPun
 
     public void ApplyPassiveSkill(PickupPassiveSkill skill)
     {
-        if (skill == null) return;
-
-        passiveSkills.Add(skill.skillData);
-        currentMight += skill.skillData.bonusDamage;
-
-        skill.gameObject.transform.SetParent(transform, false);
-        var logic = skill.GetComponent<IPassiveSkill>();
-        if (logic != null)
-        {
-            logic.Initialize(this);
-            passiveLogicSkills.Add(logic);
-        }
-       
-
-        Debug.Log($"[Passive Skill] Acquired: {skill.skillData.skillName} (+{skill.skillData.bonusDamage} dmg)");
+        
     }
    
     public IEnumerator FireProjectileDelayed(Transform origin, Vector2 direction, float delay, GameObject projectilePrefab, float damage)
