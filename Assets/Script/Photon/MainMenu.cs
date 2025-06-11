@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
@@ -63,6 +64,9 @@ public class MainMenu : MonoBehaviour
         else
         {
             PlayerProfilePanel.DOAnchorPosY(-50, 1).SetEase(Ease.OutCubic);
+            PlayerProfilePanel.transform.Find("name").GetComponent<TextMeshProUGUI>().text= profile.username;
+            PlayerProfilePanel.transform.Find("level").GetComponent<TextMeshProUGUI>().text = $"lvl {profile.level}";
+            PlayerProfilePanel.transform.Find("gold").GetComponent<TextMeshProUGUI>().text = $"gold {profile.gold}";
         }
     }
     public void ShowLogin()

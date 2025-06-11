@@ -107,6 +107,8 @@ public class PlayerProfileFetcher : MonoBehaviour
         // Optional: go back to login screen or main menu
         if (MainMenu.Instance != null)
         {
+            MessageBoard.Show("You have signed out");
+            MainMenu.Instance.ShowPlayerProfile(null);
             //MainMenu.Instance.GoToLoginScreen(); // ← implement this if needed
         }
     }

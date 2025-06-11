@@ -327,7 +327,6 @@ MonoBehaviour:
   characterData: {fileID: 0}
   weaponData: {fileID: 0}
   interactionDistance: 2
-  activeSkill: {fileID: 0}
   weaponHolder: {fileID: 8644990238530750680}
   isDashing: 0
   dashSpeed: 30

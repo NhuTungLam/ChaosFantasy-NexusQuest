@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Linq;
-
+using System;
+using Random = UnityEngine.Random;
 public class DungeonGenerator : MonoBehaviour
 {
     public GameObject[] roomPrefabs;
@@ -40,7 +41,22 @@ public class DungeonGenerator : MonoBehaviour
 
     public void Start()
     {
-        GenerateDungeon();
+
+        string json = PlayerPrefs.GetString("SavedDungeonLayout", null);
+
+        if (!string.IsNullOrEmpty(json))
+        {
+            var layout = JsonUtility.FromJson<SerializableRoomLayout>(json);
+            Dictionary<Vector2Int, (Direction dir, string prefabName)> loaded = layout.ToDictionary();
+            GenerateDungeonFromLayout(loaded);
+            Debug.Log("Loaded dungeon layout from PlayerPrefs");
+        }
+        else
+        {
+            GenerateDungeon();
+            SaveLayoutToPrefs();
+            Debug.Log("Generated new dungeon layout and saved to PlayerPrefs");
+        }
     }
 
     [ContextMenu("gen")]
@@ -206,7 +222,7 @@ public class DungeonGenerator : MonoBehaviour
         {
             Vector2Int pos = kvp.Key;
             Direction dir = DirectionHelper.GetOpposite(kvp.Value.dir);
-            
+
             Vector2Int neighborPos = pos + DirectionHelper.ToVector2Int(dir);
             if (spawnedRooms.ContainsKey(neighborPos))
             {
@@ -292,5 +308,217 @@ public class DungeonGenerator : MonoBehaviour
     public static Vector2Int ToVector2Int(Vector3 input)
     {
         return Vector2Int.RoundToInt(input - new Vector3(0.5f, 0.5f));
+    }
+    public void GenerateDungeonFromLayout(Dictionary<Vector2Int, Direction> roomLayout)
+    {
+        // Clear existing state
+        currentComplexRoomCount = 0;
+        spawnedRooms.Clear();
+        roomDepths.Clear();
+        deadEnds.Clear();
+        corridorTilemap.ClearAllTiles();
+        wallTilemap.ClearAllTiles();
+        corridorPositionsVertical.Clear();
+        corridorPositionsHorizontal.Clear();
+
+        // Spawn all rooms
+        foreach (var kvp in roomLayout)
+        {
+            Vector2Int pos = kvp.Key;
+            Direction fromDir = kvp.Value;
+            Vector2Int fromPos = pos + DirectionHelper.ToVector2Int(fromDir);
+
+            Room fromRoom = null;
+            if (spawnedRooms.TryGetValue(fromPos, out var prevRoomInfo))
+            {
+                fromRoom = prevRoomInfo.room;
+            }
+
+            GameObject prefab = roomPrefabs[Random.Range(0, roomPrefabs.Length)];
+            GameObject roomGO = Instantiate(prefab, (Vector2)pos * roomSize, Quaternion.identity);
+            Room room = roomGO.GetComponent<Room>();
+            roomGO.name = $"Room_{pos}";
+
+            spawnedRooms[pos] = (room, fromDir, 0); // You could derive depth via BFS if needed
+            roomDepths[pos] = 0;
+
+            if (fromRoom != null)
+            {
+                room.DisableDoor(DirectionHelper.GetOpposite(fromDir));
+                fromRoom.DisableDoor(fromDir);
+            }
+            else
+            {
+                room.EnableDoor(DirectionHelper.GetOpposite(fromDir));
+            }
+        }
+
+        // Generate corridors
+        foreach (var kvp in roomLayout)
+        {
+            Vector2Int to = kvp.Key;
+            Vector2Int from = to + DirectionHelper.ToVector2Int(kvp.Value);
+            SpawnCorridor(from, to, kvp.Value);
+        }
+
+        // Merge tiles
+        MergeAllRoomTilemaps();
+        GenerateCorridorWalls();
+    }
+   
+    [ContextMenu("SaveLayout")]
+    public void SaveLayoutToPrefs()
+    {
+        Dictionary<Vector2Int, (Direction dir, string prefabName)> data = new();
+        foreach (var kvp in spawnedRooms)
+        {
+            Vector2Int pos = kvp.Key;
+            Direction dir = kvp.Value.dir;
+            string prefabName = kvp.Value.room.roomname;
+            data[pos] = (dir, prefabName);
+        }
+
+        string json = JsonUtility.ToJson(new SerializableRoomLayout(data));
+        PlayerPrefs.SetString("SavedDungeonLayout", json);
+        PlayerPrefs.Save();
+        Debug.Log("Dungeon layout saved to PlayerPrefs");
+    }
+
+    [ContextMenu("LoadLayout")]
+    public void LoadLayoutFromPrefs()
+    {
+        string json = PlayerPrefs.GetString("SavedDungeonLayout", null);
+        if (string.IsNullOrEmpty(json)) return;
+
+        var layout = JsonUtility.FromJson<SerializableRoomLayout>(json);
+        Dictionary<Vector2Int, (Direction, string)> loaded = layout.ToDictionary();
+
+        GenerateDungeonFromLayout(loaded);
+    }
+
+    public void GenerateDungeonFromLayout(Dictionary<Vector2Int, (Direction dir, string prefabName)> layout)
+    {
+        ClearExistingDungeon();
+
+        foreach (var kvp in layout)
+        {
+            Vector2Int pos = kvp.Key;
+            Direction dir = kvp.Value.dir;
+            string prefabName = kvp.Value.prefabName;
+
+            GameObject prefab = FindRoomPrefabByName(prefabName);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"Prefab '{prefabName}' not found!");
+                continue;
+            }
+
+            GameObject roomGO = Instantiate(prefab, (Vector2)pos * roomSize, Quaternion.identity);
+            Room room = roomGO.GetComponent<Room>();
+            spawnedRooms[pos] = (room, dir, 0);
+            room.name = $"Room_{pos}";
+        }
+
+        foreach (var kvp in layout)
+        {
+            Vector2Int pos = kvp.Key;
+            Direction fromDir = kvp.Value.dir;
+
+            Vector2Int parentPos = pos - DirectionHelper.ToVector2Int(fromDir);
+            if (spawnedRooms.TryGetValue(parentPos, out var parent))
+            {
+                Room currentRoom = spawnedRooms[pos].room;
+                Room parentRoom = parent.room;
+
+                currentRoom.DisableDoor(DirectionHelper.GetOpposite(fromDir));
+                parentRoom.DisableDoor(fromDir);
+            }
+        }
+
+        MergeAllRoomTilemaps();
+        GenerateAllCorridors();
+        GenerateCorridorWalls();
+    }
+
+    GameObject FindRoomPrefabByName(string prefabName)
+    {
+        return roomPrefabs.Concat(specialRooms).Concat(bossRooms)
+            .FirstOrDefault(p => p.TryGetComponent(out Room r) && r.roomname == prefabName);
+    }
+
+    private void ClearExistingDungeon()
+    {
+        foreach (var kvp in spawnedRooms)
+        {
+            if (kvp.Value.room != null)
+                Destroy(kvp.Value.room.gameObject);
+        }
+
+        spawnedRooms.Clear();
+        roomDepths.Clear();
+        deadEnds.Clear();
+        corridorTilemap.ClearAllTiles();
+        wallTilemap.ClearAllTiles();
+        corridorPositionsHorizontal.Clear();
+        corridorPositionsVertical.Clear();
+    }
+
+    // --- Other methods (GenerateDungeon, GenerateRoom, PlaceSpecialRooms, etc.)
+    // keep your original GenerateDungeon(), RoomConCount(), PlaceSpecialRooms(), ReplaceRoomWith(), MergeAllRoomTilemaps(), GenerateAllCorridors(), GenerateCorridorWalls(), SpawnCorridor(), SetCorridorTile(), Shuffle() etc.
+
+    // Add below class to serialize Vector2Int and custom data
+    [Serializable]
+    public class SerializableRoomLayout
+    {
+        public List<Entry> entries = new();
+
+        [Serializable]
+        public struct Entry
+        {
+            public int x, y;
+            public Direction dir;
+            public string prefabName;
+
+            public Entry(Vector2Int pos, Direction dir, string prefabName)
+            {
+                this.x = pos.x;
+                this.y = pos.y;
+                this.dir = dir;
+                this.prefabName = prefabName;
+            }
+
+            public Vector2Int GetPosition() => new(x, y);
+        }
+
+        public SerializableRoomLayout(Dictionary<Vector2Int, (Direction dir, string prefabName)> dict)
+        {
+            foreach (var kvp in dict)
+            {
+                entries.Add(new Entry(kvp.Key, kvp.Value.dir, kvp.Value.prefabName));
+            }
+        }
+
+        public Dictionary<Vector2Int, (Direction dir, string prefabName)> ToDictionary()
+        {
+            Dictionary<Vector2Int, (Direction, string)> dict = new();
+            foreach (var entry in entries)
+            {
+                dict[entry.GetPosition()] = (entry.dir, entry.prefabName);
+            }
+            return dict;
+        }
+    }
+    [ContextMenu("Delete Saved Dungeon Layout")]
+    public void DeleteSavedLayout()
+    {
+        if (PlayerPrefs.HasKey("SavedDungeonLayout"))
+        {
+            PlayerPrefs.DeleteKey("SavedDungeonLayout");
+            Debug.Log("Deleted saved dungeon layout.");
+        }
+        else
+        {
+            Debug.Log("No saved dungeon layout to delete.");
+        }
     }
 }

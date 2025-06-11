@@ -275,6 +275,11 @@ public class CharacterHandler : MonoBehaviourPun
     {
         passiveSkills.Add(skill);
         skill.gameObject.transform.SetParent(transform, false);
+        SpriteRenderer spriteRenderer = skill.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = false;
+        }
     }
     public void SetActiveSkill(ActiveSkillCard skill)
     {
@@ -371,10 +376,7 @@ public class CharacterHandler : MonoBehaviourPun
     }
     public void ClearCurrentInteractable(IInteractable target)
     {
-        if (currentInteractable == target)
-        {
-            currentInteractable = null;
-        }
+        
     }
     public float GetCurrentHealthPercent()
     {

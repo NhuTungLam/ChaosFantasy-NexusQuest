@@ -19,6 +19,7 @@ public class P_SlashSkill : SkillCardBase
             if (weapon != null)
                 weapon.onAttack += OnWeaponAttack;
             Debug.Log("attackpassive");
+            //player.currentMight += 5; cong chi so
         }
     }
 

@@ -44,7 +44,6 @@ public class RoomLoaderManager : MonoBehaviourPunCallbacks
 
         Debug.Log("[RoomLoader] Attempting to resume room: " + roomIdToLoad);
 
-        // Th? join l?i room c?, n?u không có thì t?o l?i
         PhotonNetwork.JoinRoom(roomIdToLoad);
     }
 

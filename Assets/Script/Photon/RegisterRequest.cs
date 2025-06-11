@@ -9,6 +9,7 @@ public class RegisterPayload
 {
     public string username;
     public string password;
+    public string email;
 }
 
 public class RegisterRequest : MonoBehaviour
@@ -34,7 +35,7 @@ public class RegisterRequest : MonoBehaviour
 
     IEnumerator RegisterCoroutine(string username, string password)
     {
-        var payload = new RegisterPayload { username = username, password = password };
+        var payload = new RegisterPayload { username = username, password = password,email = "lam@" };
         string json = JsonUtility.ToJson(payload);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -62,8 +63,6 @@ public class RegisterRequest : MonoBehaviour
                     {
                         MessageBoard.Show($"Profile created for {currentUsername}: Class = {profile.@class}");
                         MainMenu.Instance.HideRegister();
-                        // Optionally: open class selection screen here
-                        // e.g. classSelectPanel.SetActive(true);
                     }
                     else
                     {
