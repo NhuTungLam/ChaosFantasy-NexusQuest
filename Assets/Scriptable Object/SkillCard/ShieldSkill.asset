@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40428073f1428fe458773ee513ac0009, type: 3}
+  m_Name: ShieldSkill
+  m_EditorClassIdentifier: 
+  skillName: 
+  icon: {fileID: 1758568268, guid: fa7fe07822d59ca438bab1cd917ae3ca, type: 3}
+  description: 
+  skillEffectPrefab: {fileID: 5369042890756003791, guid: d58bae2e21fa29b44ab70252bae688af, type: 3}
+  cooldown: 0

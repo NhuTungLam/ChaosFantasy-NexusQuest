@@ -327,12 +327,12 @@ MonoBehaviour:
   characterData: {fileID: 0}
   weaponData: {fileID: 0}
   interactionDistance: 2
-  activeSkill: {fileID: 0}
   weaponHolder: {fileID: 8644990238530750680}
   isDashing: 0
   dashSpeed: 30
   dashDirection: {x: 0, y: 0}
   lastMoveDirection: {x: 1, y: 0}
+  isBlocking: 0
   interactableLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -340,9 +340,14 @@ MonoBehaviour:
   currentMana: 0
   currentRecovery: 0
   currentMight: 0
+  baseMight: 0
   currentProjectileSpeed: 0
   currentMagnet: 0
   currentCooldownReduction: 0
+  baseCritRate: 0
+  currentCritRate: 0
+  baseCritDamage: 0
+  currentCritDamage: 0
   invincibilityDuration: 2
   levelRanges:
   - startLevel: 1
@@ -356,6 +361,8 @@ MonoBehaviour:
     expCapIncrease: 13
   weaponId: 0
   itemId: 0
+  hp_cover: {fileID: 0}
+  mana_cover: {fileID: 0}
 --- !u!114 &5236751931788353238
 MonoBehaviour:
   m_ObjectHideFlags: 0

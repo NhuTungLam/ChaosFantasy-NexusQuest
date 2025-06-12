@@ -46,4 +46,13 @@ public class CharacterData : ScriptableObject
     [SerializeField]
     private float cooldownReduction;
     public float CooldownReduction { get => cooldownReduction; set => cooldownReduction = value; }
+
+    [SerializeField]
+    private float baseCritRate = 0f;
+    public float BaseCritRate { get => baseCritRate; set => baseCritRate = value; }
+
+    [SerializeField]
+    private float baseCritDamage = 2f;
+    public float BaseCritDamage { get => baseCritDamage; set => baseCritDamage = value; }
+
 }

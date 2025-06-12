@@ -23,7 +23,7 @@ public abstract class WeaponBase : MonoBehaviour, IInteractable
         return weaponData != null && transform.parent == null;
     }
 
-    public void Interact()
+    public void Interact(CharacterHandler user=null)
     {
         CharacterHandler player = FindObjectOfType<CharacterHandler>();
         if (player != null && CanInteract())
@@ -46,5 +46,12 @@ public abstract class WeaponBase : MonoBehaviour, IInteractable
         if (anim != null && data.animatorController != null)
             anim.runtimeAnimatorController = data.animatorController;
     }
-
+    public void InRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.ShowPickup(weaponData.weaponName, transform.position);
+    }
+    public void CancelInRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.HidePickup();
+    }
 }

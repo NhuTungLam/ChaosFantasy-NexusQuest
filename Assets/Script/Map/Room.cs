@@ -6,6 +6,7 @@ public enum RoomType { Normal, Boss, Special }
 
 public class Room : MonoBehaviour
 {
+    public string roomname;
     [Header("Room Setup")]
     public RoomType roomType;
     public List<EnewaveData> enewaveDatas = new();

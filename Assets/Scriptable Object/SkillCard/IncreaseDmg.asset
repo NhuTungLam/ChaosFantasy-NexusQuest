@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: IncreaseDmg
   m_EditorClassIdentifier: 
   skillName: dmg
-  icon: {fileID: 21300000, guid: a1b07875f1daa954a86c45d793185913, type: 3}
+  icon: {fileID: 1128836343, guid: fa7fe07822d59ca438bab1cd917ae3ca, type: 3}
   description: dmg
+  skillEffectPrefab: {fileID: 0}
   bonusDamage: 10
   bonusSpeed: 0
   bonusCritRate: 0
+  bonusCritDamage: 0

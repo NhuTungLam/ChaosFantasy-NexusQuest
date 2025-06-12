@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DungeonSystem;
+using UnityEngine.SceneManagement;
 
 public class CharacterHandler : MonoBehaviourPun
 {
@@ -16,31 +17,43 @@ public class CharacterHandler : MonoBehaviourPun
     public WeaponData weaponData;
     public IMovementController movement;
     public float interactionDistance = 2f;
-    private IInteractable currentInteractable;
-    public ActiveSkillCard activeSkill;
-    private IActiveSkill activeSkillEffect;
+    private SkillCardBase activeSkill;
+    
     private float skillCooldownTimer;
     public Transform weaponHolder;
+    public delegate float DamageModifier(float dmg);
+    public event DamageModifier OnBeforeTakeDamage;
 
     public bool isDashing = false;
-    private List<PassiveSkillCard> passiveSkills = new List<PassiveSkillCard>();
+    private List<SkillCardBase> passiveSkills = new List<SkillCardBase>();
 
     [Header("Dash Settings")]
     public float dashSpeed = 30f;
     [HideInInspector] public Vector2 dashDirection;
     [HideInInspector] public Vector2 lastMoveDirection = Vector2.right;
+   
+    [Header("Shield Settings")]
+    [HideInInspector] public bool isBlocking = false;
 
     [Header("Interaction")]
     public LayerMask interactableLayer;
+    public IInteractable currentInteract;
+    private float throttleInteractUpdateInterval = 0f;
 
     [Header("Stats")]
     [HideInInspector] public float currentHealth;
     [HideInInspector] public float currentMana;
     [HideInInspector] public float currentRecovery;
     [HideInInspector] public float currentMight;
+    [HideInInspector] public float baseMight;
     [HideInInspector] public float currentProjectileSpeed;
     [HideInInspector] public float currentMagnet;
     [HideInInspector] public float currentCooldownReduction;
+    [HideInInspector] public float baseCritRate;
+    [HideInInspector] public float currentCritRate;
+
+    [HideInInspector] public float baseCritDamage;
+    [HideInInspector] public float currentCritDamage;
 
     PlayerCollector collector;
 
@@ -89,12 +102,6 @@ public class CharacterHandler : MonoBehaviourPun
             }
         }
 
-        if (activeSkill != null)
-        {
-            GameObject skillObj = Instantiate(activeSkill.skillEffectPrefab, transform);
-            activeSkillEffect = skillObj.GetComponent<IActiveSkill>();
-            skillCooldownTimer = 0f;
-        }
 
         // Initialize player state from profile
         if (profile != null)
@@ -115,8 +122,21 @@ public class CharacterHandler : MonoBehaviourPun
             };
 
         }
+        TryAttachStatBar();
+        SceneManager.activeSceneChanged += (s, a) => TryAttachStatBar();
+        
     }
-
+    void TryAttachStatBar()
+    {
+        var statPanel = GameObject.FindGameObjectWithTag("Hpbar");
+        hp_cover = null;
+        mana_cover = null;
+        if (statPanel != null)
+        {
+            hp_cover = statPanel.transform.Find("hp_bar/cover").GetComponent<RectTransform>();
+            mana_cover = statPanel.transform.Find("mana_bar/cover").GetComponent<RectTransform>();
+        }
+    }
 
     void Update()
     {
@@ -139,10 +159,9 @@ public class CharacterHandler : MonoBehaviourPun
             TryInteract();
         }
 
-        if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkillEffect != null)
+        if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkill != null)
         {
-            activeSkillEffect.Activate(this);
-            skillCooldownTimer = activeSkill.cooldown;
+            activeSkill.Activate(this);
         }
 
         if (skillCooldownTimer > 0f)
@@ -154,21 +173,45 @@ public class CharacterHandler : MonoBehaviourPun
         {
             TakeDamage(10);
         }
-    }
 
+        if (throttleInteractUpdateInterval > 0)
+        {
+            throttleInteractUpdateInterval -= Time.deltaTime;
+        }
+        else
+        {
+            GetClosestInteractable();
+            throttleInteractUpdateInterval = 0.1f;
+        }
+    }
+    [Header("im losing my mind wth")]
+    public RectTransform hp_cover, mana_cover;
     public void TakeDamage(float dmg)
     {
         if (isInvincible) return;
+
+        // Shield Block
+        if (isBlocking)
+            dmg *= 0.5f;
+
+        // Passive damage modifiers (e.g., Mana Shield)
+        if (OnBeforeTakeDamage != null)
+            foreach (DamageModifier modifier in OnBeforeTakeDamage.GetInvocationList())
+                dmg = modifier.Invoke(dmg);
 
         currentHealth -= dmg;
         invincibilityTimer = invincibilityDuration;
         isInvincible = true;
 
-        if (currentHealth <= 0)
+        currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
+        hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
+
+        if (currentHealth == 0)
             Die();
 
-        Debug.Log($"[TEST DAMAGE] HP: {currentHealth}");
+        Debug.Log($"[Damage] Final HP: {currentHealth}, Mana: {currentMana}");
     }
+
 
     [ContextMenu("testdie")]
     public virtual void Die()
@@ -178,14 +221,29 @@ public class CharacterHandler : MonoBehaviourPun
         else if (movement is PlayerOffController poc)
             poc.PlayDieAnimation();
     }
+    //public void RecalculateStats()
+    //{
+    //    currentMight = baseMight;
+    //    currentCritRate = baseCritRate;
+    //    currentCritDamage = baseCritDamage;
+
+    //    foreach (var passive in passiveSkills)
+    //    {
+    //        currentCritRate += passive.bonusCritRate;
+    //        currentCritDamage += passive.bonusCritDamage; 
+    //    }
+
+    //    foreach (var passive in passiveSkills)
+    //    {
+    //        currentMight += passive.bonusDamage;
+    //    }
+    //}
 
     void Recover()
     {
         if (currentRecovery == 0 || currentHealth >= characterData.MaxHealth) return;
 
-        currentHealth += currentRecovery * Time.deltaTime;
-        if (currentHealth > characterData.MaxHealth)
-            currentHealth = characterData.MaxHealth;
+        TakeDamage(-currentRecovery);
     }
 
     public void EquipWeapon(WeaponData newData)
@@ -219,11 +277,6 @@ public class CharacterHandler : MonoBehaviourPun
         WeaponData oldData = currentWeapon.weaponData;
         GameObject dropped = Instantiate(oldData.weaponPrefab, transform.position, Quaternion.identity);
 
-        if (dropped.TryGetComponent(out PickupWeapon pickup))
-        {
-            pickup.weaponData = oldData;
-        }
-
         if (dropped.TryGetComponent(out WeaponBase weaponBase))
         {
             weaponBase.weaponData = oldData;
@@ -234,21 +287,20 @@ public class CharacterHandler : MonoBehaviourPun
         currentWeapon = null;
     }
 
-    public void AcquirePassiveItem(GameObject item)
-    {
-        GameObject spawnedItem = Instantiate(item, transform.position, Quaternion.identity);
-        spawnedItem.transform.SetParent(this.transform);
-        itemId += 1;
-    }
-
-    public void SetActiveSkill(ActiveSkillCard skill)
+    public void SetActiveSkill(SkillCardBase skill)
     {
         activeSkill = skill;
-        if (activeSkillEffect != null)
-            Destroy(((MonoBehaviour)activeSkillEffect).gameObject);
-
-        GameObject go = Instantiate(skill.skillEffectPrefab);
-        activeSkillEffect = go.GetComponent<IActiveSkill>();
+        skill.gameObject.transform.SetParent(transform, false);
+    }
+    public void SetPassiveSkill(SkillCardBase skill)
+    {
+        passiveSkills.Add(skill);
+        skill.gameObject.transform.SetParent(transform, false);
+        SpriteRenderer spriteRenderer = skill.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = false;
+        }
     }
 
     public void SetInvincible(bool value)
@@ -257,45 +309,42 @@ public class CharacterHandler : MonoBehaviourPun
         invincibilityTimer = value ? Mathf.Infinity : 0f;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.TryGetComponent<IInteractable>(out var interactable))
-        {
-            currentInteractable = interactable;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.TryGetComponent<IInteractable>(out var interactable) && interactable == currentInteractable)
-        {
-            currentInteractable = null;
-        }
-    }
-
-    void TryInteract()
+    void GetClosestInteractable()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, interactionDistance, interactableLayer);
+
+        float closestDistance = float.MaxValue;
+        IInteractable closestInteractable = null;
 
         foreach (var hit in hits)
         {
             if (hit.TryGetComponent<IInteractable>(out var interactable) && interactable.CanInteract())
             {
-                interactable.Interact();
-                break;
+                float distance = Vector2.Distance(transform.position, hit.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestInteractable = interactable;
+                }
             }
         }
-    }
 
-    public void ApplyPassiveSkill(PassiveSkillCard skill)
+        if (currentInteract != closestInteractable)
+        {
+            //print(currentInteract + ", " + closestInteractable);
+            currentInteract?.CancelInRangeAction(this);
+            currentInteract = closestInteractable;
+            currentInteract?.InRangeAction(this);
+        }
+        //print(currentInteract);
+    }
+    void TryInteract()
     {
-        if (skill == null) return;
-
-        passiveSkills.Add(skill);
-        currentMight += skill.bonusDamage;
-        Debug.Log($"[Passive Skill] Acquired: {skill.skillName} (+{skill.bonusDamage} dmg, +{skill.bonusSpeed} speed)");
+        if (currentInteract != null)
+            currentInteract.Interact(this);
     }
 
+   
     public IEnumerator FireProjectileDelayed(Transform origin, Vector2 direction, float delay, GameObject projectilePrefab, float damage)
     {
         yield return new WaitForSeconds(delay);
@@ -328,13 +377,26 @@ public class CharacterHandler : MonoBehaviourPun
         currentHealth = characterData.MaxHealth;
         currentMana = characterData.MaxMana;
         currentRecovery = characterData.Recovery;
-        currentMight = characterData.Might;
+        baseMight = characterData.Might;
+        currentMight = baseMight;
         currentProjectileSpeed = characterData.ProjectileSpeed;
         currentMagnet = characterData.Magnet;
         currentCooldownReduction = characterData.CooldownReduction;
+        baseCritRate = characterData.BaseCritRate;
+        baseCritDamage = characterData.BaseCritDamage;
+
+        currentCritRate = baseCritRate;
+        currentCritDamage = baseCritDamage;
 
         weaponData = characterData.StartingWeapon;
         if (weaponData != null)
             EquipWeapon(weaponData);
     }
+
+    public float GetCurrentHealthPercent()
+    {
+        return currentHealth / characterData.MaxHealth;
+    }
+
+
 }

@@ -8,8 +8,8 @@ public class RoomLoaderManager : MonoBehaviourPunCallbacks
     [Header("References")]
     public DungeonApiClient apiClient;
     public RoomStateRestorer stateRestorer;
-    public GameObject roomUI;
-    public GameObject optPanel;
+    //public GameObject roomUI;
+    //public GameObject optPanel;
 
     [HideInInspector]
     public string roomIdToLoad;
@@ -19,7 +19,7 @@ public class RoomLoaderManager : MonoBehaviourPunCallbacks
         if (PlayerPrefs.HasKey("lastRoomId"))
         {
             roomIdToLoad = PlayerPrefs.GetString("lastRoomId");
-            optPanel?.SetActive(true);
+            //optPanel?.SetActive(true);
         }
         else
         {
@@ -29,8 +29,8 @@ public class RoomLoaderManager : MonoBehaviourPunCallbacks
 
     public void StartNewGame()
     {
-        optPanel?.SetActive(false);
-        roomUI?.SetActive(true);
+        //optPanel?.SetActive(false);
+        //roomUI?.SetActive(true);
         Debug.Log("[RoomLoader] Starting new game mode.");
     }
 
@@ -44,7 +44,6 @@ public class RoomLoaderManager : MonoBehaviourPunCallbacks
 
         Debug.Log("[RoomLoader] Attempting to resume room: " + roomIdToLoad);
 
-        // Th? join l?i room c?, n?u không có thì t?o l?i
         PhotonNetwork.JoinRoom(roomIdToLoad);
     }
 
@@ -90,7 +89,7 @@ public class RoomLoaderManager : MonoBehaviourPunCallbacks
             Debug.LogWarning("[RoomLoader] Missing references or empty roomId during OnJoinedRoom");
         }
 
-        optPanel?.SetActive(false);
+        //optPanel?.SetActive(false);
     }
 
     void Start()

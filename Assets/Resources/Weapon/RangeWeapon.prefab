@@ -44,7 +44,6 @@ GameObject:
   - component: {fileID: 2938612543670398267}
   - component: {fileID: 2938612543670398266}
   - component: {fileID: -7229990019496783745}
-  - component: {fileID: -2084380824989062757}
   m_Layer: 7
   m_Name: RangeWeapon
   m_TagString: Untagged
@@ -174,7 +173,7 @@ BoxCollider2D:
   m_Offset: {x: -0.11077079, y: -0.09985757}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.24122813, y: 0.5465178}
+    pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 2.1875, y: 0.6875}
     newSize: {x: 2.1875, y: 0.625}
     adaptiveTilingThreshold: 0.5
@@ -184,16 +183,3 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.30332774, y: 0.25086898}
   m_EdgeRadius: 0
---- !u!114 &-2084380824989062757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2938612543670398264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4fc0d7f39c010243a3ad95189205af4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  weaponData: {fileID: 0}

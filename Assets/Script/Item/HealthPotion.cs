@@ -10,7 +10,7 @@ public class HealthPotion : MonoBehaviour, IInteractable
         return !isPicked;
     }
 
-    public void Interact()
+    public void Interact(CharacterHandler user = null)
     {
         if (isPicked) return;
 
@@ -26,5 +26,13 @@ public class HealthPotion : MonoBehaviour, IInteractable
             isPicked = true;
             Destroy(gameObject);
         }
+    }
+    public void InRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.ShowPickup("HP potion", transform.position);
+    }
+    public void CancelInRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.HidePickup();
     }
 }
