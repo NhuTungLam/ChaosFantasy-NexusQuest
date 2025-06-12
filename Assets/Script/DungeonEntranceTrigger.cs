@@ -4,30 +4,14 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 
-public class DungeonEntranceTrigger : MonoBehaviour
+public class DungeonEntranceTrigger : MonoBehaviour, IInteractable
 {
-    private bool playerInZone = false;
+    //private bool playerInZone = false;
     public string dungeonRoomScene = "Enter_Dungeon"; // Scene trung gian để tạo room dungeon
 
     void Update()
     {
-        if (playerInZone && Input.GetKeyDown(KeyCode.E))
-        {
-            Debug.Log("🚪 Entering dungeon door → leave Nexus & go to dungeon UI");
-            StartCoroutine(LeaveRoomThenLoadLobbyScene());
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-            playerInZone = true;
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-            playerInZone = false;
+        
     }
 
     IEnumerator LeaveRoomThenLoadLobbyScene()
@@ -62,6 +46,23 @@ public class DungeonEntranceTrigger : MonoBehaviour
 
         Debug.Log("🏁 Loading Enter_Dungeon...");
         SceneManager.LoadScene("Enter_Dungeon");
+    }
+
+    public bool CanInteract()
+    {
+        return true;
+    }
+    public void Interact(CharacterHandler user = null)
+    {
+        StartCoroutine(LeaveRoomThenLoadLobbyScene());
+    }
+    public void InRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.ShowPickup("Enter Dungeon", transform.position);
+    }
+    public void CancelInRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.HidePickup();
     }
 
 }

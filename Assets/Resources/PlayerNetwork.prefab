@@ -361,6 +361,8 @@ MonoBehaviour:
     expCapIncrease: 13
   weaponId: 0
   itemId: 0
+  hp_cover: {fileID: 0}
+  mana_cover: {fileID: 0}
 --- !u!114 &5236751931788353238
 MonoBehaviour:
   m_ObjectHideFlags: 0

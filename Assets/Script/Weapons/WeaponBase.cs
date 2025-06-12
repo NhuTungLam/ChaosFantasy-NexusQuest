@@ -46,5 +46,12 @@ public abstract class WeaponBase : MonoBehaviour, IInteractable
         if (anim != null && data.animatorController != null)
             anim.runtimeAnimatorController = data.animatorController;
     }
-
+    public void InRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.ShowPickup(weaponData.weaponName, transform.position);
+    }
+    public void CancelInRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.HidePickup();
+    }
 }

@@ -8,6 +8,7 @@ using TMPro;
 public class MainMenu : MonoBehaviour
 {
     public static MainMenu Instance { get; private set; }
+    public SceneController sceneController;
     private void Awake()
     {
         Instance = this;
@@ -23,7 +24,7 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            ShowCharacter();
+            sceneController.StartGame();
         }
     }
     private void Start()
@@ -102,12 +103,12 @@ public class MainMenu : MonoBehaviour
         seq.AppendCallback(() => ShowPanel(LoginPanel));
     }
 
-    public void ShowCharacterFromLogin()
+    /*public void ShowCharacterFromLogin()
     {
         Sequence seq = DOTween.Sequence();
         seq.Append(HidePanel(LoginPanel));
         seq.AppendCallback(() => ShowPanel(CharacterSelectionPanel));
-    }
+    }*/
 
     private void ShowPanel(RectTransform panel)
     {

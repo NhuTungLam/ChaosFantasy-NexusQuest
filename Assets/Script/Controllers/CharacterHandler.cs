@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DungeonSystem;
+using UnityEngine.SceneManagement;
 
 public class CharacterHandler : MonoBehaviourPun
 {
@@ -16,7 +17,6 @@ public class CharacterHandler : MonoBehaviourPun
     public WeaponData weaponData;
     public IMovementController movement;
     public float interactionDistance = 2f;
-    private IInteractable currentInteractable;
     private SkillCardBase activeSkill;
     
     private float skillCooldownTimer;
@@ -37,6 +37,8 @@ public class CharacterHandler : MonoBehaviourPun
 
     [Header("Interaction")]
     public LayerMask interactableLayer;
+    public IInteractable currentInteract;
+    private float throttleInteractUpdateInterval = 0f;
 
     [Header("Stats")]
     [HideInInspector] public float currentHealth;
@@ -120,8 +122,21 @@ public class CharacterHandler : MonoBehaviourPun
             };
 
         }
+        TryAttachStatBar();
+        SceneManager.activeSceneChanged += (s, a) => TryAttachStatBar();
+        
     }
-
+    void TryAttachStatBar()
+    {
+        var statPanel = GameObject.FindGameObjectWithTag("Hpbar");
+        hp_cover = null;
+        mana_cover = null;
+        if (statPanel != null)
+        {
+            hp_cover = statPanel.transform.Find("hp_bar/cover").GetComponent<RectTransform>();
+            mana_cover = statPanel.transform.Find("mana_bar/cover").GetComponent<RectTransform>();
+        }
+    }
 
     void Update()
     {
@@ -159,8 +174,18 @@ public class CharacterHandler : MonoBehaviourPun
             TakeDamage(10);
         }
 
+        if (throttleInteractUpdateInterval > 0)
+        {
+            throttleInteractUpdateInterval -= Time.deltaTime;
+        }
+        else
+        {
+            GetClosestInteractable();
+            throttleInteractUpdateInterval = 0.1f;
+        }
     }
-
+    [Header("im losing my mind wth")]
+    public RectTransform hp_cover, mana_cover;
     public void TakeDamage(float dmg)
     {
         if (isInvincible) return;
@@ -178,7 +203,10 @@ public class CharacterHandler : MonoBehaviourPun
         invincibilityTimer = invincibilityDuration;
         isInvincible = true;
 
-        if (currentHealth <= 0)
+        currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
+        hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
+
+        if (currentHealth == 0)
             Die();
 
         Debug.Log($"[Damage] Final HP: {currentHealth}, Mana: {currentMana}");
@@ -215,9 +243,7 @@ public class CharacterHandler : MonoBehaviourPun
     {
         if (currentRecovery == 0 || currentHealth >= characterData.MaxHealth) return;
 
-        currentHealth += currentRecovery * Time.deltaTime;
-        if (currentHealth > characterData.MaxHealth)
-            currentHealth = characterData.MaxHealth;
+        TakeDamage(-currentRecovery);
     }
 
     public void EquipWeapon(WeaponData newData)
@@ -251,11 +277,6 @@ public class CharacterHandler : MonoBehaviourPun
         WeaponData oldData = currentWeapon.weaponData;
         GameObject dropped = Instantiate(oldData.weaponPrefab, transform.position, Quaternion.identity);
 
-        if (dropped.TryGetComponent(out PickupWeapon pickup))
-        {
-            pickup.weaponData = oldData;
-        }
-
         if (dropped.TryGetComponent(out WeaponBase weaponBase))
         {
             weaponBase.weaponData = oldData;
@@ -281,10 +302,6 @@ public class CharacterHandler : MonoBehaviourPun
             spriteRenderer.enabled = false;
         }
     }
-    public void SetActiveSkill(ActiveSkillCard skill)
-    {
-        
-    }
 
     public void SetInvincible(bool value)
     {
@@ -292,40 +309,41 @@ public class CharacterHandler : MonoBehaviourPun
         invincibilityTimer = value ? Mathf.Infinity : 0f;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.TryGetComponent<IInteractable>(out var interactable))
-        {
-            currentInteractable = interactable;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.TryGetComponent<IInteractable>(out var interactable) && interactable == currentInteractable)
-        {
-            currentInteractable = null;
-        }
-    }
-
-    void TryInteract()
+    void GetClosestInteractable()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, interactionDistance, interactableLayer);
+
+        float closestDistance = float.MaxValue;
+        IInteractable closestInteractable = null;
 
         foreach (var hit in hits)
         {
             if (hit.TryGetComponent<IInteractable>(out var interactable) && interactable.CanInteract())
             {
-                interactable.Interact(this);
-                break;
+                float distance = Vector2.Distance(transform.position, hit.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestInteractable = interactable;
+                }
             }
         }
+
+        if (currentInteract != closestInteractable)
+        {
+            //print(currentInteract + ", " + closestInteractable);
+            currentInteract?.CancelInRangeAction(this);
+            currentInteract = closestInteractable;
+            currentInteract?.InRangeAction(this);
+        }
+        //print(currentInteract);
+    }
+    void TryInteract()
+    {
+        if (currentInteract != null)
+            currentInteract.Interact(this);
     }
 
-    public void ApplyPassiveSkill(PickupPassiveSkill skill)
-    {
-        
-    }
    
     public IEnumerator FireProjectileDelayed(Transform origin, Vector2 direction, float delay, GameObject projectilePrefab, float damage)
     {
@@ -374,10 +392,7 @@ public class CharacterHandler : MonoBehaviourPun
         if (weaponData != null)
             EquipWeapon(weaponData);
     }
-    public void ClearCurrentInteractable(IInteractable target)
-    {
-        
-    }
+
     public float GetCurrentHealthPercent()
     {
         return currentHealth / characterData.MaxHealth;

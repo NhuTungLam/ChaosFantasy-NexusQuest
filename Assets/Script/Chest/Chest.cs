@@ -37,11 +37,6 @@ public class Chest : MonoBehaviour, IInteractable
             Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 3); 
             GameObject dropped = Instantiate(weapon.weaponPrefab, dropPos, Quaternion.identity);
 
-            if (dropped.TryGetComponent(out PickupWeapon pickup))
-            {
-                pickup.weaponData = weapon;
-            }
-
             if (dropped.TryGetComponent(out WeaponBase weaponBase))
             {
                 weaponBase.weaponData = weapon;
@@ -78,6 +73,14 @@ public class Chest : MonoBehaviour, IInteractable
         float angle = 360f / total * index;
         float rad = angle * Mathf.Deg2Rad;
         return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad)) * radius;
+    }
+    public void InRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.ShowPickup("Chest", transform.position);
+    }
+    public void CancelInRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.HidePickup();
     }
 
 }

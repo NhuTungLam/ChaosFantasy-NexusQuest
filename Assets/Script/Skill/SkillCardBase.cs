@@ -37,4 +37,12 @@ public class SkillCardBase : MonoBehaviour,IInteractable
     {
         return !hasPick;
     }
+    public void InRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.ShowPickup(CardName, transform.position);
+    }
+    public void CancelInRangeAction(CharacterHandler user = null)
+    {
+        DungeonPickup.HidePickup();
+    }
 }

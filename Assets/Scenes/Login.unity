@@ -552,7 +552,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1802785038}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ClassSelectUI, Assembly-CSharp
         m_MethodName: GoRight
         m_Mode: 1
@@ -2489,9 +2489,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1920927858}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: ShowCharacterFromLogin
+      - m_Target: {fileID: 1920927856}
+        m_TargetAssemblyTypeName: SceneController, Assembly-CSharp
+        m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3696,7 +3696,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4df410db3627e4746ba5b03d0e30d766, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterData: {fileID: 0}
+  characterData: {fileID: 11400000, guid: cd1721fb8c2e10a42a845398f70d4674, type: 2}
 --- !u!4 &850435662
 Transform:
   m_ObjectHideFlags: 0
@@ -3710,7 +3710,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &850621746
 GameObject:
@@ -6874,7 +6874,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1445343440
 GameObject:
@@ -6999,7 +6999,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1802785038}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ClassSelectUI, Assembly-CSharp
         m_MethodName: SelectClass
         m_Mode: 1
@@ -8458,59 +8458,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!1 &1802785037
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1802785039}
-  - component: {fileID: 1802785038}
-  m_Layer: 0
-  m_Name: ClassManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1802785038
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1802785037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55d71ed59bcd72041a7cbbc1e4d881fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  availableCharacters:
-  - {fileID: 11400000, guid: 98eaf7e013cff5246b0420206693822b, type: 2}
-  - {fileID: 11400000, guid: 901763ef6111e404c98cd14ee26270cc, type: 2}
-  - {fileID: 11400000, guid: c4fac1b39e89d0447aaeb0e62c26ebf0, type: 2}
-  - {fileID: 11400000, guid: 6111417aa02e84348a148a701b5523f6, type: 2}
-  charSelTitle: {fileID: 536709778}
-  charSelPortrait: {fileID: 1345221992}
-  CurrentCharacterData: {fileID: 0}
-  sceneController: {fileID: 1920927856}
---- !u!4 &1802785039
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1802785037}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1816539516
 GameObject:
   m_ObjectHideFlags: 0
@@ -8990,7 +8937,7 @@ RectTransform:
   - {fileID: 463917314}
   - {fileID: 1792697466}
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -9028,7 +8975,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1894815889
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9302,6 +9249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 130af07564d5c6a4d9aa7003f159f029, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneController: {fileID: 1920927856}
   LoginPanel: {fileID: 361637519}
   RegisterPanel: {fileID: 1975417953}
   CharacterSelectionPanel: {fileID: 1894815889}
@@ -9391,7 +9339,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1802785038}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ClassSelectUI, Assembly-CSharp
         m_MethodName: GoLeft
         m_Mode: 1
@@ -10421,7 +10369,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2089238437
 GameObject:
