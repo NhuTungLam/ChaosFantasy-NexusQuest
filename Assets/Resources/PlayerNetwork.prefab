@@ -306,7 +306,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profile:
-    userId: 
+    userId: 0
     username: 
     password: 
     class: 
@@ -318,15 +318,15 @@ MonoBehaviour:
     totalPlayTime: 0
   state:
     userId: 
-    class: 
+    currentCard: 
+    currentWeapon: 
+    currentClass: 
     hp: 0
     mana: 0
-    position:
-      x: 0
-      y: 0
+    stageLevel: 0
   characterData: {fileID: 0}
-  weaponData: {fileID: 0}
   interactionDistance: 2
+  activeSkill: {fileID: 0}
   weaponHolder: {fileID: 8644990238530750680}
   isDashing: 0
   dashSpeed: 30
@@ -359,8 +359,7 @@ MonoBehaviour:
   - startLevel: 21
     endLevel: 40
     expCapIncrease: 13
-  weaponId: 0
-  itemId: 0
+  currentWeapon: {fileID: 0}
   hp_cover: {fileID: 0}
   mana_cover: {fileID: 0}
 --- !u!114 &5236751931788353238

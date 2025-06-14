@@ -77,7 +77,7 @@ public class PlayerProfileFetcher : MonoBehaviour
         string json = JsonUtility.ToJson(profile);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        using (UnityWebRequest request = new UnityWebRequest("http://localhost:5000/api/profile/update", "POST"))
+        using (UnityWebRequest request = new UnityWebRequest("http://localhost:5058/api/profile/update", "POST"))
         {
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();

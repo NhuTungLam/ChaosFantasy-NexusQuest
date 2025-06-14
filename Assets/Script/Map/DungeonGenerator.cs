@@ -6,6 +6,11 @@ using System;
 using Random = UnityEngine.Random;
 public class DungeonGenerator : MonoBehaviour
 {
+    public static DungeonGenerator Instance;
+    public void Awake()
+    {
+        Instance = this;
+    }
     public GameObject[] roomPrefabs;
     public GameObject[] bossRooms;
     public GameObject[] specialRooms;
@@ -41,29 +46,30 @@ public class DungeonGenerator : MonoBehaviour
 
     public void Start()
     {
-
-        string json = PlayerPrefs.GetString("SavedDungeonLayout", null);
-
-        if (!string.IsNullOrEmpty(json))
-        {
-            var layout = JsonUtility.FromJson<SerializableRoomLayout>(json);
-            Dictionary<Vector2Int, (Direction dir, string prefabName)> loaded = layout.ToDictionary();
-            GenerateDungeonFromLayout(loaded);
-            Debug.Log("Loaded dungeon layout from PlayerPrefs");
-        }
-        else
-        {
-            GenerateDungeon();
-            SaveLayoutToPrefs();
-            Debug.Log("Generated new dungeon layout and saved to PlayerPrefs");
-        }
+        GenerateDungeon();
     }
 
     [ContextMenu("gen")]
     public void GenerateDungeon()
     {
+        var allMonoBehaviours = GameObject.FindObjectsOfType<MonoBehaviour>();
+
+        var allInteractables = allMonoBehaviours
+            .Where(m => m is IInteractable)
+            .ToList(); 
+
+        foreach ( var interactable in allInteractables)
+        {
+            if ((interactable as IInteractable).CanInteract())
+            Destroy(interactable.gameObject);
+        }
         currentComplexRoomCount = 0;
         lastSpawnedRoom = Vector2Int.zero;
+        foreach (var room in spawnedRooms.Values)
+        {
+            Destroy(room.room.gameObject);
+            
+        }
         spawnedRooms.Clear();
         roomDepths.Clear();
         deadEnds.Clear();
@@ -87,9 +93,9 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         PlaceSpecialRooms();
-        MergeAllRoomTilemaps();
-        GenerateAllCorridors();
-        GenerateCorridorWalls();
+        //MergeAllRoomTilemaps();
+        //GenerateAllCorridors();
+        //GenerateCorridorWalls();
     }
 
     public int RoomConCount(bool reroll = false)
@@ -365,9 +371,7 @@ public class DungeonGenerator : MonoBehaviour
         MergeAllRoomTilemaps();
         GenerateCorridorWalls();
     }
-   
-    [ContextMenu("SaveLayout")]
-    public void SaveLayoutToPrefs()
+    public string SaveLayout()
     {
         Dictionary<Vector2Int, (Direction dir, string prefabName)> data = new();
         foreach (var kvp in spawnedRooms)
@@ -379,17 +383,13 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         string json = JsonUtility.ToJson(new SerializableRoomLayout(data));
-        PlayerPrefs.SetString("SavedDungeonLayout", json);
-        PlayerPrefs.Save();
-        Debug.Log("Dungeon layout saved to PlayerPrefs");
+        return json;
     }
 
     [ContextMenu("LoadLayout")]
-    public void LoadLayoutFromPrefs()
+    public void LoadLayout(string json)
     {
-        string json = PlayerPrefs.GetString("SavedDungeonLayout", null);
-        if (string.IsNullOrEmpty(json)) return;
-
+        
         var layout = JsonUtility.FromJson<SerializableRoomLayout>(json);
         Dictionary<Vector2Int, (Direction, string)> loaded = layout.ToDictionary();
 

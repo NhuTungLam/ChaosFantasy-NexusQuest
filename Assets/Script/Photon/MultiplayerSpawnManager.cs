@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using Photon.Pun;
+using System.Collections;
+using System.Collections.Generic;
 
 public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
 {
@@ -8,8 +10,10 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
     public Vector2 spawnAreaMax = new Vector2(3, 3);
 
     private bool hasSpawned = false;
+
     void Start()
     {
+
         Debug.Log("🟦 MultiplayerSpawnManager.Start() is alive.");
 
         if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
@@ -18,7 +22,6 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
             TrySpawn();
         }
     }
-
 
     public override void OnJoinedRoom()
     {
@@ -33,17 +36,6 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
             Debug.Log("⚠️ Already spawned.");
             return;
         }
-        Debug.Log($"🏠 LocalPlayer.UserId: {PhotonNetwork.LocalPlayer.UserId}");
-        if (RoomSessionManager.Instance != null)
-        {
-            Debug.Log($"🏠 RoomOwner: {RoomSessionManager.Instance.GetRoomOwner()}");
-            Debug.Log($"🏠 IsRoomOwner(): {RoomSessionManager.Instance.IsRoomOwner()}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ RoomSessionManager.Instance is NULL");
-        }
-
 
         if (CharacterSelector.Instance == null)
         {
@@ -77,6 +69,7 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
             0,
             new object[] { className }
         );
+
         int viewID = playerInstance.GetComponent<PhotonView>().ViewID;
 
         PlayerManager.Instance.photonView.RPC(
@@ -85,9 +78,9 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
             viewID
         );
 
-        Debug.Log(PlayerManager.Instance.playerList.Count);
-        Debug.Log(playerInstance.transform);
-        Debug.Log($"✅ Spawned player with class: {className}");
         hasSpawned = true;
+
+        // 🟢 Save player progress to backend
+        StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(playerInstance.transform));
     }
 }

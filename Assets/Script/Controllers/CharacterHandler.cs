@@ -14,10 +14,9 @@ public class CharacterHandler : MonoBehaviourPun
     public DungeonPlayerState state;     // In-room transient combat state
 
     public CharacterData characterData;
-    public WeaponData weaponData;
     public IMovementController movement;
     public float interactionDistance = 2f;
-    private SkillCardBase activeSkill;
+    public SkillCardBase activeSkill;
     
     private float skillCooldownTimer;
     public Transform weaponHolder;
@@ -73,10 +72,7 @@ public class CharacterHandler : MonoBehaviourPun
     [Header("Level Ranges")]
     public List<LevelRange> levelRanges;
 
-    public int weaponId;
-    public int itemId;
-
-    private WeaponBase currentWeapon;
+    public WeaponBase currentWeapon;
 
     public void Awake()
     {
@@ -102,30 +98,24 @@ public class CharacterHandler : MonoBehaviourPun
             }
         }
 
-
         // Initialize player state from profile
-        if (profile != null)
-        {
-            Position playerPos = new Position
-            {
-                x = transform.position.x,
-                y = transform.position.y
-            };
+        //if (profile != null)
+        //{
+        //    state = new DungeonPlayerState
+        //    {
+        //        currentClass = profile.@class,
+        //        currentCard = activeSkill?.name ?? "None",
+        //        currentWeapon = weaponData?.weaponName ?? "None",
+        //        hp = currentHealth,
+        //        mana = currentMana,
+        //        stageLevel = PlayerPrefs.GetInt("CurrentStage", 1)
+        //    };
+        //}
 
-            state = new DungeonPlayerState
-            {
-                userId = profile.userId,
-                @class = profile.@class,
-                hp = currentHealth,
-                mana = currentMana,
-                position = playerPos
-            };
-
-        }
         TryAttachStatBar();
         SceneManager.activeSceneChanged += (s, a) => TryAttachStatBar();
-        
     }
+
     void TryAttachStatBar()
     {
         var statPanel = GameObject.FindGameObjectWithTag("Hpbar");
@@ -388,9 +378,8 @@ public class CharacterHandler : MonoBehaviourPun
         currentCritRate = baseCritRate;
         currentCritDamage = baseCritDamage;
 
-        weaponData = characterData.StartingWeapon;
-        if (weaponData != null)
-            EquipWeapon(weaponData);
+        if (characterData.StartingWeapon != null)
+            EquipWeapon(characterData.StartingWeapon);
     }
 
     public float GetCurrentHealthPercent()

@@ -3,7 +3,7 @@ using System;
 [Serializable]
 public class PlayerProfile
 {
-    public string userId;              
+    public int userId;              
     public string username;
     public string password;
     public string @class;               

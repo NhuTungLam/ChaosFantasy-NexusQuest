@@ -73,7 +73,7 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
     }
     private void ShowPanel(RectTransform panel)
     {
-        panel.gameObject.SetActive(true);
+
 
         var cg = GetOrAddCanvasGroup(panel);
         cg.alpha = 0;
@@ -94,7 +94,7 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
         seq.SetUpdate(true);
         seq.Append(cg.DOFade(0, duration));
         seq.Join(panel.DOAnchorPosY(panel.anchoredPosition.y + 100, duration).SetEase(Ease.InCubic));
-        seq.OnComplete(() => panel.gameObject.SetActive(false));
+        seq.OnComplete(() => panel.anchoredPosition = new Vector2(-2000,-2000));
         return seq;
     }
 

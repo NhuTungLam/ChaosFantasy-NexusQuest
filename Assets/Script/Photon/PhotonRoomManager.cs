@@ -22,6 +22,7 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        Debug.Log("🧠 Scene Start() - Photon InRoom: " + PhotonNetwork.InRoom);
         PhotonNetwork.AutomaticallySyncScene = true;
 
         string currentScene = SceneManager.GetActiveScene().name;
@@ -133,6 +134,8 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         if (!string.IsNullOrEmpty(targetScene) &&
             SceneManager.GetActiveScene().name != targetScene)
         {
+            Debug.Log("✅ Joined room: " + PhotonNetwork.CurrentRoom.Name);
+            Debug.Log("🔁 Loading scene: " + targetScene);
             // Sửa SceneManager → PhotonNetwork
             PhotonNetwork.LoadLevel(targetScene);  // ✅ Rất quan trọng
         }

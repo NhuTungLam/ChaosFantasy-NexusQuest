@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    //public GameObject pauseMenuUI;
-    public RoomStateManager roomStateManager; 
 
     private bool isPaused = false;
 
@@ -47,15 +45,6 @@ public class GameManager : MonoBehaviour
 
     public void OnExitToNexusButton()
     {
-        // ✅ Lưu room trước khi rời
-        if (roomStateManager != null)
-        {
-            roomStateManager.SaveRoomToServer();
-        }
-        else
-        {
-            Debug.LogWarning("[GameManager] RoomStateManager not assigned!");
-        }
         OnResumeButton();
         StartCoroutine(LeaveRoomAndLoadNexus());
     }

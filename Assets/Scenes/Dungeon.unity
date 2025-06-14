@@ -290,7 +290,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73e0d842886c7c144991ac53ba264aae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomStateManager: {fileID: 343843350}
   duration: 0.5
   offsetY: -100
 --- !u!1 &343843348
@@ -302,7 +301,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 343843351}
-  - component: {fileID: 343843350}
   - component: {fileID: 343843349}
   m_Layer: 0
   m_Name: RoomManager
@@ -323,19 +321,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b56d60004e90dc47993b7956429d7a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &343843350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 343843348}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9210552f4314fed40baa2f1317c45ffc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  apiClient: {fileID: 343843349}
 --- !u!4 &343843351
 Transform:
   m_ObjectHideFlags: 0

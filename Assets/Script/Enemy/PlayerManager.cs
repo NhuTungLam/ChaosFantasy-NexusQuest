@@ -55,5 +55,24 @@ public class PlayerManager : MonoBehaviourPun
             }
         }
     }
-
+    
+    public DungeonApiClient.PlayerProgressDTO GetPlayerProgress(int userId)
+    {
+        foreach (var player in playerList)
+        {
+            var playerProfile = player.GetComponent<CharacterHandler>();
+            if (playerProfile.profile.userId == userId)
+            {
+                return new DungeonApiClient.PlayerProgressDTO
+                {
+                    currentHP = playerProfile.currentHealth,
+                    currentMana = playerProfile.currentMana,
+                    currentClass = playerProfile.characterData.name,
+                    currentWeapon = playerProfile.currentWeapon.weaponData.name,
+                    currentCards = ""
+                };
+            }
+        }
+        return null;
+    }
 }
