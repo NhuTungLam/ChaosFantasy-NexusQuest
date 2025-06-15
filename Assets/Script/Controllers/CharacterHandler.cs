@@ -214,7 +214,17 @@ public class CharacterHandler : MonoBehaviourPun
 
         Debug.Log($"[Damage] Final HP: {currentHealth}, Mana: {currentMana}");
     }
+    public bool UseMana(float amount)
+    {
+        if (currentMana < amount)
+            return false;
 
+        currentMana -= amount;
+        currentMana = Mathf.Clamp(currentMana, 0, characterData.MaxMana);
+        mana_cover.localScale = new Vector3(currentMana/characterData.MaxMana, 1, 1);
+
+        return true;
+    }
 
     [ContextMenu("testdie")]
     public virtual void Die()

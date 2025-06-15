@@ -26,6 +26,10 @@ public class SkillCardBase : MonoBehaviour,IInteractable
             player.SetPassiveSkill(this);
         }
     }
+    public virtual void OnRemoveSkill(CharacterHandler player)
+    {
+
+    }
     public virtual void Activate(CharacterHandler player) 
     { 
     }

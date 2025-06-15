@@ -44,10 +44,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 4818234652911098146}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dcef0e6a62059447ace4ae2dc1618fe, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b23473b2c32a304db5a1965fac66a9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: 73ca42f516f66094e80390f3b394aa0a, type: 2}
+  isActiveCard: 1
+  CardName: Shield
+  Icon: {fileID: 0}
+  CardDescription: 
+  cooldown: 10
+  hasPick: 0
+  duration: 2
+  shieldEffectPrefab: {fileID: 1481053379905951348, guid: 248778bb386e53d459264b4412b70370, type: 3}
 --- !u!212 &-3568334315419956450
 SpriteRenderer:
   m_ObjectHideFlags: 0
