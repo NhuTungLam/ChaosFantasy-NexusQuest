@@ -44,10 +44,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 4818234652911098146}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dcef0e6a62059447ace4ae2dc1618fe, type: 3}
+  m_Script: {fileID: 11500000, guid: 69f6d4a6882925b49b051d4a094c713a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillData: {fileID: 11400000, guid: e222b1367a114f94f89f5f7bcf1f639a, type: 2}
+  isActiveCard: 1
+  CardName: Magic Bolt
+  Icon: {fileID: 0}
+  CardDescription: 
+  cooldown: 2
+  hasPick: 0
+  boltPrefab: {fileID: 6546155005657727647, guid: c82d3cb9023467249900a57125240057, type: 3}
+  damageMultiplier: 1.2
+  skillCD: 0
 --- !u!212 &-3568334315419956450
 SpriteRenderer:
   m_ObjectHideFlags: 0

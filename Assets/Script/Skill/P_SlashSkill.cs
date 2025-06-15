@@ -22,7 +22,16 @@ public class P_SlashSkill : SkillCardBase
             //player.currentMight += 5; cong chi so
         }
     }
-
+    public override void OnRemoveSkill(CharacterHandler player)
+    {
+        if (player.weaponHolder.childCount > 0)
+        {
+            var weapon = player.weaponHolder.GetChild(0).GetComponent<MeleeWeapon>();
+            if (weapon != null)
+                weapon.onAttack -= OnWeaponAttack;
+            //player.currentMight += 5; cong chi so
+        }
+    }
     private void OnWeaponAttack()
     {
         Debug.Log("wweapon slash atttack");

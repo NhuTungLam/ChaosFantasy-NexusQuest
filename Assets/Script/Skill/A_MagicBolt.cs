@@ -1,11 +1,27 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class MagicBoltSkill : ActiveSkillBase
+public class A_MagicBolt : SkillCardBase
 {
     public GameObject boltPrefab;
     public float damageMultiplier = 1.2f;
+    private float interval;
 
+    private void Update()
+    {
+        if (interval < cooldown)
+            interval += Time.deltaTime;
+    }
     public override void Activate(CharacterHandler player)
+    {
+        if (interval < cooldown) return;
+
+        Shoot(player);
+        interval = 0;
+    }
+
+    private void Shoot(CharacterHandler player)
     {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 direction = (mousePos - player.transform.position).normalized;
