@@ -348,6 +348,10 @@ MonoBehaviour:
   currentCritRate: 0
   baseCritDamage: 0
   currentCritDamage: 0
+  mainCamera: {fileID: 0}
+  zoomSpeed: 5
+  minZoom: 2
+  maxZoom: 20
   invincibilityDuration: 2
   levelRanges:
   - startLevel: 1

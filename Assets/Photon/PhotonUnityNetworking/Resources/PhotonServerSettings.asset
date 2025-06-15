@@ -43,6 +43,8 @@ MonoBehaviour:
   - RPC_TakeDamage
   - RPC_FireProjectile
   - RPC_AddPlayerToList
+  - RPC_SpawnRoomPrefab
+  - RPC_RequestDungeonLayout
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

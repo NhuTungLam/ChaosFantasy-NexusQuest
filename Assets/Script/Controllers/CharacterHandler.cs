@@ -55,6 +55,10 @@ public class CharacterHandler : MonoBehaviourPun
     [HideInInspector] public float currentCritDamage;
 
     PlayerCollector collector;
+    public Camera mainCamera;
+    public float zoomSpeed = 5f;
+    public float minZoom = 2f;
+    public float maxZoom = 20f;
 
     [System.Serializable]
     public class LevelRange
@@ -82,6 +86,8 @@ public class CharacterHandler : MonoBehaviourPun
 
     void Start()
     {
+        if (mainCamera == null)
+            mainCamera = Camera.main;
         Canvas playerCanvas = GetComponentInChildren<Canvas>(true);
         if (playerCanvas != null)
         {
@@ -130,6 +136,13 @@ public class CharacterHandler : MonoBehaviourPun
 
     void Update()
     {
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (Mathf.Abs(scroll) > 0.01f)
+        {
+            float newSize = mainCamera.orthographicSize - scroll * zoomSpeed;
+            mainCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
+        }
+
         if (photonView != null && !photonView.IsMine) return;
 
         if (invincibilityTimer > 0)
