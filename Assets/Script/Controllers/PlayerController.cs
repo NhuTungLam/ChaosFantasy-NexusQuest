@@ -9,11 +9,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IMovementController
     private Rigidbody2D rb;
     private Vector2 moveInput;
     private Vector2 lastMoveDirection = Vector2.right;
-
+    public bool CanMove = true;
     private Camera mainCamera;
     public Animator animator;
 
-    void Start()
+    void Awake()
     {
         
 
@@ -27,11 +27,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IMovementController
     void Update()
     {
         if (!photonView.IsMine) return;
-
+        if(!CanMove)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
         moveInput.x = Input.GetAxisRaw("Horizontal");
         moveInput.y = Input.GetAxisRaw("Vertical");
         moveInput.Normalize();
-
+        
         if (moveInput != Vector2.zero)
         {
             lastMoveDirection = moveInput;

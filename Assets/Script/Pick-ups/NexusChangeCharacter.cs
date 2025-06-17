@@ -10,7 +10,7 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
     public static NexusChangeCharacter Instance;
     public CharacterData[] availableCharacters;
     private int currentCharIndex = 0;
-
+    private PlayerController playerController;
     public TextMeshProUGUI charSelTitle;
     public Image charSelPortrait;
     public CharacterData CurrentCharacterData;
@@ -46,6 +46,11 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
     {
         currentUser = user;
         ShowCharacter();
+        playerController = user.transform.GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.CanMove = false;
+        }
     }
     public void ShowCharacter()
     {
@@ -73,14 +78,14 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
     }
     private void ShowPanel(RectTransform panel)
     {
-
-
         var cg = GetOrAddCanvasGroup(panel);
+        cg.interactable = true;
         cg.alpha = 0;
         panel.anchoredPosition = new Vector2(0, -300);
 
         Sequence seq = DOTween.Sequence();
         seq.SetUpdate(true);
+
         seq.Append(cg.DOFade(1, duration));
         seq.Join(panel.DOAnchorPosY(offsetY, duration).SetEase(Ease.OutCubic));
     }
@@ -88,13 +93,15 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
     private Tween HidePanel(RectTransform panel)
     {
         var cg = GetOrAddCanvasGroup(panel);
+        cg.interactable = false;
         panel.anchoredPosition = new Vector2(0, offsetY);
 
         Sequence seq = DOTween.Sequence();
         seq.SetUpdate(true);
+
         seq.Append(cg.DOFade(0, duration));
         seq.Join(panel.DOAnchorPosY(panel.anchoredPosition.y + 100, duration).SetEase(Ease.InCubic));
-        seq.OnComplete(() => panel.anchoredPosition = new Vector2(-2000,-2000));
+        seq.OnComplete(() => panel.anchoredPosition = new Vector2(-2000, -2000));
         return seq;
     }
 
@@ -123,6 +130,11 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
         currentUser.Init(CurrentCharacterData);
         CharacterSelector.Instance.characterData = CurrentCharacterData;
         HideCharacter();
+        if (playerController != null)
+        {
+            playerController.CanMove = true;
+            playerController = null;
+        }
     }
 
     void Update()

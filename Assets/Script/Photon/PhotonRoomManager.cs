@@ -41,7 +41,6 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
                 if (roomUIPanel) roomUIPanel.SetActive(true);
                 break;
         }
-
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.NickName = "Player_" + Random.Range(1000, 9999);
@@ -151,6 +150,39 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         }
     }
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
+
+    public void LoadSave()
+    {
+        int userId = PlayerProfileFetcher.CurrentProfile.userId;
+
+        StartCoroutine(DungeonApiClient.Instance.LoadDungeonProgress(userId, () =>
+        {
+            if (DungeonRestorerManager.Instance.dungeoninfo != null)
+            {
+                MessageBoard.Show("Loading save...");
+
+                // Tạo room trước khi vào dungeon
+                RoomOptions options = new RoomOptions
+                {
+                    MaxPlayers = 4, 
+                    IsVisible = false,
+                    CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
+                {
+                    { "roomOwner", PhotonNetwork.LocalPlayer.UserId }
+                },
+                    CustomRoomPropertiesForLobby = new string[] { "roomOwner" }
+                };
+
+                string roomName = "Dungeon_Loaded_" + UnityEngine.Random.Range(1000, 9999);
+                PhotonNetwork.CreateRoom(roomName, options); // khi OnJoinedRoom → LoadLevel("Dungeon")
+            }
+            else
+            {
+                MessageBoard.Show("No save found!");
+            }
+        }));
+    }
+
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {

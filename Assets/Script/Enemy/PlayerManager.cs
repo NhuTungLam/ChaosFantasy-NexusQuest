@@ -65,7 +65,7 @@ public class PlayerManager : MonoBehaviourPun
             {
                 return new DungeonApiClient.PlayerProgressDTO
                 {
-                    currentHP = playerProfile.currentHealth,
+                    currentHp = playerProfile.currentHealth,
                     currentMana = playerProfile.currentMana,
                     currentClass = playerProfile.characterData.name,
                     currentWeapon = playerProfile.currentWeapon.weaponData.name,
@@ -75,4 +75,15 @@ public class PlayerManager : MonoBehaviourPun
         }
         return null;
     }
+    public Transform GetMyPlayer()
+    {
+        foreach (Transform player in playerList)
+        {
+            var view = player.GetComponent<PhotonView>();
+            if (view != null && view.IsMine)
+                return player;
+        }
+        return null;
+    }
+
 }

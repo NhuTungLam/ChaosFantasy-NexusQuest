@@ -8,7 +8,7 @@ using Photon.Pun;
 
 public class DungeonApiClient : MonoBehaviour
 {
-    public static DungeonApiClient Instance { get; private set; }
+    public static DungeonApiClient Instance;
 
     private void Awake()
     {
@@ -29,13 +29,13 @@ public class DungeonApiClient : MonoBehaviour
     public class DungeonProgressDTO
     {
         public int ownerProgressId;
-        public string roomState;
+        public string dungeonLayout;
         public int stageLevel;
     }
     [System.Serializable]
     public class PlayerProgressDTO 
     {
-        public float currentHP;
+        public float currentHp;
         public float currentMana;
         public string currentClass;
         public string currentCards;
@@ -92,6 +92,8 @@ public class DungeonApiClient : MonoBehaviour
 
         using (UnityWebRequest request = new UnityWebRequest(apiBaseProgress + "/save-by-user", "POST"))
         {
+            
+
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
@@ -100,11 +102,15 @@ public class DungeonApiClient : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
+
                 Debug.Log("Success: " + request.downloadHandler.text);
             }
             else
             {
                 Debug.LogError("Error: " + request.error);
+                Debug.LogError("Response Code: " + request.responseCode);
+                Debug.LogError("Response Text: " + request.downloadHandler.text);
+
             }
         }
 
@@ -131,7 +137,7 @@ public class DungeonApiClient : MonoBehaviour
         DungeonProgressDTO dungeonData = new DungeonProgressDTO
         {
             ownerProgressId = ownerProgressId,
-            roomState = roomStateJson ?? "{}",
+            dungeonLayout = roomStateJson ?? "{}",
             stageLevel = stageLevel
         };
 
@@ -139,29 +145,73 @@ public class DungeonApiClient : MonoBehaviour
     }
 
 
-    public IEnumerator LoadProgress(string roomId, System.Action<string> onLoaded)
+    public IEnumerator LoadDungeonProgress(int ownerId, Action onLoaded = null)
     {
-        string url = apiBase + $"/load-progress?roomId={roomId}";
-        UnityWebRequest request = UnityWebRequest.Get(url);
+        string url = apiBase + "/owner/load-progress?ownerId=" + ownerId;
 
-        yield return request.SendWebRequest();
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
 
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError($"[API] Load failed: {request.error}");
-        }
-        else
-        {
-            string json = request.downloadHandler.text;
-            Debug.Log("[API] Loaded dungeon progress: " + json);
-            onLoaded?.Invoke(json);
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                DungeonProgressDTO dto = JsonUtility.FromJson<DungeonProgressDTO>(request.downloadHandler.text);
+                DungeonRestorerManager.Instance.dungeoninfo = dto;
+
+                if (dto != null)
+                {
+                    StartCoroutine(LoadPlayerProgress(dto.ownerProgressId, (d) =>
+                    {
+                        DungeonRestorerManager.Instance.playerinfo = d;
+                        onLoaded?.Invoke();
+                    }));
+                }
+                else
+                {
+                    onLoaded?.Invoke();
+                }
+            }
+            else
+            {
+                Debug.LogError("❌ Load failed: " + request.error);
+                onLoaded?.Invoke(); 
+            }
         }
     }
+
+
+    public IEnumerator LoadPlayerProgress(int progressId, Action<PlayerProgressDTO> callback)
+    {
+        string url = apiBaseProgress + "/load?progressId=" + progressId;
+
+        using (UnityWebRequest request = UnityWebRequest.Get(url)) // ✅ Dùng GET
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("✅ Loaded player progress.");
+                PlayerProgressDTO dto = JsonUtility.FromJson<PlayerProgressDTO>(request.downloadHandler.text);
+                Debug.LogWarning(request.downloadHandler.text);
+
+                callback?.Invoke(dto);
+            }
+            else
+            {
+                Debug.LogError("❌ Failed to load progress: " + request.error);
+            }
+        }
+    }
+
     public IEnumerator SaveDungeon(DungeonProgressDTO dungeon)
     {
         string json = JsonUtility.ToJson(dungeon);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
+        Debug.Log(dungeon.dungeonLayout);
         using (UnityWebRequest request = new UnityWebRequest(apiBase + "/save-progress", "POST"))
         {
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -192,20 +242,19 @@ public class DungeonApiClient : MonoBehaviour
         int userId = PlayerProfileFetcher.CurrentProfile.userId;
 
         Debug.Log($"🟢 Saving PlayerProgress for userId = {userId}");
-
+        var hptosave = handler.currentHealth == 0? 1: handler.currentHealth;
         var dto = new DungeonApiClient.PlayerProgressDTO
         {
-            currentHP = handler.currentHealth,
+
+            currentHp = hptosave,
             currentMana = handler.currentMana,
             currentClass = handler.characterData.name,
             currentWeapon = handler.currentWeapon?.weaponData?.name ?? "",
-            currentCards = "" // có thể mở rộng
+            currentCards = "" // optional
         };
 
-        // 🟢 Lưu tiến trình cơ bản cho player
-        //yield return StartCoroutine(DungeonApiClient.Instance.SavePlayerProgress(dto));
 
-        // 🔒 Nếu là chủ phòng, gọi SaveOwnerProgress để trigger SaveDungeon sau đó
+        // 🔒 Save dungeon if this player is room owner
         var roomOwnerId = PhotonNetwork.CurrentRoom.CustomProperties["roomOwner"]?.ToString();
         if (PhotonNetwork.LocalPlayer.UserId == roomOwnerId)
         {
@@ -218,11 +267,17 @@ public class DungeonApiClient : MonoBehaviour
                     {
                         Debug.Log($"✅ SaveOwnerProgress returned ProgressId = {progressId}");
 
-                        // Save dungeon tiến trình kèm theo (roomState đã bỏ, stage = 1)
+                        string layout = DungeonGenerator.Instance.SaveLayout();
+                        if (string.IsNullOrEmpty(layout) || layout.Contains("\"entries\":[]"))
+                        {
+                            Debug.LogWarning("⚠️ Dungeon layout is empty. Skip saving dungeon.");
+                            return;
+                        }
+
                         DungeonApiClient.DungeonProgressDTO dungeon = new DungeonApiClient.DungeonProgressDTO
                         {
                             ownerProgressId = progressId,
-                            roomState = "{}", // không dùng
+                            dungeonLayout = layout,
                             stageLevel = 1
                         };
                         StartCoroutine(DungeonApiClient.Instance.SaveDungeon(dungeon));
@@ -235,4 +290,5 @@ public class DungeonApiClient : MonoBehaviour
             ));
         }
     }
+
 }

@@ -18,8 +18,15 @@ public class PlayerNetworkInit : MonoBehaviourPun, IPunInstantiateMagicCallback
             Debug.LogError("❌ Không tìm thấy CharacterData: " + className);
             return;
         }
-
-        handler.Init(characterData);
+        if (DungeonRestorerManager.Instance != null && DungeonRestorerManager.Instance.playerinfo != null)
+        {
+            
+            handler.ApplyLoadSave(DungeonRestorerManager.Instance.playerinfo);
+        }
+        else
+        {
+            handler.Init(characterData);
+        }
         Debug.Log($"✅ [{(photonView.IsMine ? "Local" : "Remote")}] Player Init with class: {className}");
 
         if (photonView.IsMine)

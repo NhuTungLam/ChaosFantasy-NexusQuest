@@ -148,7 +148,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 1000
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 0
@@ -348,11 +348,14 @@ MonoBehaviour:
   currentCritRate: 0
   baseCritDamage: 0
   currentCritDamage: 0
+  hp_cover: {fileID: 0}
+  mana_cover: {fileID: 0}
+  hp_text: {fileID: 0}
   mainCamera: {fileID: 0}
   zoomSpeed: 5
   minZoom: 2
   maxZoom: 20
-  invincibilityDuration: 2
+  invincibilityDuration: 0.5
   levelRanges:
   - startLevel: 1
     endLevel: 2
@@ -364,8 +367,6 @@ MonoBehaviour:
     endLevel: 40
     expCapIncrease: 13
   currentWeapon: {fileID: 0}
-  hp_cover: {fileID: 0}
-  mana_cover: {fileID: 0}
 --- !u!114 &5236751931788353238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,6 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74f3db48770f0774c897a48fd94024cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanMove: 1
   animator: {fileID: 0}
 --- !u!61 &2275969679067169656
 BoxCollider2D:

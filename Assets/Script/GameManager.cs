@@ -51,10 +51,21 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator LeaveRoomAndLoadNexus()
     {
-        Time.timeScale = 1; // reset nếu đang pause
+        Time.timeScale = 1; // Reset nếu đang pause
         BlackScreen.Instance.BlackIn();
         yield return new WaitForSecondsRealtime(1.2f);
+        DungeonRestorerManager.Instance.ResetState();
+        // ✅ Save progress trước khi rời phòng
+        if (PlayerManager.Instance != null)
+        {
+            Transform myPlayer = PlayerManager.Instance.GetMyPlayer();
+            if (myPlayer != null)
+            {
+                yield return StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(myPlayer));
+            }
+        }
 
+        // ✅ Rời phòng
         if (PhotonNetwork.InRoom)
         {
             if (PhotonNetwork.LocalPlayer.TagObject is GameObject go)
@@ -72,9 +83,9 @@ public class GameManager : MonoBehaviour
 
         PhotonRoomManager.skipAutoCreateRoom = false;
         Debug.Log("🔁 Returning to Nexus...");
-
         SceneManager.LoadScene("Nexus");
     }
+
 
 
 
@@ -89,9 +100,8 @@ public class GameManager : MonoBehaviour
     }
     private void ShowPanel(RectTransform panel)
     {
-        panel.gameObject.SetActive(true);
-
         var cg = GetOrAddCanvasGroup(panel);
+        cg.interactable = true;
         cg.alpha = 0;
         panel.anchoredPosition = new Vector2(0, -300);
 
@@ -105,6 +115,7 @@ public class GameManager : MonoBehaviour
     private Tween HidePanel(RectTransform panel)
     {
         var cg = GetOrAddCanvasGroup(panel);
+        cg.interactable = false;
         panel.anchoredPosition = new Vector2(0, offsetY);
 
         Sequence seq = DOTween.Sequence();
@@ -112,7 +123,7 @@ public class GameManager : MonoBehaviour
 
         seq.Append(cg.DOFade(0, duration));
         seq.Join(panel.DOAnchorPosY(panel.anchoredPosition.y + 100, duration).SetEase(Ease.InCubic));
-        seq.OnComplete(() => panel.gameObject.SetActive(false));
+        seq.OnComplete(() => panel.anchoredPosition= new Vector2(-2000,-2000));
         return seq;
     }
 }

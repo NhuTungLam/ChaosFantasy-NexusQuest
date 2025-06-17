@@ -53,7 +53,9 @@ public class CharacterHandler : MonoBehaviourPun
 
     [HideInInspector] public float baseCritDamage;
     [HideInInspector] public float currentCritDamage;
-
+    [Header("im losing my mind wth")]
+    public RectTransform hp_cover, mana_cover;
+    public TextMeshProUGUI hp_text;
     PlayerCollector collector;
     public Camera mainCamera;
     public float zoomSpeed = 5f;
@@ -127,10 +129,12 @@ public class CharacterHandler : MonoBehaviourPun
         var statPanel = GameObject.FindGameObjectWithTag("Hpbar");
         hp_cover = null;
         mana_cover = null;
+        hp_text = null;
         if (statPanel != null)
         {
             hp_cover = statPanel.transform.Find("hp_bar/cover").GetComponent<RectTransform>();
             mana_cover = statPanel.transform.Find("mana_bar/cover").GetComponent<RectTransform>();
+            hp_text = statPanel.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
         }
     }
 
@@ -187,11 +191,10 @@ public class CharacterHandler : MonoBehaviourPun
             throttleInteractUpdateInterval = 0.1f;
         }
     }
-    [Header("im losing my mind wth")]
-    public RectTransform hp_cover, mana_cover;
+    
     public void TakeDamage(float dmg)
     {
-        if (isInvincible) return;
+        if (isInvincible) dmg=0;
 
         // Shield Block
         if (isBlocking)
@@ -207,12 +210,13 @@ public class CharacterHandler : MonoBehaviourPun
         isInvincible = true;
 
         currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
-        hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
-
+        if (hp_cover != null  && photonView.IsMine) {
+            hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
+            hp_text.text = $"{currentHealth}/{characterData.MaxHealth}";
+        }
         if (currentHealth == 0)
             Die();
 
-        Debug.Log($"[Damage] Final HP: {currentHealth}, Mana: {currentMana}");
     }
     public bool UseMana(float amount)
     {
@@ -221,6 +225,7 @@ public class CharacterHandler : MonoBehaviourPun
 
         currentMana -= amount;
         currentMana = Mathf.Clamp(currentMana, 0, characterData.MaxMana);
+        if (mana_cover != null)
         mana_cover.localScale = new Vector3(currentMana/characterData.MaxMana, 1, 1);
 
         return true;
@@ -400,11 +405,28 @@ public class CharacterHandler : MonoBehaviourPun
 
         currentCritRate = baseCritRate;
         currentCritDamage = baseCritDamage;
-
+        TakeDamage(0);
+        UseMana(0);
         if (characterData.StartingWeapon != null)
             EquipWeapon(characterData.StartingWeapon);
     }
-
+    public void ApplyLoadSave(DungeonApiClient.PlayerProgressDTO playerloadinfo)
+    {
+        string className = playerloadinfo.currentClass;
+        Debug.Log(className);
+        CharacterData characterData = Resources.Load<CharacterData>("Characters/" + className);
+        if (characterData == null)
+        {
+            Debug.LogError("❌ Không tìm thấy CharacterData: " + className);
+            return;
+        }
+        Init(characterData);
+        currentHealth = playerloadinfo.currentHp;
+        Debug.LogWarning(currentHealth);
+        currentMana = playerloadinfo.currentMana;
+        TakeDamage(0);
+        UseMana(0);
+    }
     public float GetCurrentHealthPercent()
     {
         return currentHealth / characterData.MaxHealth;

@@ -81,6 +81,6 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
         hasSpawned = true;
 
         // 🟢 Save player progress to backend
-        StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(playerInstance.transform));
+        //StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(playerInstance.transform));
     }
 }
