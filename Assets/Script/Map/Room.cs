@@ -52,6 +52,10 @@ public class Room : MonoBehaviour
             {
                 SpawnChest();
                 chestSpawned = true;
+                if (roomType == RoomType.Boss)
+                {
+                    SpawnPortal();
+                }
             }
         }
     }
@@ -62,7 +66,11 @@ public class Room : MonoBehaviour
         Chest chest = chestObj.GetComponent<Chest>();
         if (chest != null) chest.ApplyData(chestData);
     }
-
+    private void SpawnPortal()
+    {
+        var portalPrefab = Resources.Load<GameObject>("NextStagePortal");
+        Instantiate(portalPrefab, chestSpawnPoint.position + new Vector3(0, 2f), Quaternion.identity);
+    }
     public void getActiveDoor()
     {
         directions.Clear();

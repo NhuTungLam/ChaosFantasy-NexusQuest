@@ -12,6 +12,7 @@ public class DungeonGenerator : MonoBehaviour
     {
         Instance = this;
     }
+    public int stageLevel;
     public GameObject[] roomPrefabs;
     public GameObject[] bossRooms;
     public GameObject[] specialRooms;
@@ -47,7 +48,7 @@ public class DungeonGenerator : MonoBehaviour
 
     public void Start()
     {
-        //GenerateDungeon();
+        stageLevel = 1;
     }
 
     [ContextMenu("gen")]

@@ -268,6 +268,7 @@ public class DungeonApiClient : MonoBehaviour
                         Debug.Log($"✅ SaveOwnerProgress returned ProgressId = {progressId}");
 
                         string layout = DungeonGenerator.Instance.SaveLayout();
+                        int stageLevel = DungeonGenerator.Instance.stageLevel;
                         if (string.IsNullOrEmpty(layout) || layout.Contains("\"entries\":[]"))
                         {
                             Debug.LogWarning("⚠️ Dungeon layout is empty. Skip saving dungeon.");
@@ -278,7 +279,7 @@ public class DungeonApiClient : MonoBehaviour
                         {
                             ownerProgressId = progressId,
                             dungeonLayout = layout,
-                            stageLevel = 1
+                            stageLevel = stageLevel
                         };
                         StartCoroutine(DungeonApiClient.Instance.SaveDungeon(dungeon));
                     }

@@ -59,9 +59,14 @@ public class GameManager : MonoBehaviour
         if (PlayerManager.Instance != null)
         {
             Transform myPlayer = PlayerManager.Instance.GetMyPlayer();
-            if (myPlayer != null)
+            if (myPlayer != null && PlayerProfileFetcher.CurrentProfile != null)
             {
+                MessageBoard.Show("Saving progress...");
                 yield return StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(myPlayer));
+            }
+            else
+            {
+                MessageBoard.Show("Saving is not available in Guest mode");
             }
         }
 
