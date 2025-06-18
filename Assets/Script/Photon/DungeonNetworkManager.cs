@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class DungeonNetworkManager : MonoBehaviourPunCallbacks
 {
+    public static DungeonNetworkManager Instance;
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     public string playerPrefabName = "PlayerNetwork";
     public Vector2 spawnAreaMin = new Vector2(-3, -3);
     public Vector2 spawnAreaMax = new Vector2(3, 3);

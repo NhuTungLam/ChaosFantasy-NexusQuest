@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class DungeonSyncManager : MonoBehaviourPunCallbacks
 {
+    public static DungeonSyncManager Instance;
+    private void Awake()
+    {
+        Instance = this;
+    }
     private IEnumerator Start()
     {
         // Đợi cho đến khi thật sự đã join room
