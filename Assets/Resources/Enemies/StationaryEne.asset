@@ -23,3 +23,4 @@ MonoBehaviour:
   animatorController: {fileID: 9100000, guid: 2c6e1464541f6794da8df6539ca46e01, type: 2}
   colliderOffset: {x: -0.05230689, y: -0.2719755}
   colliderSize: {x: 0.985055, y: 2.290973}
+  isStationary: 1

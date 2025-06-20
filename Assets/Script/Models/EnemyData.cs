@@ -36,4 +36,8 @@ public class EnemyData : ScriptableObject
     private Vector2 colliderSize;
     public Vector2 ColliderSize => colliderSize;
 
+    [SerializeField]
+    private bool isStationary;
+    public bool IsStationary => isStationary;
+
 }
