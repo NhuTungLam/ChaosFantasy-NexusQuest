@@ -10,8 +10,6 @@ using UnityEngine.SceneManagement;
 
 public class CharacterHandler : MonoBehaviourPun
 {
-    public PlayerProfile profile; // Account-level persistent data
-    public DungeonPlayerState state;     // In-room transient combat state
 
     public CharacterData characterData;
     public IMovementController movement;
@@ -105,20 +103,6 @@ public class CharacterHandler : MonoBehaviourPun
                 ui.character = this;
             }
         }
-
-        // Initialize player state from profile
-        //if (profile != null)
-        //{
-        //    state = new DungeonPlayerState
-        //    {
-        //        currentClass = profile.@class,
-        //        currentCard = activeSkill?.name ?? "None",
-        //        currentWeapon = weaponData?.weaponName ?? "None",
-        //        hp = currentHealth,
-        //        mana = currentMana,
-        //        stageLevel = PlayerPrefs.GetInt("CurrentStage", 1)
-        //    };
-        //}
 
         TryAttachStatBar();
         SceneManager.activeSceneChanged += (s, a) => TryAttachStatBar();
@@ -354,7 +338,6 @@ public class CharacterHandler : MonoBehaviourPun
             currentInteract = closestInteractable;
             currentInteract?.InRangeAction(this);
         }
-        //print(currentInteract);
     }
     void TryInteract()
     {
@@ -422,7 +405,6 @@ public class CharacterHandler : MonoBehaviourPun
         }
         Init(characterData);
         currentHealth = playerloadinfo.currentHp;
-        Debug.LogWarning(currentHealth);
         currentMana = playerloadinfo.currentMana;
         TakeDamage(0);
         UseMana(0);

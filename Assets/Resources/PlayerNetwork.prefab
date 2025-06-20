@@ -305,25 +305,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19089fe60a7bb9343a39cffd9d65a127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profile:
-    userId: 0
-    username: 
-    password: 
-    class: 
-    level: 1
-    exp: 0
-    gold: 0
-    winCount: 0
-    totalMatches: 0
-    totalPlayTime: 0
-  state:
-    userId: 
-    currentCard: 
-    currentWeapon: 
-    currentClass: 
-    hp: 0
-    mana: 0
-    stageLevel: 0
   characterData: {fileID: 0}
   interactionDistance: 2
   activeSkill: {fileID: 0}

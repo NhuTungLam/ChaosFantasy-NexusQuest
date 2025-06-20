@@ -27,10 +27,12 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("🟢 OnJoinedRoom (MultiplayerSpawnManager)");
         TrySpawn();
+
     }
 
     void TrySpawn()
     {
+
         if (hasSpawned)
         {
             Debug.Log("⚠️ Already spawned.");
@@ -71,16 +73,18 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
         );
 
         int viewID = playerInstance.GetComponent<PhotonView>().ViewID;
-
+        int userID = PlayerProfileFetcher.CurrentProfile != null? PlayerProfileFetcher.CurrentProfile.userId : -1;
         PlayerManager.Instance.photonView.RPC(
             "RPC_AddPlayerToList",
             RpcTarget.AllBuffered,
-            viewID
+            viewID,
+            userID
         );
 
         hasSpawned = true;
 
         // 🟢 Save player progress to backend
         //StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(playerInstance.transform));
+        
     }
 }

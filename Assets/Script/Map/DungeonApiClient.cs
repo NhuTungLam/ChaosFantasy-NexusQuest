@@ -85,67 +85,34 @@ public class DungeonApiClient : MonoBehaviour
         }
     }
 
-    public IEnumerator SavePlayerProgress(PlayerProgressDTO playerProgress)
+    public IEnumerator DeleteOwnerProgress(int ownerId)
     {
-        string json = JsonUtility.ToJson(playerProgress);
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+        string url = apiBaseProgress + "/delete-owner-progress?ownerId=" + ownerId;
 
-        using (UnityWebRequest request = new UnityWebRequest(apiBaseProgress + "/save-by-user", "POST"))
+        using (UnityWebRequest request = UnityWebRequest.Delete(url))
         {
-            
-
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
 
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
+            if (request.responseCode == 404)
             {
-
-                Debug.Log("Success: " + request.downloadHandler.text);
+                Debug.LogWarning("⚠️ No save found to delete (already deleted or never created).");
+            }
+            else if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("✅ OwnerProgress deleted successfully.");
             }
             else
             {
-                Debug.LogError("Error: " + request.error);
-                Debug.LogError("Response Code: " + request.responseCode);
-                Debug.LogError("Response Text: " + request.downloadHandler.text);
-
+                Debug.LogError($"❌ Delete failed: {request.responseCode} - {request.error}");
+                Debug.LogError(request.downloadHandler.text);
             }
+
         }
-
-    }
-    public IEnumerator SaveProgress(int ownerId, List<int> playerList, string roomStateJson, int stageLevel)
-    {
-        var ownerProgressDTO = PlayerManager.Instance.GetPlayerProgress(ownerId);
-
-        yield return StartCoroutine(SaveOwnerProgress(ownerId, ownerProgressDTO, (ownerProgressId) =>
-        {
-            if (ownerProgressId <= 0)
-            {
-                Debug.LogError("[API] Failed to save owner progress or received invalid ProgressId.");
-                return;
-            }
-
-            StartCoroutine(DelayedSaveDungeon(ownerProgressId, roomStateJson, stageLevel));
-        }));
-    }
-    private IEnumerator DelayedSaveDungeon(int ownerProgressId, string roomStateJson, int stageLevel)
-    {
-        yield return new WaitForSeconds(0.1f);
-
-        DungeonProgressDTO dungeonData = new DungeonProgressDTO
-        {
-            ownerProgressId = ownerProgressId,
-            dungeonLayout = roomStateJson ?? "{}",
-            stageLevel = stageLevel
-        };
-
-        yield return StartCoroutine(SaveDungeon(dungeonData));
     }
 
-
-    public IEnumerator LoadDungeonProgress(int ownerId, Action onLoaded = null)
+    public IEnumerator LoadDungeonProgress(int ownerId, Action<int> onLoaded = null)
     {
         string url = apiBase + "/owner/load-progress?ownerId=" + ownerId;
 
@@ -165,22 +132,43 @@ public class DungeonApiClient : MonoBehaviour
                     StartCoroutine(LoadPlayerProgress(dto.ownerProgressId, (d) =>
                     {
                         DungeonRestorerManager.Instance.playerinfo = d;
-                        onLoaded?.Invoke();
+                        onLoaded?.Invoke(dto.ownerProgressId);
                     }));
                 }
-                else
-                {
-                    onLoaded?.Invoke();
-                }
+                //else
+                //{
+                //    onLoaded?.Invoke();
+                //}
             }
             else
             {
                 Debug.LogError("❌ Load failed: " + request.error);
-                onLoaded?.Invoke(); 
             }
         }
     }
 
+    public IEnumerator LoadTeammateProgress(int ownerId, int userId, Action<PlayerProgressDTO> callback)
+    {
+        string url = $"http://localhost:5058/api/teamate/load-teammate-progress?ownerProgressId={ownerId}&userId={userId}";
+
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("✅ Loaded teammate progress.");
+                var dto = JsonUtility.FromJson<PlayerProgressDTO>(request.downloadHandler.text);
+                callback?.Invoke(dto);
+            }
+            else
+            {
+                Debug.LogError($"❌ Failed to load teammate progress: {request.error}");
+            }
+        }
+    }
 
     public IEnumerator LoadPlayerProgress(int progressId, Action<PlayerProgressDTO> callback)
     {
@@ -230,10 +218,37 @@ public class DungeonApiClient : MonoBehaviour
             }
         }
     }
-    public IEnumerator SaveProgressAfterSpawn(Transform playerTransform)
+    public IEnumerator SaveTeammateProgress(int userId, int ownerProgressId, PlayerProgressDTO dto)
+    {
+        string url = $"http://localhost:5058/api/teamate/save-teammate-progress?userId={userId}&ownerProgressId={ownerProgressId}";
+
+        string json = JsonUtility.ToJson(dto);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log($"✅ SaveTeammateProgress success: {request.downloadHandler.text}");
+            }
+            else
+            {
+                Debug.LogError($"❌ SaveTeammateProgress failed: {request.error}");
+                Debug.LogError(request.downloadHandler.text);
+            }
+        }
+    }
+
+    public IEnumerator SaveProgressAfterSpawn(Transform playerTransform, List<int> otherPlayer = null)
     {
         var handler = playerTransform.GetComponent<CharacterHandler>();
-        if (handler == null || handler.profile == null)
+        if (handler == null )
         {
             Debug.LogError("❌ Missing CharacterHandler or PlayerProfile.");
             yield break;
@@ -243,7 +258,7 @@ public class DungeonApiClient : MonoBehaviour
 
         Debug.Log($"🟢 Saving PlayerProgress for userId = {userId}");
         var hptosave = handler.currentHealth == 0? 1: handler.currentHealth;
-        var dto = new DungeonApiClient.PlayerProgressDTO
+        var dto = new PlayerProgressDTO
         {
 
             currentHp = hptosave,
@@ -253,43 +268,45 @@ public class DungeonApiClient : MonoBehaviour
             currentCards = "" // optional
         };
 
+        yield return StartCoroutine(SaveOwnerProgress(
+            userId, dto, (progressId) =>
+            {
 
-        // 🔒 Save dungeon if this player is room owner
-        var roomOwnerId = PhotonNetwork.CurrentRoom.CustomProperties["roomOwner"]?.ToString();
-        if (PhotonNetwork.LocalPlayer.UserId == roomOwnerId)
-        {
-            Debug.Log("🟢 This player is the roomOwner → Save dungeon too");
-
-            yield return StartCoroutine(DungeonApiClient.Instance.SaveOwnerProgress(
-                userId, dto, (progressId) =>
+                if (progressId > 0)
                 {
-                    if (progressId > 0)
-                    {
-                        Debug.Log($"✅ SaveOwnerProgress returned ProgressId = {progressId}");
+                    Debug.Log($"✅ SaveOwnerProgress returned ProgressId = {progressId}");
 
-                        string layout = DungeonGenerator.Instance.SaveLayout();
-                        int stageLevel = DungeonGenerator.Instance.stageLevel;
-                        if (string.IsNullOrEmpty(layout) || layout.Contains("\"entries\":[]"))
+                    string layout = DungeonGenerator.Instance.SaveLayout();
+                    int stageLevel = DungeonGenerator.Instance.stageLevel;
+                    if (string.IsNullOrEmpty(layout) || layout.Contains("\"entries\":[]"))
+                    {
+                        Debug.LogWarning("⚠️ Dungeon layout is empty. Skip saving dungeon.");
+                        return;
+                    }
+
+                    DungeonProgressDTO dungeon = new DungeonApiClient.DungeonProgressDTO
+                    {
+                        ownerProgressId = progressId,
+                        dungeonLayout = layout,
+                        stageLevel = stageLevel
+                    };
+
+                    StartCoroutine(SaveDungeon(dungeon));
+                    if (otherPlayer != null)
+                    {
+                        foreach (var tmId in otherPlayer)
                         {
-                            Debug.LogWarning("⚠️ Dungeon layout is empty. Skip saving dungeon.");
-                            return;
+                           if(tmId == -1) { continue; }
+                           var tmdto = PlayerManager.Instance.GetPlayerProgress(tmId);
+                            StartCoroutine(SaveTeammateProgress(tmId,progressId,tmdto));
                         }
+                    }
 
-                        DungeonApiClient.DungeonProgressDTO dungeon = new DungeonApiClient.DungeonProgressDTO
-                        {
-                            ownerProgressId = progressId,
-                            dungeonLayout = layout,
-                            stageLevel = stageLevel
-                        };
-                        StartCoroutine(DungeonApiClient.Instance.SaveDungeon(dungeon));
-                    }
-                    else
-                    {
-                        Debug.LogWarning("⚠️ Failed to save OwnerProgress.");
-                    }
                 }
-            ));
-        }
+
+            }
+        ));
+        
     }
 
 }

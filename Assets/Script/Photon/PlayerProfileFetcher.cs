@@ -47,7 +47,6 @@ public class PlayerProfileFetcher : MonoBehaviour
                 PlayerPrefs.SetInt(PlayerPrefsUserIdKey, userId); // Save to PlayerPrefs
                 PlayerPrefs.Save();
 
-                Debug.Log($"[Profile] Class: {CurrentProfile.@class}, Level: {CurrentProfile.level}, Gold: {CurrentProfile.gold}");
 
                 onDone?.Invoke(CurrentProfile);
 

@@ -5,8 +5,7 @@ public class PlayerProfile
 {
     public int userId;              
     public string username;
-    public string password;
-    public string @class;               
+    public string password;              
     public int level = 1;            
     public int exp = 0;              
     public int gold = 0;            

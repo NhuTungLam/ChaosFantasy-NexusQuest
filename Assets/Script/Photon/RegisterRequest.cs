@@ -61,7 +61,7 @@ public class RegisterRequest : MonoBehaviour
                 {
                     if (profile != null)
                     {
-                        MessageBoard.Show($"Profile created for {currentUsername}: Class = {profile.@class}");
+                        MessageBoard.Show($"Profile created for {currentUsername}");
                         MainMenu.Instance.HideRegister();
                     }
                     else

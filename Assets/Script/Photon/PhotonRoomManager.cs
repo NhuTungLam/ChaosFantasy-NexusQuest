@@ -4,13 +4,24 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class PhotonRoomManager : MonoBehaviourPunCallbacks
 {
+    public static PhotonRoomManager Instance;
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
     [Header("Room UI (optional)")]
-    public GameObject roomUIPanel;
-    public TMP_InputField roomNameInput;
-
+    private TMP_InputField roomNameInput = null;
+    private Button joinBtn, createBtn, autoCreateBtn, continueBtn;
     [Header("Settings")]
     public int maxPlayersPerRoom = 4;
 
@@ -22,25 +33,48 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        roomPrefix = "Nexus_";
+        targetScene = "Nexus";
+        autoCreateRoomInNexus = true;
         Debug.Log("🧠 Scene Start() - Photon InRoom: " + PhotonNetwork.InRoom);
         PhotonNetwork.AutomaticallySyncScene = true;
-
-        string currentScene = SceneManager.GetActiveScene().name;
-        switch (currentScene)
+        
+        SceneManager.activeSceneChanged += (prevScene,currentScene) =>
         {
-            case "Nexus":
-                roomPrefix = "Nexus_";
-                targetScene = "Nexus";
-                autoCreateRoomInNexus = true;
-                break;
+            roomNameInput = null;
+            createBtn = null;
+            autoCreateBtn = null;
+            continueBtn = null;
+            joinBtn = null;
+            switch (currentScene.name)
+            {
+                case "Nexus":
+                    roomPrefix = "Nexus_";
+                    targetScene = "Nexus";
+                    autoCreateRoomInNexus = true;
+                    break;
 
-            case "Enter_Dungeon":
-                roomPrefix = "Dungeon_";
-                targetScene = "Dungeon";
-                autoCreateRoomInNexus = false; // Rất quan trọng
-                if (roomUIPanel) roomUIPanel.SetActive(true);
-                break;
-        }
+                case "Enter_Dungeon":
+                    roomPrefix = "Dungeon_";
+                    targetScene = "Dungeon";
+                    autoCreateRoomInNexus = false;
+                    roomNameInput = GameObject.Find("Canvas/RoomJoinPanel/room_id").GetComponent<TMP_InputField>();
+                    createBtn = GameObject.Find("Canvas/RoomJoinPanel/create").GetComponent<Button>();
+                    joinBtn = GameObject.Find("Canvas/RoomJoinPanel/join").GetComponent<Button>();
+                    autoCreateBtn = GameObject.Find("Canvas/RoomJoinPanel/auto_create").GetComponent<Button>();
+                    continueBtn = GameObject.Find("Canvas/RoomJoinPanel/continue").GetComponent<Button>();
+
+                    createBtn.onClick.AddListener(CreateRoom);
+                    joinBtn.onClick.AddListener(JoinRoom);
+                    continueBtn.onClick.AddListener(LoadSave);
+                    autoCreateBtn.onClick.AddListener(QuickStart);
+
+
+
+                    break;
+            }
+        };
+        
         if (!PhotonNetwork.IsConnected)
         {
             PhotonNetwork.NickName = "Player_" + Random.Range(1000, 9999);
@@ -89,6 +123,11 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
+        if (PlayerProfileFetcher.CurrentProfile != null)
+        {
+            StartCoroutine(DungeonApiClient.Instance.DeleteOwnerProgress(PlayerProfileFetcher.CurrentProfile.userId));
+            
+        }
         string roomName = roomNameInput?.text.Trim();
         if (string.IsNullOrEmpty(roomName)) roomName = roomPrefix + Random.Range(1000, 9999);
 
@@ -117,6 +156,11 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
 
     public void QuickStart()
     {
+        if (PlayerProfileFetcher.CurrentProfile != null)
+        {
+            StartCoroutine(DungeonApiClient.Instance.DeleteOwnerProgress(PlayerProfileFetcher.CurrentProfile.userId));
+
+        }
         PhotonNetwork.JoinRandomRoom();
     }
 
@@ -128,6 +172,7 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
+
         Debug.Log("✅ Joined room: " + PhotonNetwork.CurrentRoom.Name);
 
         if (!string.IsNullOrEmpty(targetScene) &&
@@ -153,9 +198,12 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
 
     public void LoadSave()
     {
-        int userId = PlayerProfileFetcher.CurrentProfile.userId;
-
-        StartCoroutine(DungeonApiClient.Instance.LoadDungeonProgress(userId, () =>
+        int userId = PlayerProfileFetcher.CurrentProfile !=null? PlayerProfileFetcher.CurrentProfile.userId: -1;
+        if(userId == -1)
+        {
+            MessageBoard.Show("Save/Load feature is not available in guest mode");
+        }
+        StartCoroutine(DungeonApiClient.Instance.LoadDungeonProgress(userId, (i) =>
         {
             if (DungeonRestorerManager.Instance.dungeoninfo != null)
             {
@@ -193,7 +241,9 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
             else
                 cachedRoomList[room.Name] = room;
         }
+        foreach (RoomInfo room in cachedRoomList.Values)
+        {
+            Debug.LogWarning($" - {room.Name}, Owner: {room.CustomProperties["roomOwner"]}");
+        }
     }
-
-
 }

@@ -17,9 +17,7 @@ public class HealthPotion : MonoBehaviour, IInteractable
         CharacterHandler player = FindObjectOfType<CharacterHandler>();
         if (player != null)
         {
-            player.currentHealth += healAmount;
-            if (player.currentHealth > player.characterData.MaxHealth)
-                player.currentHealth = player.characterData.MaxHealth;
+            player.TakeDamage(-healAmount);
 
             Debug.Log($"[HealthPotion] Player healed +{healAmount} HP");
 

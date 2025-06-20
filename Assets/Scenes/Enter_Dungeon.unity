@@ -358,19 +358,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 239824772}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2110459702}
-        m_TargetAssemblyTypeName: PhotonRoomManager, Assembly-CSharp
-        m_MethodName: CreateRoom
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &239824772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -492,19 +480,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 250617019}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2110459702}
-        m_TargetAssemblyTypeName: PhotonRoomManager, Assembly-CSharp
-        m_MethodName: JoinRoom
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &250617019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1669,19 +1645,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1593883471}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2110459702}
-        m_TargetAssemblyTypeName: PhotonRoomManager, Assembly-CSharp
-        m_MethodName: QuickStart
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1593883471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1826,7 +1790,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1716424723
 MonoBehaviour:
@@ -1923,19 +1887,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1779142843}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2110459702}
-        m_TargetAssemblyTypeName: PhotonRoomManager, Assembly-CSharp
-        m_MethodName: LoadSave
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1779142843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2008,7 +1960,7 @@ MonoBehaviour:
     dungeonLayout: 
     stageLevel: 0
   playerinfo:
-    currentHP: 0
+    currentHp: 0
     currentMana: 0
     currentClass: 
     currentCards: 
@@ -2026,7 +1978,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1852211441
 GameObject:
@@ -2298,82 +2250,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1900202713}
   m_CullTransparentMesh: 1
---- !u!1001 &2110459701
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5017627782784655794, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_Name
-      value: PhotonManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 6493227791252627846, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: roomUIPanel
-      value: 
-      objectReference: {fileID: 861325730}
-    - target: {fileID: 6493227791252627846, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: roomNameInput
-      value: 
-      objectReference: {fileID: 611686228}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.61545086
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.10919467
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.08246278
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635958753785121113, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
---- !u!114 &2110459702 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6493227791252627846, guid: 269998b4a2c72c84a8fe798f55aef80e, type: 3}
-  m_PrefabInstance: {fileID: 2110459701}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b19ae2c50f9e54e4faa5218397005200, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2121733787
 GameObject:
   m_ObjectHideFlags: 0

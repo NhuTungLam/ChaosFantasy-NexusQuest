@@ -39,7 +39,7 @@ public class NextStagePortal : MonoBehaviour, IInteractable
             if (myPlayer != null && PlayerProfileFetcher.CurrentProfile != null)
             {
                 MessageBoard.Show("Saving progress...");
-                yield return StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(myPlayer));
+                yield return StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(myPlayer, PlayerManager.Instance.GetOtherPlayer()));
             }
             else
             {
@@ -50,7 +50,7 @@ public class NextStagePortal : MonoBehaviour, IInteractable
             DungeonSyncManager.Instance.photonView.RPC("RPC_SpawnRoomPrefab", RpcTarget.Others, DungeonGenerator.Instance.SaveLayout());
             foreach (var p in PlayerManager.Instance.playerList)
             {
-                p.position = new Vector2(Random.Range(-3f, 3f), Random.Range(-3f, 3f));
+                p.Value.position = new Vector2(Random.Range(-3f, 3f), Random.Range(-3f, 3f));
             }
         }
         yield return new WaitForSecondsRealtime(1f);

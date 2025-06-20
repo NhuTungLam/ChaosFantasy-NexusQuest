@@ -345,13 +345,23 @@ public class DungeonGenerator : MonoBehaviour
         return json;
     }
 
-    [ContextMenu("LoadLayout")]
-    public void LoadLayout(string json)
+    public void LoadLayout(string json, int stagelevel)
     {
         
         var layout = JsonUtility.FromJson<SerializableRoomLayout>(json);
         Dictionary<Vector2Int, (Direction, string)> loaded = layout.ToDictionary();
+        var allMonoBehaviours = GameObject.FindObjectsOfType<MonoBehaviour>();
 
+        var allInteractables = allMonoBehaviours
+            .Where(m => m is IInteractable)
+            .ToList();
+
+        foreach (var interactable in allInteractables)
+        {
+            if ((interactable as IInteractable).CanInteract())
+                Destroy(interactable.gameObject);
+        }
+        stageLevel = stagelevel;
         GenerateDungeonFromLayout(loaded);
     }
     

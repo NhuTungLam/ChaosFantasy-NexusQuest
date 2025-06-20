@@ -59,10 +59,31 @@ public class GameManager : MonoBehaviour
         if (PlayerManager.Instance != null)
         {
             Transform myPlayer = PlayerManager.Instance.GetMyPlayer();
-            if (myPlayer != null && PlayerProfileFetcher.CurrentProfile != null)
+            if (myPlayer != null && PlayerProfileFetcher.CurrentProfile != null )
             {
-                MessageBoard.Show("Saving progress...");
-                yield return StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(myPlayer));
+                if (RoomSessionManager.Instance.IsRoomOwner())
+                {
+                    MessageBoard.Show("Saving progress...");
+                    yield return StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(myPlayer,PlayerManager.Instance.GetOtherPlayer()));
+                }
+                else 
+                
+                {
+                    int ownerId = PlayerManager.Instance.GetOwnerPlayerId();
+                    if (ownerId == -1)
+                    {
+                        MessageBoard.Show("Owner in guest mode, cannot save");
+                    }
+                    else
+                        StartCoroutine(DungeonApiClient.Instance.LoadDungeonProgress(ownerId, (progressid) =>
+                        {
+                            DungeonRestorerManager.Instance.dungeoninfo = null;
+                            var myid = PlayerProfileFetcher.CurrentProfile.userId;
+                            var mydto = PlayerManager.Instance.GetPlayerProgress(myid);
+                            
+                            StartCoroutine(DungeonApiClient.Instance.SaveTeammateProgress(myid, progressid, mydto));
+                        }));
+                }    
             }
             else
             {

@@ -26,11 +26,12 @@ public class DungeonSyncManager : MonoBehaviourPunCallbacks
         if (RoomSessionManager.Instance.IsRoomOwner())
         {
             string savedLayout = DungeonRestorerManager.Instance?.dungeoninfo?.dungeonLayout;
-
+            var stageLevel = DungeonRestorerManager.Instance?.dungeoninfo?.stageLevel;
             if (!string.IsNullOrEmpty(savedLayout))
             {
+
                 Debug.Log("🟢 Room Owner loading saved layout...");
-                DungeonGenerator.Instance.LoadLayout(savedLayout);
+                DungeonGenerator.Instance.LoadLayout(savedLayout,stageLevel!=null? (int)stageLevel :1);
                 photonView.RPC("RPC_SpawnRoomPrefab", RpcTarget.Others, savedLayout);
             }
             else
@@ -44,6 +45,7 @@ public class DungeonSyncManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("🟡 Teammate requesting layout from MasterClient...");
             photonView.RPC("RPC_RequestDungeonLayout", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+            
         }
     }
 
@@ -52,7 +54,7 @@ public class DungeonSyncManager : MonoBehaviourPunCallbacks
     public void RPC_SpawnRoomPrefab(string layout)
     {
         Debug.Log("🟣 RPC_SpawnRoomPrefab received → loading layout");
-        DungeonGenerator.Instance.LoadLayout(layout);
+        DungeonGenerator.Instance.LoadLayout(layout,1);
     }
 
     [PunRPC]
