@@ -10,6 +10,7 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
     private DropRateManager drop;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private Rigidbody2D rb;
 
     public float currentDamage, currentHealth;
     private GameObject player;
@@ -19,6 +20,7 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
         drop = GetComponent<DropRateManager>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        rb = GetComponent<Rigidbody2D>();
     }
     public void TakeDamage(float damage)
     {
@@ -88,6 +90,7 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
         }
 
         SetupCollider();
+        rb.isKinematic = enemyData.IsStationary;
 
         if (GetComponent<EnemyMovement>() != null)
         {
@@ -127,6 +130,7 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+        rb.velocity = Vector2.zero;
         if (collision.gameObject.CompareTag("Player"))
         {
             var player = collision.gameObject.GetComponent<CharacterHandler>();
