@@ -10,17 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd73895928b5e92498d97f12796a6e80, type: 3}
-  m_Name: StationaryEne
+  m_Name: Turret
   m_EditorClassIdentifier: 
-  e_name: TreeEnemy
+  e_name: Turret
   deathAnimName: 
-  speed: 1
-  maxHealth: 10
-  damage: 10
-  atkSpeed: 1
+  maxHealth: 50
+  damage: 5
+  atkSpeed: 2
   movementScriptName: StationaryRangedEnemy
-  projectileSpeed: 10
-  animatorController: {fileID: 9100000, guid: 2c6e1464541f6794da8df6539ca46e01, type: 2}
-  colliderOffset: {x: -0.05230689, y: -0.2719755}
-  colliderSize: {x: 0.985055, y: 2.290973}
+  animatorController: {fileID: 9100000, guid: 440eeba4a095f164b8b30d54db1f357c, type: 2}
+  colliderOffset: {x: 0, y: -0.5}
+  colliderSize: {x: 1, y: 1}
   isStationary: 1
+  detectionRange: 10

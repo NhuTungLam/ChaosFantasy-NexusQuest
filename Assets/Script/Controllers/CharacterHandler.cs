@@ -78,10 +78,13 @@ public class CharacterHandler : MonoBehaviourPun
 
     public WeaponBase currentWeapon;
 
+    private SpriteRenderer _spriteRenderer;
+
     public void Awake()
     {
         if (GetComponent<Rigidbody2D>() == null)
             Debug.LogError("CharacterHandler: Missing Rigidbody2D");
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Start()
@@ -119,6 +122,8 @@ public class CharacterHandler : MonoBehaviourPun
             hp_cover = statPanel.transform.Find("hp_bar/cover").GetComponent<RectTransform>();
             mana_cover = statPanel.transform.Find("mana_bar/cover").GetComponent<RectTransform>();
             hp_text = statPanel.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
+            TakeDamage(0);
+            UseMana(0);
         }
     }
 
@@ -175,7 +180,15 @@ public class CharacterHandler : MonoBehaviourPun
             throttleInteractUpdateInterval = 0.1f;
         }
     }
-    
+    private IEnumerator FlashCoroutine()
+    {
+        //flashMaterial.SetColor(FlashColor, flashColor);
+        _spriteRenderer.material.SetFloat("_FlashAmount", 1f);
+
+        yield return new WaitForSeconds(0.15f);
+
+        _spriteRenderer.material.SetFloat("_FlashAmount", 0f);
+    }
     public void TakeDamage(float dmg)
     {
         if (isInvincible) dmg=0;
@@ -201,6 +214,11 @@ public class CharacterHandler : MonoBehaviourPun
         if (currentHealth == 0)
             Die();
 
+        if (dmg > 0)
+        {
+            DamagePopUp.Create(transform.position, Mathf.RoundToInt(dmg));
+            StartCoroutine(FlashCoroutine());
+        }
     }
     public bool UseMana(float amount)
     {

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd73895928b5e92498d97f12796a6e80, type: 3}
+  m_Name: MeleeEnemy
+  m_EditorClassIdentifier: 
+  e_name: Orge
+  deathAnimName: 
+  maxHealth: 30
+  damage: 3
+  atkSpeed: 3
+  movementScriptName: MeleeEnemy
+  animatorController: {fileID: 9100000, guid: 54a301778f54a114387e6a61de161de8, type: 2}
+  colliderOffset: {x: 0, y: -0.4}
+  colliderSize: {x: 1, y: 1.2}
+  isStationary: 0
+  detectionRange: 6

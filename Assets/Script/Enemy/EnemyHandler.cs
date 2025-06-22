@@ -6,14 +6,14 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
 {
     public EnemyData enemyData;
 
-    private EnemyMovement movement;
-    private DropRateManager drop;
-    private Animator animator;
-    private SpriteRenderer spriteRenderer;
-    private Rigidbody2D rb;
+    protected EnemyMovement movement;
+    protected DropRateManager drop;
+    protected Animator animator;
+    protected SpriteRenderer spriteRenderer;
+    protected Rigidbody2D rb;
 
     public float currentDamage, currentHealth;
-    private GameObject player;
+    //private GameObject player;
 
     void Awake()
     {
@@ -27,23 +27,45 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
         // Gửi yêu cầu về master để xử lý sát thương
         photonView.RPC("RPC_TakeDamage", RpcTarget.MasterClient, damage);
     }
+    private IEnumerator FlashCoroutine()
+    {
+        //flashMaterial.SetColor(FlashColor, flashColor);
+        spriteRenderer.material.SetFloat("_FlashAmount", 1f);
 
+        yield return new WaitForSeconds(0.15f);
+
+        spriteRenderer.material.SetFloat("_FlashAmount", 0f);
+    }
     [PunRPC]
     public void RPC_TakeDamage(float damage)
     {
         currentHealth -= damage;
-
+        if (damage > 0f)
+        {
+            DamagePopUp.Create(transform.position, Mathf.RoundToInt(damage));
+            if (this != null)
+                StartCoroutine(FlashCoroutine());
+        }
         if (currentHealth <= 0)
         {
             PhotonNetwork.Destroy(gameObject);
         }
 
-        DamagePopUp.Create(transform.position, Mathf.RoundToInt(damage));
     }
-
+    /// <summary>
+    /// Rotation mode: 0 - null, 1 - flipx, 2 - based on direction
+    /// </summary>
+    /// <param name="projectileName"></param>
+    /// <param name="position"></param>
+    /// <param name="direction"></param>
+    /// <param name="speed"></param>
+    /// <param name="lifespan"></param>
+    /// <param name="damage"></param>
+    /// <param name="rotationMode"></param>
     [PunRPC]
-    public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage)
+    public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage, int rotationMode)
     {
+        direction.Normalize();
         GameObject prefab = Resources.Load<GameObject>($"Enemies/{projectileName}");
         if (prefab == null)
         {
@@ -52,6 +74,13 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
         }
 
         GameObject proj = Instantiate(prefab, position, Quaternion.identity);
+        proj.GetComponent<SpriteRenderer>().flipX = rotationMode == 1;
+        if (rotationMode == 2)
+        {
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            proj.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        }
+
         var hitbox = proj.GetComponent<EnemyHitBox>();
         if (hitbox == null)
         {
@@ -63,12 +92,17 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
         hitbox.UpdateFunc = () => proj.transform.position += (Vector3)(direction * speed * Time.deltaTime);
         hitbox.HitEffect = (handler) =>
         {
-            Debug.Log("Projectile hit player");
+            //Debug.Log("Projectile hit player");
             handler.TakeDamage(damage);
         };
         hitbox.OnDestroy = () => Destroy(proj); // Không cần ReturnToPool khi RPC
 
         // Nếu muốn pooling đồng bộ, cần thiết kế lại → giữ Destroy để đơn giản
+    }
+    [PunRPC]
+    public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage)
+    {
+        RPC_FireProjectile(projectileName, position, direction, speed, lifespan, damage, 0);
     }
 
     public void Init(EnemyData data)
@@ -80,7 +114,6 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
         }
 
         this.enemyData = data;
-        player = GameObject.FindGameObjectWithTag("Player");
         currentDamage = enemyData.Damage;
         currentHealth = enemyData.MaxHealth;
 
@@ -121,6 +154,7 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
         if (type != null && type.IsSubclassOf(typeof(EnemyMovement)))
         {
             movement = gameObject.AddComponent(type) as EnemyMovement;
+            movement.detectionRange = enemyData.DetectionRange;
         }
         else
         {

@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd73895928b5e92498d97f12796a6e80, type: 3}
-  m_Name: EnemyScriptableObject
+  m_Name: ShieldEnemy
   m_EditorClassIdentifier: 
-  e_name: killer
+  e_name: Armored
   deathAnimName: 
-  speed: 2
-  maxHealth: 3
-  damage: 1
+  maxHealth: 100
+  damage: 20
   atkSpeed: 5
-  movementScriptName: MeleeEnemy
-  projectileSpeed: 1
-  animatorController: {fileID: 9100000, guid: eb14b43d84c3d83499dbc3ed9f5e5c98, type: 2}
-  colliderOffset: {x: 0, y: -0.13}
-  colliderSize: {x: 1, y: 1.2}
+  movementScriptName: ShieldEnemy
+  animatorController: {fileID: 9100000, guid: 8259c7df05da67d44a6be900d982e57d, type: 2}
+  colliderOffset: {x: 0, y: -0.4}
+  colliderSize: {x: 0.9, y: 1}
+  isStationary: 0
+  detectionRange: 6

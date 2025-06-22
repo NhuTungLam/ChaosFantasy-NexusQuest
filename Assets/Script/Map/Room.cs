@@ -29,6 +29,9 @@ public class Room : MonoBehaviour
         if (isTriggered || !other.CompareTag("Player")) return;
         isTriggered = true;
 
+        if (transform.position == Vector3.zero)
+            return;
+
         if (needCloseDoor)
         {
             getActiveDoor();
