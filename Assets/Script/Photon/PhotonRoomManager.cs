@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class PhotonRoomManager : MonoBehaviourPunCallbacks
 {
+    [SerializeField] private GameObject roomItemPrefab;
+    [SerializeField] private Transform roomListContainer;
     public static PhotonRoomManager Instance;
     private void Awake()
     {
@@ -63,13 +65,15 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
                     joinBtn = GameObject.Find("Canvas/RoomJoinPanel/join").GetComponent<Button>();
                     autoCreateBtn = GameObject.Find("Canvas/RoomJoinPanel/auto_create").GetComponent<Button>();
                     continueBtn = GameObject.Find("Canvas/RoomJoinPanel/continue").GetComponent<Button>();
+                    roomListContainer = GameObject.Find("Canvas/RoomJoinPanel/room_list/Viewport/Content").transform;
+                    roomItemPrefab = Resources.Load<GameObject>("room_name");
 
                     createBtn.onClick.AddListener(CreateRoom);
                     joinBtn.onClick.AddListener(JoinRoom);
                     continueBtn.onClick.AddListener(LoadSave);
                     autoCreateBtn.onClick.AddListener(QuickStart);
 
-
+                    UpdateRoomListUI();
 
                     break;
             }
@@ -213,7 +217,7 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
                 RoomOptions options = new RoomOptions
                 {
                     MaxPlayers = 4, 
-                    IsVisible = false,
+                    IsVisible = true,
                     CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
                 {
                     { "roomOwner", PhotonNetwork.LocalPlayer.UserId }
@@ -231,19 +235,48 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         }));
     }
 
+    
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         foreach (RoomInfo room in roomList)
         {
-            if (room.RemovedFromList)
+            if (room.RemovedFromList || room.PlayerCount == 0)
                 cachedRoomList.Remove(room.Name);
             else
                 cachedRoomList[room.Name] = room;
         }
-        foreach (RoomInfo room in cachedRoomList.Values)
+
+        if (SceneManager.GetActiveScene().name == "Enter_Dungeon")
+            UpdateRoomListUI();
+    }
+
+    public void UpdateRoomListUI()
+    {
+        // Clear cũ
+        foreach (Transform child in roomListContainer)
+            Destroy(child.gameObject);
+
+        // Hiển thị phòng có người chơi
+        foreach (var room in cachedRoomList.Values)
         {
-            Debug.LogWarning($" - {room.Name}, Owner: {room.CustomProperties["roomOwner"]}");
+            if (room.PlayerCount == 0) continue;
+
+            GameObject item = Instantiate(roomItemPrefab, roomListContainer);
+
+            // Set text
+            var text = item.GetComponentInChildren<TMP_Text>();
+            if (text != null)
+                text.text = $"{room.Name} ({room.PlayerCount}/{room.MaxPlayers})";
+
+            // Set join button
+            var btn = item.GetComponent<Button>();
+            if (btn != null)
+            {
+                string roomName = room.Name; // tránh closure bug
+                btn.onClick.AddListener(() => PhotonNetwork.JoinRoom(roomName));
+            }
         }
     }
+
 }

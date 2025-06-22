@@ -165,7 +165,7 @@ public class DungeonApiClient : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"❌ Failed to load teammate progress: {request.error}");
+                Debug.LogWarning($"❌ Failed to load teammate progress: {request.error}");
             }
         }
     }

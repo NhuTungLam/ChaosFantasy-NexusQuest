@@ -112,7 +112,20 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("Nexus");
     }
 
+    private void OnApplicationQuit()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            if (PhotonNetwork.LocalPlayer.TagObject is GameObject go)
+            {
+                PhotonNetwork.Destroy(go);
+                PhotonNetwork.LocalPlayer.TagObject = null;
+            }
 
+            PhotonNetwork.LeaveRoom();
+
+        }
+    }
 
 
     [Header("Animation Settings")]
