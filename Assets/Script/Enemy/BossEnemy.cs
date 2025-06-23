@@ -2,6 +2,7 @@ using UnityEngine;
 using Photon.Pun;
 using System.Collections.Generic;
 using System.Collections;
+using static UnityEngine.GraphicsBuffer;
 
 public class BossEnemy : EnemyMovement
 {
@@ -33,8 +34,8 @@ public class BossEnemy : EnemyMovement
     }
 
     //strafe
-    private float moveSpeed = 4f;
-    private float preferredDistance = 6f;
+    private float moveSpeed = 1.5f;
+    private float preferredDistance = 4f;
 
     //center
     private float centerThreshold = 0.2f;
@@ -43,10 +44,11 @@ public class BossEnemy : EnemyMovement
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        roomCenter = transform.position;
     }
     protected override void Attack()
     {
-        if (attackCD > 0)
+        if (attackCD >= 0)
         {
             attackCD -= Time.deltaTime;
         }
@@ -65,8 +67,12 @@ public class BossEnemy : EnemyMovement
                 switchInterval -= Time.deltaTime;
                 if (attackCD < 0)
                 {
-                    StartCoroutine(Pattern2Seq(switchInterval <= 0));
-                    attackCD = enemyHandler.enemyData.AtkSpeed;
+                    if (player != null)
+                    {
+                        var dir = player.position - transform.position;
+                        StartCoroutine(Pattern2Seq(dir, switchInterval <= 0));
+                        attackCD = enemyHandler.enemyData.AtkSpeed;
+                    }
                 }
                 break;
             case BossPattern.GoToCenter:
@@ -82,11 +88,12 @@ public class BossEnemy : EnemyMovement
     }
     private IEnumerator Pattern1Seq(Transform target, bool toChangePattern)
     {
-        int i = 3;
+        int i = 8;
+        SignalMovingChange(false);
         while (i > 0)
         {
             Vector2 dir = (target.position - transform.position).normalized;
-            float speed = 12f;
+            float speed = 8f;
 
             photonView.RPC("RPC_FireProjectile", RpcTarget.All,
                 "boss_fireball",
@@ -99,23 +106,41 @@ public class BossEnemy : EnemyMovement
             );
 
             i--;
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.15f);
         }
         if (toChangePattern)
             SignalPatternChange();
+        SignalMovingChange(true);
         yield return null;
     }
-    private IEnumerator Pattern2Seq(bool toChangePattern)
+    private IEnumerator Pattern2Seq(Vector2 dir, bool toChangePattern)
     {
+        dir.Normalize();
+        SignalMovingChange(false);
 
+        float speed = 6f;
+
+        photonView.RPC("RPC_FireProjectile", RpcTarget.All,
+            "boss_firepillar_base",
+            transform.position,
+            dir,
+            speed,
+            2f,
+            enemyHandler.currentDamage,
+            2
+        );
+
+        yield return new WaitForSeconds(0.2f);
+      
         if (toChangePattern)
             SignalPatternChange();
+        SignalMovingChange(true);
         yield return null;
     }
     private IEnumerator Pattern3Seq(bool toChangePattern)
     {
-        float speed = 10f;
-        float delay = 0.5f;
+        float speed = 6f;
+        float delay = 1f;
 
         // First burst - orthogonal directions
         Vector2[] orthogonalDirs = new Vector2[]
@@ -129,11 +154,11 @@ public class BossEnemy : EnemyMovement
         foreach (var dir in orthogonalDirs)
         {
             photonView.RPC("RPC_FireProjectile", RpcTarget.All,
-                "boss_fireball",
+                "boss_slash",
                 transform.position,
                 dir,
                 speed,
-                1f,
+                1.5f,
                 enemyHandler.currentDamage,
                 2
             );
@@ -157,7 +182,7 @@ public class BossEnemy : EnemyMovement
                 transform.position,
                 dir,
                 speed,
-                1f,
+                1.5f,
                 enemyHandler.currentDamage,
                 2
             );
@@ -178,11 +203,25 @@ public class BossEnemy : EnemyMovement
 
         currentPattern = newPattern;
 
-        switchInterval = 8f;
+        SignalMovingChange(true);
+        switchInterval = 10f;
     }
 
     protected override void Movement()
     {
+        if (player != null)
+        {
+            var playerDir = player.position - transform.position; 
+            if (playerDir.x < 0)
+            {
+                transform.localScale = new Vector3(-1, 1, 1);
+            }
+            else if (playerDir.x > 0)
+            {
+                transform.localScale = new Vector3(1, 1, 1);
+            }
+        }
+
         if (!isMoving) return;
 
         Vector2 targetPos = transform.position;
@@ -230,6 +269,15 @@ public class BossEnemy : EnemyMovement
         // Move toward target
         Vector2 dir = (targetPos - (Vector2)transform.position).normalized;
         rb.MovePosition(rb.position + dir * moveSpeed * Time.fixedDeltaTime);
+
+        if (dir.x < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else if (dir.x > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
     }
 
     public bool IsInCenter()
