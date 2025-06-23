@@ -10,17 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd73895928b5e92498d97f12796a6e80, type: 3}
-  m_Name: StationaryEne
+  m_Name: ShieldEnemy
   m_EditorClassIdentifier: 
-  e_name: TreeEnemy
+  e_name: Armored
   deathAnimName: 
-  speed: 1
-  maxHealth: 10
-  damage: 10
-  atkSpeed: 1
-  movementScriptName: StationaryRangedEnemy
-  projectileSpeed: 10
-  animatorController: {fileID: 9100000, guid: 2c6e1464541f6794da8df6539ca46e01, type: 2}
-  colliderOffset: {x: -0.05230689, y: -0.2719755}
-  colliderSize: {x: 0.985055, y: 2.290973}
-  isStationary: 1
+  maxHealth: 100
+  damage: 20
+  atkSpeed: 5
+  movementScriptName: ShieldEnemy
+  animatorController: {fileID: 9100000, guid: 8259c7df05da67d44a6be900d982e57d, type: 2}
+  colliderOffset: {x: 0, y: -0.4}
+  colliderSize: {x: 0.9, y: 1}
+  isStationary: 0
+  detectionRange: 6

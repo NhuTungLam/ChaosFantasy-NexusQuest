@@ -32,7 +32,7 @@ public class StationaryRangedEnemy : EnemyMovement
         if (Vector2.Distance(player.position, transform.position) <= 7)
         {
             Vector2 dir = (player.position - transform.position).normalized;
-            float speed = enemyHandler.enemyData.ProjectileSpeed;
+            float speed = 10f;
             float atkSpeed = enemyHandler.enemyData.AtkSpeed;
 
             photonView.RPC("RPC_FireProjectile", RpcTarget.All,

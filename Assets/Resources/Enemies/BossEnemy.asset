@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd73895928b5e92498d97f12796a6e80, type: 3}
-  m_Name: EnemyScriptableObject
+  m_Name: BossEnemy
   m_EditorClassIdentifier: 
-  e_name: killer
+  e_name: Automaton
   deathAnimName: 
-  speed: 2
-  maxHealth: 3
-  damage: 1
-  atkSpeed: 5
-  movementScriptName: MeleeEnemy
-  projectileSpeed: 1
-  animatorController: {fileID: 9100000, guid: eb14b43d84c3d83499dbc3ed9f5e5c98, type: 2}
-  colliderOffset: {x: 0, y: -0.13}
-  colliderSize: {x: 1, y: 1.2}
+  maxHealth: 500
+  damage: 10
+  atkSpeed: 3
+  movementScriptName: BossEnemy
+  animatorController: {fileID: 9100000, guid: dea0c3e4f5bfbd84da2713f031da40ea, type: 2}
+  colliderOffset: {x: 0, y: 0}
+  colliderSize: {x: 2, y: 2}
+  isStationary: 0
+  detectionRange: 10
