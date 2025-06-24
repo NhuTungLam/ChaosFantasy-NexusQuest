@@ -72,7 +72,7 @@ public class Room : MonoBehaviour
     private void SpawnPortal()
     {
         var portalPrefab = Resources.Load<GameObject>("NextStagePortal");
-        Instantiate(portalPrefab, chestSpawnPoint.position + new Vector3(0, 2f), Quaternion.identity);
+        Instantiate(portalPrefab, chestSpawnPoint.position + new Vector3(0, 10f), Quaternion.identity);
     }
     public void getActiveDoor()
     {

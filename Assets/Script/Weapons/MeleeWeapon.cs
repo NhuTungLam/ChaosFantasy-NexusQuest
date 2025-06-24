@@ -27,8 +27,9 @@ public class MeleeWeapon : WeaponBase
         Vector2 direction = (mouseWorld - user.transform.position).normalized;
         bool isLeft = mouseWorld.x < user.transform.position.x;
 
-        float offset = 0.5f;
-        Vector3 spawnPos = user.transform.position + (Vector3)(direction * offset);
+        float offset = 1.5f * (isLeft ? -1 : 1)  ;
+
+        Vector3 spawnPos = user.transform.position + new Vector3 (offset,0);
 
         GameObject go = GameObject.Instantiate(hitboxPrefab, spawnPos, Quaternion.identity);
 
@@ -42,7 +43,7 @@ public class MeleeWeapon : WeaponBase
             proj.Initialize(direction, damage);
         }
 
-        Destroy(go, 0.2f);
+        Destroy(go, 0.5f);
 
         onAttack?.Invoke();
     }

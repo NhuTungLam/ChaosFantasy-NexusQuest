@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: wave_0
   m_EditorClassIdentifier: 
   enemylist:
-  - {fileID: 11400000, guid: 6a04c39cfb6c06342bf3b35c0b71809d, type: 2}
-  enemycount: 01000000
+  - {fileID: 11400000, guid: e82cd7631de7fd1409f0bd7188509c9e, type: 2}
+  - {fileID: 11400000, guid: dbcda34770a38124596b9aaeebb55dd4, type: 2}
+  - {fileID: 11400000, guid: 3696fb1029934fe448c67a29e410564b, type: 2}
+  - {fileID: 11400000, guid: da1985a194ccb7a4d98c7061b2d62f50, type: 2}
+  enemycount: 01000000010000000100000001000000
