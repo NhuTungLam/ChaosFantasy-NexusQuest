@@ -78,12 +78,21 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
                     break;
             }
         };
-        
+
         if (!PhotonNetwork.IsConnected)
         {
-            PhotonNetwork.NickName = "Player_" + Random.Range(1000, 9999);
+            if (PlayerProfileFetcher.CurrentProfile != null)
+            {
+                PhotonNetwork.NickName = PlayerProfileFetcher.CurrentProfile.username;
+            }
+            else
+            {
+                PhotonNetwork.NickName = "Guest_" + Random.Range(1000, 9999); 
+            }
+
             PhotonNetwork.ConnectUsingSettings();
         }
+
     }
 
     public override void OnConnectedToMaster()
@@ -138,10 +147,11 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         RoomOptions options = new RoomOptions
         {
             MaxPlayers = (byte)maxPlayersPerRoom,
+            IsVisible = true, // ⚠️ Quan trọng để phòng hiển thị
             CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
-        {
-            { "roomOwner", PhotonNetwork.LocalPlayer.UserId }
-        },
+    {
+        { "roomOwner", PhotonNetwork.LocalPlayer.UserId }
+    },
             CustomRoomPropertiesForLobby = new string[] { "roomOwner" }
         };
 

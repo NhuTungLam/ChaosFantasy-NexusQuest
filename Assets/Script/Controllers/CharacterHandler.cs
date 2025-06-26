@@ -60,6 +60,12 @@ public class CharacterHandler : MonoBehaviourPun
     public float minZoom = 2f;
     public float maxZoom = 20f;
 
+    [Header("Revive System")]
+    [HideInInspector] public bool isDowned = false;
+    public float reviveRange = 2.5f;
+    public float reviveHoldTime = 3f;
+    public float reviveHealthPercent = 0.5f;
+
     [System.Serializable]
     public class LevelRange
     {
@@ -79,12 +85,16 @@ public class CharacterHandler : MonoBehaviourPun
     public WeaponBase currentWeapon;
 
     private SpriteRenderer _spriteRenderer;
-
+    private ReviveSystem _reviveSystem;
+    private Rigidbody2D _rb;
     public void Awake()
     {
         if (GetComponent<Rigidbody2D>() == null)
             Debug.LogError("CharacterHandler: Missing Rigidbody2D");
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        _reviveSystem = GetComponentInChildren<ReviveSystem>();
+        _reviveSystem.gameObject.SetActive(false);
+        _rb = GetComponent<Rigidbody2D>();
     }
 
     void Start()
@@ -108,7 +118,7 @@ public class CharacterHandler : MonoBehaviourPun
         }
 
         TryAttachStatBar();
-        SceneManager.activeSceneChanged += (s, a) => TryAttachStatBar();
+        SceneManager.activeSceneChanged += OnSceneChanged;
     }
 
     void TryAttachStatBar()
@@ -150,7 +160,7 @@ public class CharacterHandler : MonoBehaviourPun
             currentWeapon.Attack(this);
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKey(KeyCode.E))
         {
             TryInteract();
         }
@@ -191,28 +201,31 @@ public class CharacterHandler : MonoBehaviourPun
     }
     public void TakeDamage(float dmg)
     {
-        if (isInvincible) dmg=0;
-
-        // Shield Block
-        if (isBlocking)
-            dmg *= 0.5f;
-
-        // Passive damage modifiers (e.g., Mana Shield)
+        if (isDowned) return;
+        if (isInvincible) dmg = 0;
+        if (isBlocking) dmg *= 0.5f;
         if (OnBeforeTakeDamage != null)
+        {
             foreach (DamageModifier modifier in OnBeforeTakeDamage.GetInvocationList())
                 dmg = modifier.Invoke(dmg);
+        }
 
         currentHealth -= dmg;
         invincibilityTimer = invincibilityDuration;
         isInvincible = true;
-
         currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
-        if (hp_cover != null  && photonView.IsMine) {
+
+        if (hp_cover != null && photonView.IsMine)
+        {
             hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
             hp_text.text = $"{currentHealth}/{characterData.MaxHealth}";
         }
-        if (currentHealth == 0)
-            Die();
+
+        if (currentHealth <= 0 && !isDowned)
+        {
+            Knockdown();
+            return;
+        }
 
         if (dmg > 0)
         {
@@ -233,14 +246,68 @@ public class CharacterHandler : MonoBehaviourPun
         return true;
     }
 
-    [ContextMenu("testdie")]
-    public virtual void Die()
+    public void Knockdown()
+    {
+        
+        CanMove(false);
+        photonView.RPC("RPC_PlayKnockdown", RpcTarget.All);
+        
+    }
+
+
+
+    [PunRPC]
+    void RPC_PlayKnockdown()
+    {
+        if (isDowned) return;
+        isDowned = true;
+        currentHealth = 0;
+        if (movement != null)
+        {
+            movement.PlayDieAnimation(); 
+        }
+        _reviveSystem.gameObject.SetActive(true);
+        _rb.isKinematic = true;
+        _reviveSystem.holdTimer = 0;
+    }
+
+    [PunRPC]
+    public void RPC_Revive()
+    {
+        if (!isDowned) return;
+
+        isDowned = false;
+        currentHealth = characterData.MaxHealth * reviveHealthPercent;
+        CanMove(true);
+        photonView.RPC("RPC_OnRevive", RpcTarget.All);
+        TakeDamage(0);
+    }
+
+    [PunRPC]
+    void RPC_OnRevive()
+    {
+        if (movement != null)
+            movement.PlayDashAnimation(); // animation đứng dậy
+        _rb.isKinematic = false;
+        _reviveSystem.gameObject.SetActive(false);
+        
+    }
+
+    public void Die()
+    {
+        if (photonView.IsMine)
+        {
+            PhotonNetwork.Destroy(this.gameObject);
+        }
+    }
+
+    public void CanMove(bool value)
     {
         if (movement is PlayerController pc)
-            pc.PlayDieAnimation();
-        else if (movement is PlayerOffController poc)
-            poc.PlayDieAnimation();
+            pc.CanMove = value;
+        
     }
+
     //public void RecalculateStats()
     //{
     //    currentMight = baseMight;
@@ -431,6 +498,12 @@ public class CharacterHandler : MonoBehaviourPun
     {
         return currentHealth / characterData.MaxHealth;
     }
-
-
+    private void OnDestroy()
+    {
+        SceneManager.activeSceneChanged -= OnSceneChanged;
+    }
+    private void OnSceneChanged(Scene s, Scene a)
+    {
+        TryAttachStatBar();
+    }
 }

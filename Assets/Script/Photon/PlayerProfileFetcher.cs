@@ -2,6 +2,7 @@
 using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
+using Photon.Pun;
 
 public class PlayerProfileFetcher : MonoBehaviour
 {
@@ -44,6 +45,8 @@ public class PlayerProfileFetcher : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 CurrentProfile = JsonUtility.FromJson<PlayerProfile>(request.downloadHandler.text);
+                PhotonNetwork.NickName = CurrentProfile.username;
+
                 PlayerPrefs.SetInt(PlayerPrefsUserIdKey, userId); // Save to PlayerPrefs
                 PlayerPrefs.Save();
 

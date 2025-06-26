@@ -15,7 +15,7 @@ MonoBehaviour:
   AppSettings:
     AppIdRealtime: 8d8188cc-be5a-4335-9022-be62c4735dd1
     AppIdFusion: 
-    AppIdChat: 
+    AppIdChat: 282f1b24-361a-4318-94df-9545e38e9f98
     AppIdVoice: 
     AppVersion: 
     UseNameServer: 1
@@ -45,6 +45,9 @@ MonoBehaviour:
   - RPC_AddPlayerToList
   - RPC_SpawnRoomPrefab
   - RPC_RequestDungeonLayout
+  - RPC_OnRevive
+  - RPC_PlayKnockdown
+  - RPC_Revive
   DisableAutoOpenWizard: 1
-  ShowSettings: 0
+  ShowSettings: 1
   DevRegionSetOnce: 1
