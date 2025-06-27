@@ -13,15 +13,20 @@ public class PhotonChatManager : MonoBehaviour, IChatClientListener
     private string currentChannel = "Global";
 
     [Header("UI")]
-    public GameObject smallPanel;
     public GameObject fullPanel;
     public TMP_InputField inputField;
-    public TMP_Text chatDisplay;
-
-    private bool isExpanded = false;
+    //public TMP_Text chatDisplay;
     public ScrollRect scrollRect;
     public GameObject chatLinePrefab;
-    public Transform chatContent; 
+    public Transform chatContent;
+
+    [Header("Toggle Settings")]
+    public RectTransform viewPortTransform;
+    public Image viewPortImage;
+    public float expandedHeight = 300f;
+    public float collapsedHeight = 150f;
+
+    private bool isInputState = false;
 
     void Awake()
     {
@@ -40,6 +45,8 @@ public class PhotonChatManager : MonoBehaviour, IChatClientListener
         chatClient.Connect(
             Photon.Pun.PhotonNetwork.PhotonServerSettings.AppSettings.AppIdChat,
             "1.0", new AuthenticationValues(userId));
+
+        ToggleInputState(false);
     }
 
     void Update()
@@ -50,25 +57,45 @@ public class PhotonChatManager : MonoBehaviour, IChatClientListener
         {
             Debug.Log($"⏎ ENTER PRESSED | Focus: {inputField.isFocused} | Text: '{inputField.text}'");
 
-            if (!string.IsNullOrWhiteSpace(inputField.text))
+            if (isInputState && !string.IsNullOrWhiteSpace(inputField.text))
             {
                 SendMessage();
-                inputField.ActivateInputField();
             }
-            else
-            {
-                isExpanded = !isExpanded;
-                fullPanel.SetActive(isExpanded);
 
-                if (isExpanded)
-                    inputField.ActivateInputField();
-                else
-                    inputField.DeactivateInputField();
-            }
+            ToggleInputState(!isInputState); // switch either way
         }
-
     }
 
+    public void ToggleInputState(bool toInput)
+    {
+        isInputState = toInput;
+
+        inputField.gameObject.SetActive(toInput);
+        fullPanel.SetActive(true);
+        inputField.text = "";
+
+        if (viewPortTransform != null)
+        {
+            viewPortTransform.sizeDelta = new Vector2(
+                viewPortTransform.sizeDelta.x,
+                isInputState ? expandedHeight : collapsedHeight
+            );
+        }
+
+        if (viewPortImage != null)
+        {
+            viewPortImage.enabled = isInputState;
+        }
+
+        if (isInputState)
+        {
+            inputField.ActivateInputField();
+        }
+        else
+        {
+            inputField.DeactivateInputField();
+        }
+    }
 
     public void OnConnected()
     {
@@ -92,10 +119,8 @@ public class PhotonChatManager : MonoBehaviour, IChatClientListener
         if (!string.IsNullOrEmpty(inputField.text))
         {
             chatClient.PublishMessage(currentChannel, inputField.text);
-            inputField.text = "";
         }
     }
-
 
     public void OnGetMessages(string channelName, string[] senders, object[] messages)
     {
@@ -114,15 +139,12 @@ public class PhotonChatManager : MonoBehaviour, IChatClientListener
 
     private IEnumerator ScrollToBottomNextFrame()
     {
-        yield return null; // chờ 1 frame để layout cập nhật
+        yield return null; // wait one frame for layout
         Canvas.ForceUpdateCanvases();
         scrollRect.verticalNormalizedPosition = 0f;
     }
 
-
-
-
-    // Other required methods (empty implementations)
+    // Photon Chat interface methods
     public void OnDisconnected() { }
     public void OnChatStateChange(ChatState state) { }
     public void OnSubscribed(string[] channels, bool[] results)
