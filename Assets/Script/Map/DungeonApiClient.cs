@@ -264,7 +264,7 @@ public class DungeonApiClient : MonoBehaviour
             currentHp = hptosave,
             currentMana = handler.currentMana,
             currentClass = handler.characterData.name,
-            currentWeapon = handler.currentWeapon?.weaponData?.name ?? "",
+            currentWeapon = handler.currentWeapon?.weaponName ?? "",
             currentCards = "" // optional
         };
 

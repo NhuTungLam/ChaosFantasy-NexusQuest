@@ -18,47 +18,22 @@ public class RangedWeapon : WeaponBase
 
     public override void Attack(CharacterHandler user)
     {
-        if (user.currentMana < weaponData.manaCost)
+        if (!user.UseMana(manaCost))
         {
             Debug.Log("[Weapon] Not enough mana.");
             return;
         }
-
-        user.currentMana -= weaponData.manaCost;
-        if (Time.time < nextAttackTime) return;
-        nextAttackTime = Time.time + cooldown;
-
-        if (weaponData.useFullBodyAnimation && user != null)
-        {
-            Animator userAnimator = user.GetComponent<Animator>();
-            if (userAnimator != null)
-                userAnimator.SetTrigger("Attack");
-
-            gameObject.SetActive(false);
-            user.StartCoroutine(ReenableWeaponAfter(user, weaponData.delayBeforeFire + 0.3f)); // tùy chỉnh
-
-            Vector2 shootDir = firePoint.right;
-            user.StartCoroutine(user.FireProjectileDelayed(
-                firePoint,
-                shootDir,
-                weaponData.delayBeforeFire,
-                projectilePrefab,
-                damage
-            ));
-
-        }
-        else if (animator != null)
-        {
-            animator.SetTrigger("Attack");
-
-            GameObject proj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-
-            Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 direction = (mouseWorld - (Vector2)firePoint.position).normalized;
-
-            proj.GetComponent<Projectile>().Initialize(direction, damage);
-        }
-
+        interval = cooldown;
+        Vector2 shootDir = firePoint.right;
+        user.photonView.RPC("RPC_FireProjectile", RpcTarget.All,
+            "Projectile",
+            transform.position,
+            shootDir,
+            10f,
+            1f,
+            user.currentMight + damage,
+            0
+        );
     }
 
 
@@ -73,11 +48,7 @@ public class RangedWeapon : WeaponBase
         Vector3 original = transform.localScale;
         transform.localScale = new Vector3(Mathf.Abs(original.x) * flip, Mathf.Abs(original.y) * flip, original.z);
     }
-    private System.Collections.IEnumerator ReenableWeaponAfter(CharacterHandler user, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        gameObject.SetActive(true);
-    }
+    
 
 
 }

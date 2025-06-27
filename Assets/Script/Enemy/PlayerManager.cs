@@ -71,7 +71,7 @@ public class PlayerManager : MonoBehaviourPun
                 currentHp = handler.currentHealth,
                 currentMana = handler.currentMana,
                 currentClass = handler.characterData.name,
-                currentWeapon = handler.currentWeapon?.weaponData?.name ?? "",
+                currentWeapon = handler.currentWeapon?.weaponName ?? "",
                 currentCards = "" // TODO: serialize skill cards if needed
             };
         }

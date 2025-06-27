@@ -24,8 +24,16 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
     }
     public void TakeDamage(float damage)
     {
+        if (!RoomSessionManager.Instance.IsRoomOwner()) { return; }
+        photonView.RPC("RPC_UpdateVisual", RpcTarget.All, damage);
+        currentHealth -= damage;
+
+        if (currentHealth <= 0)
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
         // Gửi yêu cầu về master để xử lý sát thương
-        photonView.RPC("RPC_TakeDamage", RpcTarget.MasterClient, damage);
+        //photonView.RPC("RPC_TakeDamage", RpcTarget.MasterClient, damage);
     }
     private IEnumerator FlashCoroutine()
     {
@@ -39,18 +47,25 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
     [PunRPC]
     public void RPC_TakeDamage(float damage)
     {
+        if(!RoomSessionManager.Instance.IsRoomOwner()) { return; }
+        photonView.RPC("RPC_UpdateVisual",RpcTarget.All, damage);
         currentHealth -= damage;
+        
+        if (currentHealth <= 0)
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
+
+    }
+    [PunRPC]
+    public void RPC_UpdateVisual(float damage)
+    {
         if (damage > 0f)
         {
             DamagePopUp.Create(transform.position, Mathf.RoundToInt(damage));
             if (this != null)
                 StartCoroutine(FlashCoroutine());
         }
-        if (currentHealth <= 0)
-        {
-            PhotonNetwork.Destroy(gameObject);
-        }
-
     }
     /// <summary>
     /// Rotation mode: 0 - null, 1 - flipx, 2 - based on direction
@@ -104,7 +119,7 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
     {
         RPC_FireProjectile(projectileName, position, direction, speed, lifespan, damage, 0);
     }
-
+    
     public void Init(EnemyData data)
     {
         if (data == null)

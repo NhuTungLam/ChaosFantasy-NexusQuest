@@ -45,7 +45,7 @@ public class P_SlashSkill : SkillCardBase
             damage *= player.currentCritDamage;
 
         GameObject proj = Instantiate(slashProjectilePrefab, spawnPoint != null ? spawnPoint.position : weapon.position, Quaternion.identity);
-        proj.GetComponent<Projectile>().Initialize(direction, damage);
+        //proj.GetComponent<Projectile>().Initialize(direction, damage);
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         proj.transform.rotation = Quaternion.Euler(0, 0, angle);

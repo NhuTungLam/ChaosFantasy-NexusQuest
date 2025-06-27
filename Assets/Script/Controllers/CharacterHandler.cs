@@ -160,7 +160,7 @@ public class CharacterHandler : MonoBehaviourPun
             currentWeapon.Attack(this);
         }
 
-        if (Input.GetKey(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E))
         {
             TryInteract();
         }
@@ -268,7 +268,6 @@ public class CharacterHandler : MonoBehaviourPun
         }
         _reviveSystem.gameObject.SetActive(true);
         _rb.isKinematic = true;
-        _reviveSystem.holdTimer = 0;
     }
 
     [PunRPC]
@@ -333,44 +332,22 @@ public class CharacterHandler : MonoBehaviourPun
         TakeDamage(-currentRecovery);
     }
 
-    public void EquipWeapon(WeaponData newData)
+    public void EquipWeapon(WeaponBase newWeapon)
     {
         DropWeapon();
-
-        GameObject wp = Instantiate(newData.weaponPrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
-
-        currentWeapon = wp.GetComponent<WeaponBase>();
-        currentWeapon.weaponData = newData;
-        currentWeapon.damage = newData.damage;
-        currentWeapon.cooldown = newData.cooldown;
-        currentWeapon.isEquipped = true;
-
-        Animator anim = wp.GetComponent<Animator>();
-        if (anim != null && newData.animatorController != null)
-            anim.runtimeAnimatorController = newData.animatorController;
-
-        SpriteRenderer sr = wp.GetComponent<SpriteRenderer>();
-        if (sr != null && newData.weaponSprite != null)
-            sr.sprite = newData.weaponSprite;
-
+        currentWeapon = newWeapon;
+        currentWeapon.transform.SetParent(weaponHolder);
         currentWeapon.transform.localPosition = Vector3.zero;
         currentWeapon.transform.localRotation = Quaternion.identity;
+        currentWeapon.isEquipped = true;
+        
     }
 
     private void DropWeapon()
     {
-        if (currentWeapon == null || currentWeapon.weaponData == null) return;
-
-        WeaponData oldData = currentWeapon.weaponData;
-        GameObject dropped = Instantiate(oldData.weaponPrefab, transform.position, Quaternion.identity);
-
-        if (dropped.TryGetComponent(out WeaponBase weaponBase))
-        {
-            weaponBase.weaponData = oldData;
-            weaponBase.SetFromData(oldData);
-        }
-
-        Destroy(currentWeapon.gameObject);
+        if (currentWeapon == null ) return;
+        currentWeapon.transform.SetParent(null);
+        currentWeapon.isEquipped = false;
         currentWeapon = null;
     }
 
@@ -431,13 +408,6 @@ public class CharacterHandler : MonoBehaviourPun
     }
 
    
-    public IEnumerator FireProjectileDelayed(Transform origin, Vector2 direction, float delay, GameObject projectilePrefab, float damage)
-    {
-        yield return new WaitForSeconds(delay);
-        GameObject proj = Instantiate(projectilePrefab, origin.position, Quaternion.identity);
-        Projectile projectile = proj.GetComponent<Projectile>();
-        projectile.Initialize(direction, damage);
-    }
 
     public void Init(CharacterData data)
     {
@@ -476,7 +446,10 @@ public class CharacterHandler : MonoBehaviourPun
         TakeDamage(0);
         UseMana(0);
         if (characterData.StartingWeapon != null)
-            EquipWeapon(characterData.StartingWeapon);
+        {
+            GameObject dropped = Instantiate(data.StartingWeapon);
+            EquipWeapon(dropped.GetComponent<WeaponBase>());
+        }
     }
     public void ApplyLoadSave(DungeonApiClient.PlayerProgressDTO playerloadinfo)
     {
@@ -506,4 +479,41 @@ public class CharacterHandler : MonoBehaviourPun
     {
         TryAttachStatBar();
     }
+    [PunRPC]
+    public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage, int rotationMode)
+    {
+        direction.Normalize();
+        GameObject prefab = Resources.Load<GameObject>($"Weapon/{projectileName}");
+        if (prefab == null)
+        {
+            Debug.LogWarning($"Missing projectile prefab: {projectileName}");
+            return;
+        }
+
+        GameObject proj = Instantiate(prefab, position, Quaternion.identity);
+        proj.GetComponent<SpriteRenderer>().flipX = rotationMode == 1;
+        if (rotationMode == 2)
+        {
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            proj.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        }
+
+        var hitbox = proj.GetComponent<Projectile>();
+        if (hitbox == null)
+        {
+            return;
+        }
+
+        hitbox.lifetime = lifespan;
+        hitbox.direction = direction;
+        hitbox.speed = speed;
+        hitbox.damage = damage;
+        
+    }
+    [PunRPC]
+    public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage)
+    {
+        RPC_FireProjectile(projectileName, position, direction, speed, lifespan, damage, 0);
+    }
+
 }

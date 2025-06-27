@@ -4,54 +4,45 @@ public abstract class WeaponBase : MonoBehaviour, IInteractable
 {
     public float damage;
     public float cooldown;
-    protected float nextAttackTime;
+    protected float interval;
     protected Animator animator;
     public bool isEquipped = false;
-    public WeaponData weaponData;
-    
-
+    public string weaponName;
+    public float manaCost;
     protected virtual void Awake()
     {
         animator = GetComponent<Animator>();
     }
-
+    void Update()
+    {
+        if (interval < cooldown)
+        {
+            interval += Time.deltaTime;
+        }
+    }
     public abstract void Attack(CharacterHandler user);
 
     // ---- IInteractable ----
     public bool CanInteract()
     {
-        return weaponData != null && transform.parent == null;
+        return  !isEquipped;
     }
 
     public void Interact(CharacterHandler user=null)
     {
-        CharacterHandler player = FindObjectOfType<CharacterHandler>();
-        if (player != null && CanInteract())
-        {
-            player.EquipWeapon(weaponData);
-            Destroy(gameObject);
-        }
+        if (isEquipped || user == null) { return; }
+        isEquipped = true;
+        user.EquipWeapon(this);
     }
-    public virtual void SetFromData(WeaponData data)
-    {
-        weaponData = data;
-        damage = data.damage;
-        cooldown = data.cooldown;
-
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null && data.weaponSprite != null)
-            sr.sprite = data.weaponSprite;
-
-        Animator anim = GetComponent<Animator>();
-        if (anim != null && data.animatorController != null)
-            anim.runtimeAnimatorController = data.animatorController;
-    }
+    
     public void InRangeAction(CharacterHandler user = null)
     {
-        DungeonPickup.ShowPickup(weaponData.weaponName, transform.position);
+        if (isEquipped || user == null) { return; }
+        DungeonPickup.ShowPickup(weaponName, transform.position);
     }
     public void CancelInRangeAction(CharacterHandler user = null)
     {
+        if (isEquipped || user == null) { return; }
         DungeonPickup.HidePickup();
     }
 }

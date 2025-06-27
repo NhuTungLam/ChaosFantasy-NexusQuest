@@ -102,7 +102,8 @@ MonoBehaviour:
   damage: 10
   cooldown: 1
   isEquipped: 0
-  weaponData: {fileID: 0}
+  weaponName: MachinGun
+  manaCost: 10
   projectilePrefab: {fileID: 7800411935956529999, guid: e1909a829ec9c8848acef27d71c9d29f, type: 3}
   firePoint: {fileID: 2938612542621717673}
 --- !u!212 &2938612543670398266

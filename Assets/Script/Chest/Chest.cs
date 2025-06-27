@@ -4,7 +4,6 @@ public class Chest : MonoBehaviour, IInteractable
 {
     private bool isOpen = false;
     private ChestData data;
-    public WeaponData[] weaponItems;
 
     public void ApplyData(ChestData chestData)
     {
@@ -33,15 +32,10 @@ public class Chest : MonoBehaviour, IInteractable
         //  Weapon
         if (Random.value < data.weaponDropRate && data.weaponItems.Length > 0)
         {
-            WeaponData weapon = data.weaponItems[Random.Range(0, data.weaponItems.Length)];
+            GameObject weapon = data.weaponItems[Random.Range(0, data.weaponItems.Length)];
             Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 3); 
-            GameObject dropped = Instantiate(weapon.weaponPrefab, dropPos, Quaternion.identity);
+            Instantiate(weapon, dropPos, Quaternion.identity);
 
-            if (dropped.TryGetComponent(out WeaponBase weaponBase))
-            {
-                weaponBase.weaponData = weapon;
-                weaponBase.SetFromData(weapon);
-            }
         }
 
         //Active skill

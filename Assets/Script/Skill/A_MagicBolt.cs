@@ -35,7 +35,7 @@ public class A_MagicBolt : SkillCardBase
 
         Transform origin = player.weaponHolder != null ? player.weaponHolder : player.transform;
         GameObject bolt = GameObject.Instantiate(boltPrefab, origin.position, Quaternion.identity);
-        bolt.GetComponent<Projectile>().Initialize(direction, damage);
+        //bolt.GetComponent<Projectile>().Initialize(direction, damage);
 
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         bolt.transform.rotation = Quaternion.Euler(0, 0, angle);

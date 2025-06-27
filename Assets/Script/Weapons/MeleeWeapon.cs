@@ -10,15 +10,15 @@ public class MeleeWeapon : WeaponBase
 
     public override void Attack(CharacterHandler user)
     {
-        if (user.currentMana < weaponData.manaCost)
-        {
-            Debug.Log("[Weapon] Not enough mana.");
-            return;
-        }
+        //if (user.currentMana < weaponData.manaCost)
+        //{
+        //    Debug.Log("[Weapon] Not enough mana.");
+        //    return;
+        //}
 
-        user.currentMana -= weaponData.manaCost;
-        if (Time.time < nextAttackTime) return;
-        nextAttackTime = Time.time + cooldown;
+        //user.currentMana -= weaponData.manaCost;
+        //if (Time.time < nextAttackTime) return;
+        //nextAttackTime = Time.time + cooldown;
 
         if (animator != null)
             animator.SetTrigger("Attack");
@@ -40,7 +40,7 @@ public class MeleeWeapon : WeaponBase
 
         if (go.TryGetComponent(out Projectile proj))
         {
-            proj.Initialize(direction, damage);
+            //proj.Initialize(direction, damage);
         }
 
         Destroy(go, 0.5f);

@@ -89,7 +89,7 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
             {
                 PhotonNetwork.NickName = "Guest_" + Random.Range(1000, 9999); 
             }
-
+            PhotonNetwork.GameVersion = "1.0";
             PhotonNetwork.ConnectUsingSettings();
         }
 
