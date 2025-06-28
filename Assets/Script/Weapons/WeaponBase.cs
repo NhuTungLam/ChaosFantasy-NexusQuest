@@ -9,6 +9,7 @@ public abstract class WeaponBase : MonoBehaviourPunCallbacks, IInteractable
     protected Animator animator;
     public bool isEquipped = false;
     public string weaponName;
+    public string prefabName;
     public float manaCost;
     protected virtual void Awake()
     {

@@ -51,6 +51,11 @@ MonoBehaviour:
   - RPC_UpdateVisual
   - RPC_Interact
   - RPC_TeleportPlayer
+  - RPC_CloseDoors
+  - RPC_RequestCloseDoors
+  - RPC_OpenDoorsAndSpawnChest
+  - SelfTeleport
+  - RPC_SelfTeleport
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

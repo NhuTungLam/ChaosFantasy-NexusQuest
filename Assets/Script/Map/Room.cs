@@ -22,14 +22,12 @@ public class Room : MonoBehaviour
     private List<Direction> directions = new();
     private bool isTriggered = false;
     private bool doorsClosed = false;
-    private bool chestSpawned = false;
+    public bool chestSpawned = false;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isTriggered || !other.CompareTag("Player")) return;
         isTriggered = true;
-        int? triggerPlayer = PlayerManager.Instance.GetPlayerIdByTransform(other.transform);
-        if (triggerPlayer == null) { return; }
         if (transform.position == Vector3.zero)
             return;
 
@@ -37,7 +35,7 @@ public class Room : MonoBehaviour
         {
             getActiveDoor();
             CloseDoors();
-            PlayerManager.Instance.photonView.RPC("RPC_TeleportPlayer",RpcTarget.MasterClient,triggerPlayer);
+            PlayerManager.Instance.photonView.RPC("RPC_SelfTeleport",RpcTarget.Others,(Vector2)other.transform.position);
             if (RoomSessionManager.Instance.IsRoomOwner() && PhotonEnemySpawner.Instance != null)
             {
                 PhotonEnemySpawner.Instance.SpawnWave(enewaveDatas, 0, transform.position);
@@ -47,30 +45,21 @@ public class Room : MonoBehaviour
 
     private void Update()
     {
+        if (!RoomSessionManager.Instance.IsRoomOwner()) return;
+
         if (doorsClosed && PhotonEnemySpawner.Instance != null && PhotonEnemySpawner.Instance.AllEnemiesDefeated)
         {
-            OpenDoors();
-            doorsClosed = false;
-
-            if (!chestSpawned && chestData != null && chestSpawnPoint != null)
-            {
-                SpawnChest();
-                chestSpawned = true;
-                if (roomType == RoomType.Boss)
-                {
-                    SpawnPortal();
-                }
-            }
+            DungeonSyncManager.Instance.photonView.RPC("RPC_OpenDoorsAndSpawnChest", RpcTarget.All, transform.position);
         }
     }
 
-    private void SpawnChest()
+    public void SpawnChest()
     {
         GameObject chestObj = Instantiate(chestData.chestPrefab, chestSpawnPoint.position, Quaternion.identity);
         Chest chest = chestObj.GetComponent<Chest>();
         if (chest != null) chest.ApplyData(chestData);
     }
-    private void SpawnPortal()
+    public void SpawnPortal()
     {
         var portalPrefab = Resources.Load<GameObject>("NextStagePortal");
         Instantiate(portalPrefab, chestSpawnPoint.position + new Vector3(0, 10f), Quaternion.identity);
@@ -84,13 +73,13 @@ public class Room : MonoBehaviour
         if (!IsDoorOpen(Direction.Right)) directions.Add(Direction.Right);
     }
 
-    private void CloseDoors()
+    public void CloseDoors()
     {
         foreach (var dir in directions) EnableDoor(dir);
         doorsClosed = true;
     }
 
-    private void OpenDoors()
+    public void OpenDoors()
     {
         foreach (var dir in directions) DisableDoor(dir);
     }

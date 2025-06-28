@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 2344513576325899280}
   - component: {fileID: 4208868537131446185}
   m_Layer: 7
-  m_Name: MeleWeapon
+  m_Name: gold_sword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,7 +82,9 @@ MonoBehaviour:
   damage: 10
   cooldown: 0
   isEquipped: 0
-  weaponData: {fileID: 0}
+  weaponName: Gold Sword
+  prefabName: gold_sword
+  manaCost: 0
   attackRange: 2
   hitMask:
     serializedVersion: 2

@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 2938612543670398266}
   - component: {fileID: -7229990019496783745}
   m_Layer: 7
-  m_Name: RangeWeapon
+  m_Name: m4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -102,7 +102,8 @@ MonoBehaviour:
   damage: 10
   cooldown: 1
   isEquipped: 0
-  weaponName: MachinGun
+  weaponName: M4
+  prefabName: m4
   manaCost: 10
   projectilePrefab: {fileID: 7800411935956529999, guid: e1909a829ec9c8848acef27d71c9d29f, type: 3}
   firePoint: {fileID: 2938612542621717673}

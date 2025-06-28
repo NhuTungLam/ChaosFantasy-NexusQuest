@@ -48,7 +48,34 @@ public class DungeonSyncManager : MonoBehaviourPunCallbacks
             
         }
     }
-
+    private Room FindRoomAtPosition(Vector3 position)
+    {
+        Room[] rooms = GameObject.FindObjectsOfType<Room>();
+        foreach (var room in rooms)
+        {
+            if (Vector3.Distance(room.transform.position, position) < 0.1f)
+                return room;
+        }
+        return null;
+    }
+    [PunRPC]
+    public void RPC_OpenDoorsAndSpawnChest(Vector3 roomPosition)
+    {
+        var room = FindRoomAtPosition(roomPosition);
+        if (room != null)
+        {
+            room.OpenDoors();
+            if (!room.chestSpawned && room.chestData != null && room.chestSpawnPoint != null)
+            {
+                room.SpawnChest();
+                room.chestSpawned = true;
+                if (room.roomType == RoomType.Boss)
+                {
+                    room.SpawnPortal();
+                }
+            }
+        }
+    }
 
     [PunRPC]
     public void RPC_SpawnRoomPrefab(string layout)

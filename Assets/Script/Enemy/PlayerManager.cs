@@ -72,7 +72,11 @@ public class PlayerManager : MonoBehaviourPun
             t.position = trigger.position + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
         }
     }
-
+    [PunRPC]
+    public void RPC_SelfTeleport(Vector2 position)
+    {
+        GetMyPlayer().position = position + new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+    }
     public bool ContainsPlayer(int viewID)
     {
         return playerList.ContainsKey(viewID);
@@ -88,7 +92,7 @@ public class PlayerManager : MonoBehaviourPun
                 currentHp = handler.currentHealth,
                 currentMana = handler.currentMana,
                 currentClass = handler.characterData.name,
-                currentWeapon = handler.currentWeapon?.weaponName ?? "",
+                currentWeapon = handler.currentWeapon?.prefabName ?? "",
                 currentCards = "" // TODO: serialize skill cards if needed
             };
         }
