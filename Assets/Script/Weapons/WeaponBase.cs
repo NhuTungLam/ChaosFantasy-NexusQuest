@@ -1,6 +1,7 @@
+using Photon.Pun;
 using UnityEngine;
 
-public abstract class WeaponBase : MonoBehaviour, IInteractable
+public abstract class WeaponBase : MonoBehaviourPunCallbacks, IInteractable
 {
     public float damage;
     public float cooldown;
@@ -34,7 +35,11 @@ public abstract class WeaponBase : MonoBehaviour, IInteractable
         isEquipped = true;
         user.EquipWeapon(this);
     }
-    
+    [PunRPC]
+    public void RPC_Interact(int userId)
+    {
+
+    }
     public void InRangeAction(CharacterHandler user = null)
     {
         if (isEquipped || user == null) { return; }

@@ -54,7 +54,24 @@ public class PlayerManager : MonoBehaviourPun
             }));
         }
     }
-
+    [PunRPC]
+    public void RPC_TeleportPlayer(int triggerPlayerId)
+    {
+        List<Transform> transforms = new List<Transform>();
+        foreach (var pair in playerList)
+        {
+            if (pair.Key == triggerPlayerId)
+            {
+                continue;
+            }
+            transforms.Add(pair.Value);
+        }
+        Transform trigger = playerList[triggerPlayerId].transform;
+        foreach (var t in transforms)
+        {
+            t.position = trigger.position + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+        }
+    }
 
     public bool ContainsPlayer(int viewID)
     {
@@ -77,6 +94,16 @@ public class PlayerManager : MonoBehaviourPun
         }
 
     }
+    public int? GetPlayerIdByTransform(Transform target)
+    {
+        foreach (var pair in playerList)
+        {
+            if (pair.Value == target)
+                return pair.Key;
+        }
+        return null; // Không tìm th?y
+    }
+
     public int GetOwnerPlayerId()
     {
         string roomOwnerId = PhotonNetwork.CurrentRoom.CustomProperties["roomOwner"]?.ToString();
@@ -105,6 +132,7 @@ public class PlayerManager : MonoBehaviourPun
 
         return null;
     }
+    //for enemy
     public Transform GetPlayer(Vector2 origin, float range = 5f)
     {
         Transform closestPlayer = null;

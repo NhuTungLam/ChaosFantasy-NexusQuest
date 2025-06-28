@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chestPrefab: {fileID: 3219067575937509910, guid: 889089d7c70ed2743897e47d2918d1c5, type: 3}
   weaponItems:
-  - {fileID: 11400000, guid: 90466d07d7c843b4180c1db0a21f1477, type: 2}
-  - {fileID: 11400000, guid: 0234c3e0e3ec45c4c8d27d5c228d6ad2, type: 2}
-  - {fileID: 11400000, guid: 7a9f37954e838f447914b489f64773c2, type: 2}
+  - {fileID: 4229092340474187871, guid: 2dfa2be19631b2042b818f191a1f037f, type: 3}
+  - {fileID: 2938612543670398264, guid: 6a63d7596c6ba564b84d2de1344c9fe0, type: 3}
   passiveSkillCards:
   - {fileID: 4818234652911098146, guid: 08a9e33c5a7591548b83e8f2e2cf7b45, type: 3}
   - {fileID: 4818234652911098146, guid: 04f7731981c99c3478f401291f59959b, type: 3}

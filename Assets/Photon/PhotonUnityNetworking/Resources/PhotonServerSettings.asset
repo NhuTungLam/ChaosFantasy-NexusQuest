@@ -49,6 +49,8 @@ MonoBehaviour:
   - RPC_PlayKnockdown
   - RPC_Revive
   - RPC_UpdateVisual
+  - RPC_Interact
+  - RPC_TeleportPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

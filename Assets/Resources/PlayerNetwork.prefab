@@ -77,7 +77,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   downedPlayer: {fileID: -6706726537344644311}
-  holdTimer: 0
+  clickInterval: 0
+  percent: 0
 --- !u!61 &7587838455011512790
 BoxCollider2D:
   m_ObjectHideFlags: 0

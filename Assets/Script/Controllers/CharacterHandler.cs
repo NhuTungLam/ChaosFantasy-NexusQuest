@@ -38,7 +38,7 @@ public class CharacterHandler : MonoBehaviourPun
     private float throttleInteractUpdateInterval = 0f;
 
     [Header("Stats")]
-    [HideInInspector] public float currentHealth;
+     public float currentHealth;
     [HideInInspector] public float currentMana;
     [HideInInspector] public float currentRecovery;
     [HideInInspector] public float currentMight;
@@ -177,7 +177,7 @@ public class CharacterHandler : MonoBehaviourPun
 
         if (Input.GetKeyDown(KeyCode.J))
         {
-            TakeDamage(10);
+            TakeDamage(40);
         }
 
         if (throttleInteractUpdateInterval > 0)
@@ -273,9 +273,8 @@ public class CharacterHandler : MonoBehaviourPun
     [PunRPC]
     public void RPC_Revive()
     {
-        if (!isDowned) return;
 
-        isDowned = false;
+        
         currentHealth = characterData.MaxHealth * reviveHealthPercent;
         CanMove(true);
         photonView.RPC("RPC_OnRevive", RpcTarget.All);
@@ -289,7 +288,7 @@ public class CharacterHandler : MonoBehaviourPun
             movement.PlayDashAnimation(); // animation đứng dậy
         _rb.isKinematic = false;
         _reviveSystem.gameObject.SetActive(false);
-        
+        isDowned = false;
     }
 
     public void Die()

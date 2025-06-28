@@ -28,7 +28,8 @@ public class Room : MonoBehaviour
     {
         if (isTriggered || !other.CompareTag("Player")) return;
         isTriggered = true;
-
+        int? triggerPlayer = PlayerManager.Instance.GetPlayerIdByTransform(other.transform);
+        if (triggerPlayer == null) { return; }
         if (transform.position == Vector3.zero)
             return;
 
@@ -36,7 +37,7 @@ public class Room : MonoBehaviour
         {
             getActiveDoor();
             CloseDoors();
-
+            PlayerManager.Instance.photonView.RPC("RPC_TeleportPlayer",RpcTarget.MasterClient,triggerPlayer);
             if (RoomSessionManager.Instance.IsRoomOwner() && PhotonEnemySpawner.Instance != null)
             {
                 PhotonEnemySpawner.Instance.SpawnWave(enewaveDatas, 0, transform.position);
