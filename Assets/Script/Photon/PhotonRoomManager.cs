@@ -53,7 +53,8 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
                 case "Nexus":
                     roomPrefix = "Nexus_";
                     targetScene = "Nexus";
-                    autoCreateRoomInNexus = true;
+                    skipAutoCreateRoom = false;
+                    CreatePrivateRoom();
                     break;
 
                 case "Enter_Dungeon":

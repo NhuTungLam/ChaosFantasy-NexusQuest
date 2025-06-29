@@ -1837,7 +1837,7 @@ RectTransform:
   - {fileID: 162552593}
   - {fileID: 896848453}
   m_Father: {fileID: 1888196081}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3643,7 +3643,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1888196081}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -8821,9 +8821,9 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 463917314}
   - {fileID: 2001552317}
   - {fileID: 798838913}
-  - {fileID: 463917314}
   - {fileID: 1792697466}
   m_Father: {fileID: 0}
   m_RootOrder: 8
@@ -8842,10 +8842,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1888196077}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4aa5fbb2f2c8294f9d885e48355be35, type: 3}
+  m_Script: {fileID: 11500000, guid: 9ee0285e15f3a5f41b3266fbf274bc66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  persistentID: DDOLCanvas
 --- !u!1 &1894815888
 GameObject:
   m_ObjectHideFlags: 0
@@ -9954,7 +9953,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1888196081}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
