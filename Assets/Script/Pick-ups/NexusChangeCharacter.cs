@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Photon.Pun;
+using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class NexusChangeCharacter : MonoBehaviour, IInteractable
@@ -33,9 +36,50 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
         SettingPausePanel = GameObject.FindGameObjectWithTag("Setting").GetComponent<RectTransform>();
         SettingPausePanel.transform.Find("home").gameObject.SetActive(true);
         SettingPausePanel.transform.Find("home").GetComponent<Button>().onClick.RemoveAllListeners();
-        //SettingPausePanel.transform.Find("home").GetComponent<Button>().onClick.AddListener(OnExitToNexusButton);
+        SettingPausePanel.transform.Find("home").GetComponent<Button>().onClick.AddListener(OnExitToNexusButton);
         SettingPausePanel.transform.Find("close").GetComponent<Button>().onClick.RemoveAllListeners();
         SettingPausePanel.transform.Find("close").GetComponent<Button>().onClick.AddListener(OnResumeButton);
+    }
+    private bool hasExited = false;
+    void OnExitToNexusButton()
+    {
+        if (hasExited) return;
+        hasExited = true;
+        //Time.timeScale = 1f;
+        OnResumeButton();
+        StartCoroutine(LeaveRoom());
+    }
+    IEnumerator LeaveRoom()
+    {
+        BlackScreen.Instance.BlackIn();
+        PhotonRoomManager.skipAutoCreateRoom = true;
+
+        if (PhotonNetwork.InRoom)
+        {
+            if (PhotonNetwork.LocalPlayer.TagObject is GameObject go)
+            {
+                PhotonNetwork.Destroy(go);
+                PhotonNetwork.LocalPlayer.TagObject = null;
+            }
+
+            PhotonNetwork.LeaveRoom();
+
+            float timeout = 5f;
+            while (PhotonNetwork.InRoom && timeout > 0f)
+            {
+                timeout -= Time.deltaTime;
+                yield return null;
+            }
+        }
+        float waitMasterTimeout = 5f;
+        while (PhotonNetwork.NetworkClientState != ClientState.ConnectedToMasterServer && waitMasterTimeout > 0f)
+        {
+            waitMasterTimeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        MessageBoard.Show("Leaving Nexus...");
+        SceneManager.LoadScene("Login");
     }
     // also add the setting 
     public bool CanInteract()
