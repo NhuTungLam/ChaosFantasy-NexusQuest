@@ -38,6 +38,5 @@ public class NexusManager : MonoBehaviourPunCallbacks
         );
 
         PhotonNetwork.LocalPlayer.TagObject = player;
-        Debug.Log(" Player spawned in Nexus with class: {className}");
     }
 }

@@ -52,7 +52,7 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
     IEnumerator LeaveRoom()
     {
         BlackScreen.Instance.BlackIn();
-        PhotonRoomManager.skipAutoCreateRoom = true;
+        PhotonRoomManager.autoCreateRoom = false;
 
         if (PhotonNetwork.InRoom)
         {

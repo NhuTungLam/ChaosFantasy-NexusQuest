@@ -29,18 +29,16 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
 
     private string roomPrefix;
     private string targetScene;
-    private bool autoCreateRoomInNexus = false;
 
-    public static bool skipAutoCreateRoom = false;
+    public static bool autoCreateRoom = false;
 
     void Start()
     {
         roomPrefix = "Nexus_";
         targetScene = "Nexus";
-        autoCreateRoomInNexus = true;
         Debug.Log("🧠 Scene Start() - Photon InRoom: " + PhotonNetwork.InRoom);
         PhotonNetwork.AutomaticallySyncScene = true;
-        
+        autoCreateRoom = true;
         SceneManager.activeSceneChanged += (prevScene,currentScene) =>
         {
             roomNameInput = null;
@@ -53,14 +51,12 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
                 case "Nexus":
                     roomPrefix = "Nexus_";
                     targetScene = "Nexus";
-                    skipAutoCreateRoom = false;
-                    CreatePrivateRoom();
+                    autoCreateRoom = true;
                     break;
 
                 case "Enter_Dungeon":
                     roomPrefix = "Dungeon_";
                     targetScene = "Dungeon";
-                    autoCreateRoomInNexus = false;
                     roomNameInput = GameObject.Find("Canvas/RoomJoinPanel/room_id").GetComponent<TMP_InputField>();
                     createBtn = GameObject.Find("Canvas/RoomJoinPanel/create").GetComponent<Button>();
                     joinBtn = GameObject.Find("Canvas/RoomJoinPanel/join").GetComponent<Button>();
@@ -106,10 +102,11 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("✅ Joined Photon Lobby.");
 
-        if (autoCreateRoomInNexus && !skipAutoCreateRoom)
+        if (autoCreateRoom)
         {
             Debug.Log("🔁 Auto-creating Nexus room after join lobby.");
             CreatePrivateRoom();
+            autoCreateRoom = false;
         }
         else
         {
