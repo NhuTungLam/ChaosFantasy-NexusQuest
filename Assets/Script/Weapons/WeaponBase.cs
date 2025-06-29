@@ -3,6 +3,7 @@ using UnityEngine;
 
 public abstract class WeaponBase : MonoBehaviourPunCallbacks, IInteractable
 {
+    public string weaponId; // unique id
     public float damage;
     public float cooldown;
     protected float interval;
@@ -11,44 +12,46 @@ public abstract class WeaponBase : MonoBehaviourPunCallbacks, IInteractable
     public string weaponName;
     public string prefabName;
     public float manaCost;
+
     protected virtual void Awake()
     {
         animator = GetComponent<Animator>();
     }
-    void Update()
-    {
-        if (interval < cooldown)
-        {
-            interval += Time.deltaTime;
-        }
-    }
-    public abstract void Attack(CharacterHandler user);
 
-    // ---- IInteractable ----
+    public void Initialize(string id)
+    {
+        weaponId = id;
+    }
+
     public bool CanInteract()
     {
-        return  !isEquipped;
+        return !isEquipped;
     }
 
-    public void Interact(CharacterHandler user=null)
+    public void Interact(CharacterHandler user = null)
     {
-        if (isEquipped || user == null) { return; }
+        if (isEquipped || user == null) return;
         isEquipped = true;
-        user.EquipWeapon(this);
-    }
-    [PunRPC]
-    public void RPC_Interact(int userId)
-    {
+        int viewID = user.photonView.ViewID;
+        string dropWeaponType = user.currentWeapon != null ? user.currentWeapon.prefabName : "";
 
+        // G?i request lên MasterClient ?? x? lý nh?t + drop
+        PhotonView photonView = WeaponSyncManager.Instance.photonView;
+        photonView.RPC("RPC_RequestPickupWeapon", RpcTarget.MasterClient, weaponId, viewID, prefabName, dropWeaponType, user.transform.position);
     }
+
+
+    public abstract void Attack(CharacterHandler user);
+
     public void InRangeAction(CharacterHandler user = null)
     {
-        if (isEquipped || user == null) { return; }
+        if (isEquipped || user == null) return;
         DungeonPickup.ShowPickup(weaponName, transform.position);
     }
+
     public void CancelInRangeAction(CharacterHandler user = null)
     {
-        if (isEquipped || user == null) { return; }
+        if (isEquipped || user == null) return;
         DungeonPickup.HidePickup();
     }
 }

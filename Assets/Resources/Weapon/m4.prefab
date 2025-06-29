@@ -99,6 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7409831e0b93f8b4fa2a87d16d4e911f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponId: 
   damage: 10
   cooldown: 1
   isEquipped: 0

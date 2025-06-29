@@ -55,10 +55,13 @@ public class Room : MonoBehaviour
 
     public void SpawnChest()
     {
-        GameObject chestObj = Instantiate(chestData.chestPrefab, chestSpawnPoint.position, Quaternion.identity);
-        Chest chest = chestObj.GetComponent<Chest>();
-        if (chest != null) chest.ApplyData(chestData);
+        if (!PhotonNetwork.IsMasterClient) return;
+        PhotonNetwork.Instantiate("Chest/Chest", chestSpawnPoint.position, Quaternion.identity, 0, new object[] { chestData.name });
     }
+
+
+
+
     public void SpawnPortal()
     {
         var portalPrefab = Resources.Load<GameObject>("NextStagePortal");

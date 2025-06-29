@@ -56,6 +56,17 @@ MonoBehaviour:
   - RPC_OpenDoorsAndSpawnChest
   - SelfTeleport
   - RPC_SelfTeleport
+  - RPC_EquipWeapon
+  - RPC_RemoveWeapon
+  - RPC_SpawnWeapon
+  - RPC_SyncWeapons
+  - RequestOpenChest
+  - SyncOpenChest
+  - RPC_OpenChestAndSpawnLoot
+  - RPC_RequestOpenChest
+  - RPC_ApplyData
+  - RPC_SpawnLootBatch
+  - RPC_RequestPickupWeapon
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

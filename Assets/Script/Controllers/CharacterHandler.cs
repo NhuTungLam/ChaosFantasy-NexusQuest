@@ -339,16 +339,20 @@ public class CharacterHandler : MonoBehaviourPun
         currentWeapon.transform.localPosition = Vector3.zero;
         currentWeapon.transform.localRotation = Quaternion.identity;
         currentWeapon.isEquipped = true;
-        
     }
 
     private void DropWeapon()
     {
-        if (currentWeapon == null ) return;
-        currentWeapon.transform.SetParent(null);
-        currentWeapon.isEquipped = false;
-        currentWeapon = null;
+        if (currentWeapon != null)
+        {
+            currentWeapon.transform.SetParent(null);
+            Destroy(currentWeapon.gameObject);
+            currentWeapon = null;
+        }
     }
+
+
+
 
     public void SetActiveSkill(SkillCardBase skill)
     {
@@ -447,8 +451,12 @@ public class CharacterHandler : MonoBehaviourPun
         if (characterData.StartingWeapon != null)
         {
             GameObject dropped = Instantiate(data.StartingWeapon);
-            EquipWeapon(dropped.GetComponent<WeaponBase>());
+            var weaponBase = dropped.GetComponent<WeaponBase>();
+            string newId = System.Guid.NewGuid().ToString();
+            weaponBase.Initialize(newId);
+            EquipWeapon(weaponBase);
         }
+
     }
     public void ApplyLoadSave(DungeonApiClient.PlayerProgressDTO playerloadinfo)
     {
