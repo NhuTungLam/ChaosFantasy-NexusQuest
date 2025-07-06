@@ -67,6 +67,12 @@ MonoBehaviour:
   - RPC_ApplyData
   - RPC_SpawnLootBatch
   - RPC_RequestPickupWeapon
+  - RPC_SpawnItem
+  - RPC_UpdateStatTeammate
+  - RPC_DestroySkillCard
+  - RPC_RequestDestroySkillCard
+  - RPC_DestroyPotion
+  - RPC_RequestDestroyPotion
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

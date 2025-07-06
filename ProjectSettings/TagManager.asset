@@ -8,6 +8,7 @@ TagManager:
   - Bullet
   - Setting
   - Hpbar
+  - SummaryPanel
   layers:
   - Default
   - TransparentFX

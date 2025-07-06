@@ -1,8 +1,9 @@
+﻿using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkillCardBase : MonoBehaviour,IInteractable
+public class SkillCardBase : MonoBehaviourPun,IInteractable
 {
     [Header("Data card")]
     public bool isActiveCard = false;
@@ -33,10 +34,51 @@ public class SkillCardBase : MonoBehaviour,IInteractable
     public virtual void Activate(CharacterHandler player) 
     { 
     }
-    public void Interact(CharacterHandler player) 
+    public void Interact(CharacterHandler player)
     {
+        if (hasPick) return;
+
         Initialize(player);
+
+        PhotonView pv = GetComponent<PhotonView>();
+        if (pv == null) return;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            // ✅ Nếu là master thì có quyền gọi trực tiếp
+            pv.RPC("RPC_DestroySkillCard", RpcTarget.AllBuffered);
+        }
+        else
+        {
+            // ❗ Nếu là client → gửi yêu cầu cho master
+            photonView.RPC("RPC_RequestDestroySkillCard", RpcTarget.MasterClient, pv.ViewID);
+        }
     }
+
+    [PunRPC]
+    public void RPC_RequestDestroySkillCard(int viewID)
+    {
+        PhotonView target = PhotonView.Find(viewID);
+        if (target != null)
+        {
+            target.RPC("RPC_DestroySkillCard", RpcTarget.AllBuffered);
+        }
+    }
+
+    [PunRPC]
+    public void RPC_DestroySkillCard()
+    {
+        if (photonView.IsMine || PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+
     public bool CanInteract()
     {
         return !hasPick;

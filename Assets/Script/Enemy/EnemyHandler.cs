@@ -30,8 +30,14 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
 
         if (currentHealth <= 0)
         {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                PlayerStatTracker.Instance?.AddKill();
+            }   
+
             PhotonNetwork.Destroy(gameObject);
         }
+
         // Gửi yêu cầu về master để xử lý sát thương
         //photonView.RPC("RPC_TakeDamage", RpcTarget.MasterClient, damage);
     }
@@ -44,19 +50,19 @@ public class EnemyHandler : MonoBehaviourPun, IPunInstantiateMagicCallback, IDam
 
         spriteRenderer.material.SetFloat("_FlashAmount", 0f);
     }
-    [PunRPC]
-    public void RPC_TakeDamage(float damage)
-    {
-        if(!RoomSessionManager.Instance.IsRoomOwner()) { return; }
-        photonView.RPC("RPC_UpdateVisual",RpcTarget.All, damage);
-        currentHealth -= damage;
+    //[PunRPC]
+    //public void RPC_TakeDamage(float damage)
+    //{
+    //    if(!RoomSessionManager.Instance.IsRoomOwner()) { return; }
+    //    photonView.RPC("RPC_UpdateVisual",RpcTarget.All, damage);
+    //    currentHealth -= damage;
         
-        if (currentHealth <= 0)
-        {
-            PhotonNetwork.Destroy(gameObject);
-        }
+    //    if (currentHealth <= 0)
+    //    {
+    //        PhotonNetwork.Destroy(gameObject);
+    //    }
 
-    }
+    //}
     [PunRPC]
     public void RPC_UpdateVisual(float damage)
     {

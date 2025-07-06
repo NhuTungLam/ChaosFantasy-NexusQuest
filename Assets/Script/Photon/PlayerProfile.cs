@@ -4,8 +4,7 @@ using System;
 public class PlayerProfile
 {
     public int userId;              
-    public string username;
-    public string password;              
+    public string username;              
     public int level = 1;            
     public int exp = 0;              
     public int gold = 0;            

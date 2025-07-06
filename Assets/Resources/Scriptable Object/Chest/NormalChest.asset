@@ -15,9 +15,17 @@ MonoBehaviour:
   chestPrefab: {fileID: 3219067575937509910, guid: 889089d7c70ed2743897e47d2918d1c5, type: 3}
   weaponItemNames:
   - gold_sword
-  passiveSkillCards: []
-  activeSkillCards: []
-  otherItems: []
+  passiveSkillCards:
+  - {fileID: 4818234652911098146, guid: 04f7731981c99c3478f401291f59959b, type: 3}
+  - {fileID: 4818234652911098146, guid: 08a9e33c5a7591548b83e8f2e2cf7b45, type: 3}
+  - {fileID: 4818234652911098146, guid: 4d7d937b339c58046820d33ad1d09856, type: 3}
+  - {fileID: 4818234652911098146, guid: 3677703069c556745b8e852448ce2817, type: 3}
+  activeSkillCards:
+  - {fileID: 4818234652911098146, guid: 4684a55e39864c84c8ee6e9df58127b0, type: 3}
+  - {fileID: 4818234652911098146, guid: 1faae2e108bab9d4c8507886debee8ad, type: 3}
+  - {fileID: 4818234652911098146, guid: e11ffb75ac162774088a59280aad7b9c, type: 3}
+  otherItems:
+  - {fileID: 3327940096715508744, guid: 78c4e9e67f3b6204383df000754519e7, type: 3}
   weaponDropRate: 1
   passiveSkillDropRate: 0.71
   activeSkillDropRate: 0.71

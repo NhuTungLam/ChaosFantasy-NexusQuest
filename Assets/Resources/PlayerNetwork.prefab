@@ -352,6 +352,7 @@ MonoBehaviour:
   reviveRange: 2.5
   reviveHoldTime: 3
   reviveHealthPercent: 0.5
+  deadCount: 0
   invincibilityDuration: 0.5
   levelRanges:
   - startLevel: 1

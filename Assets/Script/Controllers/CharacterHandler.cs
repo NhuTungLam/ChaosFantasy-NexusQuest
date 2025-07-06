@@ -65,7 +65,7 @@ public class CharacterHandler : MonoBehaviourPun
     public float reviveRange = 2.5f;
     public float reviveHoldTime = 3f;
     public float reviveHealthPercent = 0.5f;
-
+    public int deadCount = 0;
     [System.Serializable]
     public class LevelRange
     {
@@ -132,8 +132,12 @@ public class CharacterHandler : MonoBehaviourPun
             hp_cover = statPanel.transform.Find("hp_bar/cover").GetComponent<RectTransform>();
             mana_cover = statPanel.transform.Find("mana_bar/cover").GetComponent<RectTransform>();
             hp_text = statPanel.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
+            
             TakeDamage(0);
             UseMana(0);
+
+            hpteam = GameObject.Find("Canvas/hpteam/hp").GetComponent<TextMeshProUGUI>();
+            manateam = GameObject.Find("Canvas/hpteam/mana").GetComponent<TextMeshProUGUI>();
         }
     }
 
@@ -145,13 +149,13 @@ public class CharacterHandler : MonoBehaviourPun
             float newSize = mainCamera.orthographicSize - scroll * zoomSpeed;
             mainCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
         }
-
-        if (photonView != null && !photonView.IsMine) return;
-
         if (invincibilityTimer > 0)
             invincibilityTimer -= Time.deltaTime;
         else if (isInvincible)
             isInvincible = false;
+        if (photonView != null && !photonView.IsMine) return;
+
+        
 
         Recover();
 
@@ -201,16 +205,19 @@ public class CharacterHandler : MonoBehaviourPun
     }
     public void TakeDamage(float dmg)
     {
+        Debug.LogWarning(dmg);
         if (isDowned) return;
-        if (isInvincible) dmg = 0;
+        if (isInvincible) return;
         if (isBlocking) dmg *= 0.5f;
         if (OnBeforeTakeDamage != null)
         {
             foreach (DamageModifier modifier in OnBeforeTakeDamage.GetInvocationList())
                 dmg = modifier.Invoke(dmg);
         }
-
-        currentHealth -= dmg;
+        if(photonView != null && photonView.IsMine){
+            currentHealth -= dmg;
+            photonView.RPC("RPC_UpdateStatTeammate", RpcTarget.Others, currentHealth, currentMana, characterData.MaxHealth, characterData.MaxMana);
+        }
         invincibilityTimer = invincibilityDuration;
         isInvincible = true;
         currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
@@ -220,16 +227,36 @@ public class CharacterHandler : MonoBehaviourPun
             hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
             hp_text.text = $"{currentHealth}/{characterData.MaxHealth}";
         }
-
-        if (currentHealth <= 0 && !isDowned)
+        if (dmg > 0)
         {
+            DamagePopUp.Create(transform.position, Mathf.RoundToInt(dmg));
+            StartCoroutine(FlashCoroutine());
+        }
+        
+        if (currentHealth <= 0 && !isDowned && photonView.IsMine)
+        {
+            
             Knockdown();
             return;
         }
 
-        if (dmg > 0)
+
+        Debug.LogWarning("current" + dmg);
+    }
+    public void Heal(float amount)
+    {
+        if (photonView != null && photonView.IsMine)
         {
-            DamagePopUp.Create(transform.position, Mathf.RoundToInt(dmg));
+            currentHealth += amount;
+        }
+        currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
+        if (hp_cover != null && photonView.IsMine)
+        {
+            hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
+            hp_text.text = $"{currentHealth}/{characterData.MaxHealth}";
+        }
+        if (amount > 0)
+        {
             StartCoroutine(FlashCoroutine());
         }
     }
@@ -248,13 +275,12 @@ public class CharacterHandler : MonoBehaviourPun
 
     public void Knockdown()
     {
-        
         CanMove(false);
+        if (photonView.IsMine)
+            PlayerStatTracker.Instance?.AddDeath();
+
         photonView.RPC("RPC_PlayKnockdown", RpcTarget.All);
-        
     }
-
-
 
     [PunRPC]
     void RPC_PlayKnockdown()
@@ -266,6 +292,7 @@ public class CharacterHandler : MonoBehaviourPun
         {
             movement.PlayDieAnimation(); 
         }
+        currentWeapon.gameObject.SetActive(false);
         _reviveSystem.gameObject.SetActive(true);
         _rb.isKinematic = true;
     }
@@ -286,6 +313,7 @@ public class CharacterHandler : MonoBehaviourPun
     {
         if (movement != null)
             movement.PlayDashAnimation(); // animation đứng dậy
+        currentWeapon.gameObject.SetActive(true);
         _rb.isKinematic = false;
         _reviveSystem.gameObject.SetActive(false);
         isDowned = false;
@@ -522,5 +550,11 @@ public class CharacterHandler : MonoBehaviourPun
     {
         RPC_FireProjectile(projectileName, position, direction, speed, lifespan, damage, 0);
     }
-
+    private TextMeshProUGUI hpteam;
+    private TextMeshProUGUI manateam;
+    [PunRPC]
+    public void RPC_UpdateStatTeammate(float currentHp, float currentMana,float MaxHp,float Mana)
+    {
+        hpteam.text = $"{currentHp}/{MaxHp}";
+    }
 }

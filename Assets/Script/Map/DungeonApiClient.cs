@@ -40,10 +40,13 @@ public class DungeonApiClient : MonoBehaviour
         public string currentClass;
         public string currentCards;
         public string currentWeapon;
+        public int enemyKills;
+        public int deathCount;
 
     }
     private const string apiBase = "http://localhost:5058/api/dungeon";
     private const string apiBaseProgress = "http://localhost:5058/api/progress";
+    private const string apiBaseTeammate = "http://localhost:5058/api/teammate";
     public IEnumerator SaveOwnerProgress(int ownerId, PlayerProgressDTO progressDTO, Action<int> onProgressIdReceived)
     {
         string json = JsonUtility.ToJson(progressDTO);
@@ -147,28 +150,7 @@ public class DungeonApiClient : MonoBehaviour
         }
     }
 
-    public IEnumerator LoadTeammateProgress(int ownerId, int userId, Action<PlayerProgressDTO> callback)
-    {
-        string url = $"http://localhost:5058/api/teamate/load-teammate-progress?ownerProgressId={ownerId}&userId={userId}";
-
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
-        {
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("✅ Loaded teammate progress.");
-                var dto = JsonUtility.FromJson<PlayerProgressDTO>(request.downloadHandler.text);
-                callback?.Invoke(dto);
-            }
-            else
-            {
-                Debug.LogWarning($"❌ Failed to load teammate progress: {request.error}");
-            }
-        }
-    }
+    
 
     public IEnumerator LoadPlayerProgress(int progressId, Action<PlayerProgressDTO> callback)
     {
@@ -220,8 +202,7 @@ public class DungeonApiClient : MonoBehaviour
     }
     public IEnumerator SaveTeammateProgress(int userId, int ownerProgressId, PlayerProgressDTO dto)
     {
-        string url = $"http://localhost:5058/api/teamate/save-teammate-progress?userId={userId}&ownerProgressId={ownerProgressId}";
-
+        string url = $"{apiBaseTeammate}/save-teammate-progress?userId={userId}&ownerProgressId={ownerProgressId}";
         string json = JsonUtility.ToJson(dto);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -235,16 +216,37 @@ public class DungeonApiClient : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log($"✅ SaveTeammateProgress success: {request.downloadHandler.text}");
+                Debug.Log($"✅ SaveTeammateProgress: {request.downloadHandler.text}");
             }
             else
             {
-                Debug.LogError($"❌ SaveTeammateProgress failed: {request.error}");
-                Debug.LogError(request.downloadHandler.text);
+                Debug.LogError($"❌ SaveTeammateProgress Error: {request.error}");
             }
         }
     }
 
+    public IEnumerator LoadTeammateProgress(int ownerId, int userId, Action<PlayerProgressDTO> callback)
+    {
+        string url = $"{apiBaseTeammate}/load-teammate-progress?ownerId={ownerId}&userId={userId}";
+
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        {
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("✅ Loaded teammate progress");
+                var dto = JsonUtility.FromJson<PlayerProgressDTO>(request.downloadHandler.text);
+                callback?.Invoke(dto);
+            }
+            else
+            {
+                Debug.LogError($"❌ LoadTeammateProgress Error: {request.error}");
+            }
+        }
+    }
     public IEnumerator SaveProgressAfterSpawn(Transform playerTransform, List<int> otherPlayer = null)
     {
         var handler = playerTransform.GetComponent<CharacterHandler>();
@@ -265,7 +267,9 @@ public class DungeonApiClient : MonoBehaviour
             currentMana = handler.currentMana,
             currentClass = handler.characterData.name,
             currentWeapon = handler.currentWeapon?.prefabName ?? "",
-            currentCards = "" // optional
+            currentCards = "", // optional
+            enemyKills = PlayerStatTracker.Instance?.enemyKillCount ?? 0,
+            deathCount = PlayerStatTracker.Instance?.deathCount ?? 0
         };
 
         yield return StartCoroutine(SaveOwnerProgress(
@@ -308,5 +312,44 @@ public class DungeonApiClient : MonoBehaviour
         ));
         
     }
+    public class RewardUpdateDTO
+    {
+        public int userId { get; set; }
+        public int expGained { get; set; }
+        public int goldGained { get; set; }
+    }
+
+
+    public IEnumerator UpdatePlayerReward(int userId, int exp, int gold)
+    {
+        var reward = new RewardUpdateDTO
+        {
+            userId = userId,
+            expGained = exp,
+            goldGained = gold
+        };
+
+        string json = JsonUtility.ToJson(reward);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        using (UnityWebRequest req = new UnityWebRequest("http://localhost:5058/api/profile/update-reward", "POST"))
+        {
+            req.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            req.downloadHandler = new DownloadHandlerBuffer();
+            req.SetRequestHeader("Content-Type", "application/json");
+
+            yield return req.SendWebRequest();
+
+            if (req.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("✅ Reward updated successfully: " + req.downloadHandler.text);
+            }
+            else
+            {
+                Debug.LogError("❌ Failed to update reward: " + req.error);
+            }
+        }
+    }
+
 
 }

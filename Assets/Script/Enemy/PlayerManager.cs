@@ -1,4 +1,4 @@
-using Photon.Pun;
+﻿using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,11 +48,13 @@ public class PlayerManager : MonoBehaviourPun
         if (userID == -1) return;
         if (!RoomSessionManager.Instance.IsRoomOwner() && PhotonView.Find(viewID).IsMine)
         {
-            StartCoroutine(DungeonApiClient.Instance.LoadTeammateProgress(GetOwnerPlayerId(), userID, (dto) =>
-            {
-                playerList[userID].GetComponent<CharacterHandler>().ApplyLoadSave(dto);
-            }));
+            int ownerId = GetOwnerPlayerId();
+            int myId = PlayerProfileFetcher.CurrentProfile?.userId ?? -1;
+
+            if (ownerId > 0 && myId > 0)
+                StartCoroutine(DelayLoadTeammateProgress(ownerId, myId));
         }
+
     }
     [PunRPC]
     public void RPC_TeleportPlayer(int triggerPlayerId)
@@ -81,6 +83,20 @@ public class PlayerManager : MonoBehaviourPun
     {
         return playerList.ContainsKey(viewID);
     }
+    private IEnumerator DelayLoadTeammateProgress(int ownerId, int myId)
+    {
+        // ⏳ Delay 1 second cho owner kịp SaveProgress
+        yield return new WaitForSeconds(1.5f);
+
+        Debug.Log($"[DELAYED] Loading teammate progress: ownerId={ownerId}, userId={myId}");
+
+        yield return StartCoroutine(DungeonApiClient.Instance.LoadTeammateProgress(ownerId, myId, (dto) =>
+        {
+            var view = GetMyPlayer()?.GetComponent<PhotonView>();
+            if (view != null)
+                view.GetComponent<CharacterHandler>().ApplyLoadSave(dto);
+        }));
+    }
 
     public DungeonApiClient.PlayerProgressDTO GetPlayerProgress(int userId)
     {
@@ -105,7 +121,7 @@ public class PlayerManager : MonoBehaviourPun
             if (pair.Value == target)
                 return pair.Key;
         }
-        return null; // Kh�ng t�m th?y
+        return null; // Không tìm th?y
     }
 
     public int GetOwnerPlayerId()

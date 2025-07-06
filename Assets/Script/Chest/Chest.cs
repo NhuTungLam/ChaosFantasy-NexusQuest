@@ -62,11 +62,30 @@ public class Chest : MonoBehaviourPun, IInteractable
         isOpen = true;
         Debug.Log("Chest opened: " + data?.name);
 
-        if (data.weaponItemNames != null && data.weaponItemNames.Length > 0 && Random.value < data.weaponDropRate)
+        if (data.weaponItemNames != null && Random.value < data.weaponDropRate)
         {
-            string weaponName = data.weaponItemNames[Random.Range(0, data.weaponItemNames.Length)];
-            WeaponSyncManager.Instance.SpawnWeapon(weaponName, transform.position);
+            string name = data.weaponItemNames[Random.Range(0, data.weaponItemNames.Length)];
+            ItemSpawnManager.Instance.SpawnItem(ItemType.Weapon, name, transform.position);
         }
+
+        if (data.passiveSkillCards != null && Random.value < data.passiveSkillDropRate)
+        {
+            string name = data.passiveSkillCards[Random.Range(0, data.passiveSkillCards.Length)].name;
+            ItemSpawnManager.Instance.SpawnItem(ItemType.PassiveSkill, name, transform.position + Vector3.right);
+        }
+
+        if (data.activeSkillCards != null && Random.value < data.activeSkillDropRate)
+        {
+            string name = data.activeSkillCards[Random.Range(0, data.activeSkillCards.Length)].name;
+            ItemSpawnManager.Instance.SpawnItem(ItemType.ActiveSkill, name, transform.position + Vector3.left);
+        }
+
+        if (data.otherItems != null && Random.value < data.otherItemDropRate)
+        {
+            string name = data.otherItems[Random.Range(0, data.otherItems.Length)].name;
+            ItemSpawnManager.Instance.SpawnItem(ItemType.Other, name, transform.position + Vector3.up);
+        }
+
 
         if (photonView.IsMine || PhotonNetwork.IsMasterClient)
             PhotonNetwork.Destroy(gameObject);
