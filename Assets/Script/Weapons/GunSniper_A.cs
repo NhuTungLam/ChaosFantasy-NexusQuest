@@ -26,7 +26,7 @@ public class GunSniper_A : WeaponBase
     {
         int shotCount = 3;
         float delay = 0.15f;
-        Vector2 dir = firePoint.right;
+        // dir = firePoint.right;
         float bulletSpeed = 30f;
         float lifespan = 0.6f;
 
@@ -36,7 +36,7 @@ public class GunSniper_A : WeaponBase
             user.photonView.RPC("RPC_FireProjectile", RpcTarget.All,
                 bullet,
                 firePoint.position,
-                dir,
+                (Vector2)firePoint.right,
                 bulletSpeed,
                 lifespan,
                 user.currentMight + damage,
