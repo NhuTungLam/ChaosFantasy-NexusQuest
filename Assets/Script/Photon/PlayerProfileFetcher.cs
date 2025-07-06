@@ -3,12 +3,16 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Text;
 using Photon.Pun;
+using static DungeonApiClient;
 
 public class PlayerProfileFetcher : MonoBehaviour
 {
     public static PlayerProfileFetcher Instance { get; private set; }
     public static PlayerProfile CurrentProfile;
-
+    public int baseReward = 20;
+    public int goldPerKill = 3;
+    public int goldPerRoom = 5;
+    public int deathPenalty = 4;
     private const string PlayerPrefsUserIdKey = "LastLoggedInUserId";
 
     void Awake()
@@ -68,6 +72,7 @@ public class PlayerProfileFetcher : MonoBehaviour
 
     public void UpdateProfile()
     {
+
         if (CurrentProfile != null)
         {
             StartCoroutine(UpdateProfileCoroutine(CurrentProfile));
@@ -113,5 +118,59 @@ public class PlayerProfileFetcher : MonoBehaviour
             MainMenu.Instance.ShowPlayerProfile(null);
             //MainMenu.Instance.GoToLoginScreen(); // ← implement this if needed
         }
+    }
+    private static (int newLevel, int remainingExp) CalculateLevelAndRemainingExp(int currentLevel, int expToAdd)
+    {
+        int level = currentLevel;
+        int exp = expToAdd;
+
+        while (true)
+        {
+            // Tính EXP cần thiết để lên cấp tiếp theo
+            int requiredExp = 50 + (level - 1) * 20;
+
+            // Nếu đủ exp để lên level
+            if (exp >= requiredExp)
+            {
+                exp -= requiredExp;
+                level++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return (level, exp);
+    }
+
+    public static void UpdateReward(int gold , int exp)
+    {
+        if (CurrentProfile == null) return;
+        int level = CurrentProfile.level ;
+        int currentExp = CurrentProfile.exp ;
+        CurrentProfile.gold += gold;
+        var cal = CalculateLevelAndRemainingExp(level, currentExp + exp);
+        CurrentProfile.level = cal.newLevel;
+        CurrentProfile.exp = cal.remainingExp;
+    }
+    public int CalculateExp(PlayerProgressDTO dto, int roomsCleared)
+    {
+        int baseExp = 10;
+        int killBonus = dto.enemyKills * 2;
+        int roomBonus = roomsCleared * 3;
+        int deathPenalty = dto.deathCount * 2;
+
+        return Mathf.Max(0, baseExp + killBonus + roomBonus - deathPenalty);
+    }
+
+    public int CalculateGold(PlayerProgressDTO dto, int roomsCleared)
+    {
+        int reward = baseReward
+            + (dto.enemyKills * goldPerKill)
+            + (roomsCleared * goldPerRoom)
+            - (dto.deathCount * deathPenalty);
+
+        return Mathf.Max(0, reward); // không cho < 0
     }
 }

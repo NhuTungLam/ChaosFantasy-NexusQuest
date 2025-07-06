@@ -159,7 +159,7 @@ public class CharacterHandler : MonoBehaviourPun
 
         Recover();
 
-        if (Input.GetMouseButtonDown(0) && currentWeapon != null)
+        if (Input.GetMouseButton(0) && currentWeapon != null)
         {
             currentWeapon.Attack(this);
         }

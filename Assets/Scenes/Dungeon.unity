@@ -595,6 +595,7 @@ GameObject:
   m_Component:
   - component: {fileID: 217440270}
   - component: {fileID: 217440271}
+  - component: {fileID: 217440272}
   m_Layer: 0
   m_Name: UIMangaer
   m_TagString: Untagged
@@ -631,6 +632,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 0.5
   offsetY: -100
+--- !u!114 &217440272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217440268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2ebf88c5944a2b44926a90ac779607a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyKillCount: 0
+  deathCount: 0
 --- !u!1 &339900363
 GameObject:
   m_ObjectHideFlags: 0
@@ -2068,7 +2083,7 @@ GameObject:
   - component: {fileID: 890263010}
   - component: {fileID: 890263009}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: ItemSync
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

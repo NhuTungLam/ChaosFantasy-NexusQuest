@@ -84,7 +84,7 @@ MonoBehaviour:
   weaponName: Standard Pistol
   prefabName: pistol_1
   manaCost: 1
-  firePoint: {fileID: 0}
+  firePoint: {fileID: 2938612542621717673}
 --- !u!1 &9113223485845227304
 GameObject:
   m_ObjectHideFlags: 0

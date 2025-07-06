@@ -165,13 +165,12 @@ public class GameManager : MonoBehaviour
         int deaths = PlayerStatTracker.Instance?.deathCount ?? 0;
         int rooms = 1; //DungeonGenerator.Instance?.GetClearedRoomCount() ?? 0;
 
-        int gold = RewardSystem.Instance.CalculateGold(
+        int gold = PlayerProfileFetcher.Instance.CalculateGold(
             new PlayerProgressDTO { enemyKills = kills, deathCount = deaths }, rooms);
-        int exp = RewardSystem.Instance.CalculateExp(
+        int exp = PlayerProfileFetcher.Instance.CalculateExp(
             new PlayerProgressDTO { enemyKills = kills, deathCount = deaths }, rooms);
 
 
-        SummaryPanel.gameObject.SetActive(true);
     }
 
     private IEnumerator SendRewardAndReturn(int gold, int exp)
