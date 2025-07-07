@@ -214,7 +214,7 @@ public class CharacterHandler : MonoBehaviourPun
         }
         if(photonView != null && photonView.IsMine){
             currentHealth -= dmg;
-            photonView.RPC("RPC_UpdateStatTeammate", RpcTarget.Others, currentHealth, currentMana, characterData.MaxHealth, characterData.MaxMana);
+            photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth,  characterData.MaxHealth);
         }
         invincibilityTimer = invincibilityDuration;
         isInvincible = true;
@@ -246,6 +246,7 @@ public class CharacterHandler : MonoBehaviourPun
         if (photonView != null && photonView.IsMine)
         {
             currentHealth += amount;
+            photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth, characterData.MaxHealth);
         }
         currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
         if (hp_cover != null && photonView.IsMine)
@@ -253,6 +254,7 @@ public class CharacterHandler : MonoBehaviourPun
             hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
             hp_text.text = $"{currentHealth}/{characterData.MaxHealth}";
         }
+
         if (amount > 0)
         {
             StartCoroutine(FlashCoroutine());
@@ -263,11 +265,15 @@ public class CharacterHandler : MonoBehaviourPun
         if (currentMana < amount)
             return false;
 
-        currentMana -= amount;
+        if (photonView != null && photonView.IsMine)
+        {
+            currentMana -= amount;
+            photonView.RPC("RPC_UpdateStatTeammateMana", RpcTarget.Others, currentMana, characterData.MaxMana);
+        }
         currentMana = Mathf.Clamp(currentMana, 0, characterData.MaxMana);
         if (mana_cover != null)
         mana_cover.localScale = new Vector3(currentMana/characterData.MaxMana, 1, 1);
-
+        
         return true;
     }
 
@@ -286,24 +292,9 @@ public class CharacterHandler : MonoBehaviourPun
             {
                 Die(); // Solo → Die luôn
             }
-            else
-            {
-                StartCoroutine(CheckAllPlayersDownedThenDie());
-            }
         }
     }
-    private IEnumerator CheckAllPlayersDownedThenDie()
-    {
-        yield return new WaitForSeconds(1.5f); // đợi animation RPC sync
-
-        bool allDowned = PlayerManager.Instance.allPlayers.All(p => p != null && p.isDowned);
-
-        if (allDowned)
-        {
-            Debug.LogWarning("[Knockdown] All players down → trigger Die()");
-            Die();
-        }
-    }
+    
 
 
     [PunRPC]
@@ -350,7 +341,7 @@ public class CharacterHandler : MonoBehaviourPun
             PhotonNetwork.Destroy(this.gameObject);
         }
 
-        if (PhotonNetwork.IsMasterClient && PlayerManager.Instance.AreAllPlayersDead())
+        if (PhotonNetwork.IsMasterClient )
         {
             var gm = FindObjectOfType<GameManager>();
             if (gm != null)
@@ -604,6 +595,6 @@ public class CharacterHandler : MonoBehaviourPun
     [PunRPC]
     public void RPC_UpdateStatTeammateMana(float currentMana, float maxMana)
     {
-        tmViewHpCover.localScale = new Vector2(currentMana / maxMana, 1);
+        tmViewManaCover.localScale = new Vector2(currentMana / maxMana, 1);
     }
 }

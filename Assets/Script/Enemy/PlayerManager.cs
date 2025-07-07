@@ -1,17 +1,15 @@
 ﻿using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class PlayerManager : MonoBehaviourPun
 {
     public static PlayerManager Instance;
 
-    public bool AreAllPlayersDead()
-    {
-        return allPlayers.All(p => p == null || p.currentHealth <= 0);
-    }
+    // Key = viewID, Value = (userId, playerTransform)
+    public Dictionary<int, (int userId, Transform playerTransform, RectTransform teammateUI)> playerList = new();
+
     public void Awake()
     {
         Instance = this;
@@ -63,7 +61,6 @@ public class PlayerManager : MonoBehaviourPun
             if (ownerId > 0 && myId > 0)
                 StartCoroutine(DelayLoadTeammateProgress(ownerId, myId));
         }
-
     }
 
     [PunRPC]
