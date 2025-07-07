@@ -5,7 +5,6 @@ using UnityEngine;
 public class GunSMG_A : WeaponBase
 {
     public Transform firePoint;
-    private bool isFiring = false;
 
     void Update()
     {

@@ -246,7 +246,12 @@ public class DungeonApiClient : MonoBehaviour
                 Debug.LogError($"❌ LoadTeammateProgress Error: {request.error}");
             }
         }
-    }
+    }/// <summary>
+    /// Don't call this on teammate client
+    /// </summary>
+    /// <param name="playerTransform"></param>
+    /// <param name="otherPlayer"></param>
+    /// <returns></returns>
     public IEnumerator SaveProgressAfterSpawn(Transform playerTransform, List<int> otherPlayer = null)
     {
         var handler = playerTransform.GetComponent<CharacterHandler>();

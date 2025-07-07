@@ -8,10 +8,6 @@ public class PlayerManager : MonoBehaviourPun
 {
     public static PlayerManager Instance;
 
-    // Dictionary: Key = PhotonView.ViewID, Value = Player Transform
-    public Dictionary<int, Transform> playerList = new();
-    public List<CharacterHandler> allPlayers = new();
-
     public bool AreAllPlayersDead()
     {
         return allPlayers.All(p => p == null || p.currentHealth <= 0);
@@ -27,31 +23,38 @@ public class PlayerManager : MonoBehaviourPun
         var keysToRemove = new List<int>();
         foreach (var kvp in playerList)
         {
-            if (kvp.Value == null)
+            if (kvp.Value.playerTransform == null)
                 keysToRemove.Add(kvp.Key);
         }
 
         foreach (var key in keysToRemove)
         {
+            UIStatTeammateManager.UnAssign(playerList[key].teammateUI);
             playerList.Remove(key);
         }
     }
 
-    
-
     [PunRPC]
-    public void RPC_AddPlayerToList(int viewID,int userID)
+    public void RPC_AddPlayerToList(int viewID, int userID)
     {
         PhotonView view = PhotonView.Find(viewID);
         if (view != null && view.transform != null)
         {
-            if (!playerList.ContainsKey(userID))
+            if (!playerList.ContainsKey(viewID))
             {
-                playerList.Add(userID, view.transform);
-                Debug.Log("[PlayerManager] RPC synced player: " + view.transform.name);
+                //Debug.Log("[PlayerManager] RPC synced player: " + view.transform.name);
+                RectTransform tmView = null;
+                if (!PhotonView.Find(viewID).IsMine)
+                {
+                    tmView = UIStatTeammateManager.Assign();
+                    view.transform.GetComponent<CharacterHandler>().AssignTeammateView(tmView);
+                }
+                playerList.Add(viewID, (userID, view.transform, tmView));
             }
         }
+
         if (userID == -1) return;
+
         if (!RoomSessionManager.Instance.IsRoomOwner() && PhotonView.Find(viewID).IsMine)
         {
             int ownerId = GetOwnerPlayerId();
@@ -60,43 +63,26 @@ public class PlayerManager : MonoBehaviourPun
             if (ownerId > 0 && myId > 0)
                 StartCoroutine(DelayLoadTeammateProgress(ownerId, myId));
         }
-        var handler = view.GetComponent<CharacterHandler>();
-        if (handler != null && !allPlayers.Contains(handler))
-        {
-            allPlayers.Add(handler);
-        }
 
     }
-    [PunRPC]
-    public void RPC_TeleportPlayer(int triggerPlayerId)
-    {
-        List<Transform> transforms = new List<Transform>();
-        foreach (var pair in playerList)
-        {
-            if (pair.Key == triggerPlayerId)
-            {
-                continue;
-            }
-            transforms.Add(pair.Value);
-        }
-        Transform trigger = playerList[triggerPlayerId].transform;
-        foreach (var t in transforms)
-        {
-            t.position = trigger.position + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
-        }
-    }
+
     [PunRPC]
     public void RPC_SelfTeleport(Vector2 position)
     {
-        GetMyPlayer().position = position + new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+        var myPlayer = GetMyPlayer();
+        if (myPlayer != null)
+        {
+            myPlayer.position = position + new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+        }
     }
+
     public bool ContainsPlayer(int viewID)
     {
         return playerList.ContainsKey(viewID);
     }
+
     private IEnumerator DelayLoadTeammateProgress(int ownerId, int myId)
     {
-        // ⏳ Delay 1 second cho owner kịp SaveProgress
         yield return new WaitForSeconds(1.5f);
 
         Debug.Log($"[DELAYED] Loading teammate progress: ownerId={ownerId}, userId={myId}");
@@ -111,28 +97,33 @@ public class PlayerManager : MonoBehaviourPun
 
     public DungeonApiClient.PlayerProgressDTO GetPlayerProgress(int userId)
     {
-        var player = playerList[userId];
-        var handler = player.GetComponent<CharacterHandler>();
+        foreach (var kvp in playerList)
         {
-            return new DungeonApiClient.PlayerProgressDTO
+            if (kvp.Value.userId == userId)
             {
-                currentHp = handler.currentHealth,
-                currentMana = handler.currentMana,
-                currentClass = handler.characterData.name,
-                currentWeapon = handler.currentWeapon?.prefabName ?? "",
-                currentCards = "" // TODO: serialize skill cards if needed
-            };
+                var handler = kvp.Value.playerTransform.GetComponent<CharacterHandler>();
+                return new DungeonApiClient.PlayerProgressDTO
+                {
+                    currentHp = handler.currentHealth,
+                    currentMana = handler.currentMana,
+                    currentClass = handler.characterData.name,
+                    currentWeapon = handler.currentWeapon?.prefabName ?? "",
+                    currentCards = "" // TODO: serialize skill cards if needed
+                };
+            }
         }
 
+        return null;
     }
+
     public int? GetPlayerIdByTransform(Transform target)
     {
         foreach (var pair in playerList)
         {
-            if (pair.Value == target)
-                return pair.Key;
+            if (pair.Value.playerTransform == target)
+                return pair.Value.userId;
         }
-        return null; // Không tìm th?y
+        return null;
     }
 
     public int GetOwnerPlayerId()
@@ -141,29 +132,29 @@ public class PlayerManager : MonoBehaviourPun
 
         foreach (var kvp in playerList)
         {
-            var view = kvp.Value.GetComponent<PhotonView>();
+            var view = kvp.Value.playerTransform.GetComponent<PhotonView>();
             if (view != null && view.Owner.UserId == roomOwnerId)
             {
-                return kvp.Key;
+                return kvp.Value.userId;
             }
         }
 
-        return -1; // not found
+        return -1;
     }
-
 
     public Transform GetMyPlayer()
     {
-        foreach (var player in playerList.Values)
+        foreach (var pair in playerList.Values)
         {
-            var view = player.GetComponent<PhotonView>();
+            var view = pair.playerTransform.GetComponent<PhotonView>();
             if (view != null && view.IsMine)
-                return player;
+                return pair.playerTransform;
         }
 
         return null;
     }
-    //for enemy
+
+    // For enemy AI to find nearby player
     public Transform GetPlayer(Vector2 origin, float range = 5f)
     {
         Transform closestPlayer = null;
@@ -171,13 +162,13 @@ public class PlayerManager : MonoBehaviourPun
 
         foreach (var player in playerList.Values)
         {
-            if (player == null) continue;
+            if (player.playerTransform == null) continue;
 
-            float distance = Vector2.Distance(origin, player.position);
+            float distance = Vector2.Distance(origin, player.playerTransform.position);
             if (distance <= range && distance < minDistance)
             {
                 minDistance = distance;
-                closestPlayer = player;
+                closestPlayer = player.playerTransform;
             }
         }
 
@@ -190,14 +181,13 @@ public class PlayerManager : MonoBehaviourPun
 
         foreach (var kvp in playerList)
         {
-            var view = kvp.Value.GetComponent<PhotonView>();
+            var view = kvp.Value.playerTransform.GetComponent<PhotonView>();
             if (view != null && view.IsMine)
                 continue;
 
-            otherPlayerIds.Add(kvp.Key);
+            otherPlayerIds.Add(kvp.Value.userId);
         }
 
         return otherPlayerIds;
     }
 }
-

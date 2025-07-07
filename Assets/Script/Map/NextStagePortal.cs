@@ -48,10 +48,7 @@ public class NextStagePortal : MonoBehaviour, IInteractable
 
             //TODO: saving other players' progress
             DungeonSyncManager.Instance.photonView.RPC("RPC_SpawnRoomPrefab", RpcTarget.Others, DungeonGenerator.Instance.SaveLayout());
-            foreach (var p in PlayerManager.Instance.playerList)
-            {
-                p.Value.position = new Vector2(Random.Range(-3f, 3f), Random.Range(-3f, 3f));
-            }
+            PlayerManager.Instance.photonView.RPC("RPC_SelfTeleport", RpcTarget.All, new Vector2(Random.Range(-3f, 3f), Random.Range(-3f, 3f)));
         }
         yield return new WaitForSecondsRealtime(1f);
         BlackScreen.Instance.BlackOut();
