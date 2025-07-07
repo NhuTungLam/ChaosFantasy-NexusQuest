@@ -18,15 +18,18 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
     public Image charSelPortrait;
     public CharacterData CurrentCharacterData;
     public RectTransform CharacterChangePanel;
+    public RectTransform PlayerProfilePanel;
     //public RectTransform RoomJoinUI;
     [Header("Animation Settings")]
     public float duration = 0.5f;
     public float offsetY = 150f;
 
+    public DamagePopUp popUpPrefab;
     private CharacterHandler currentUser;
     void Awake()
     {
         Instance = this;
+        ObjectPools.SetupPool(popUpPrefab, 10, "DamagePopUp");
     }
     void Start()
     {
@@ -39,6 +42,8 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
         SettingPausePanel.transform.Find("home").GetComponent<Button>().onClick.AddListener(OnExitToNexusButton);
         SettingPausePanel.transform.Find("close").GetComponent<Button>().onClick.RemoveAllListeners();
         SettingPausePanel.transform.Find("close").GetComponent<Button>().onClick.AddListener(OnResumeButton);
+
+        ShowPlayerProfile(PlayerProfileFetcher.CurrentProfile);
     }
     private bool hasExited = false;
     void OnExitToNexusButton()
@@ -204,5 +209,19 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
         isPaused = false;
         HidePanel(SettingPausePanel);
         Time.timeScale = 1;
+    }
+    public void ShowPlayerProfile(PlayerProfile profile = null)
+    {
+        if (profile == null)
+        {
+            PlayerProfilePanel.DOAnchorPosY(200, 1).SetEase(Ease.InCubic).SetUpdate(true);
+        }
+        else
+        {
+            PlayerProfilePanel.DOAnchorPosY(-50, 1).SetEase(Ease.OutCubic).SetUpdate(true);
+            PlayerProfilePanel.transform.Find("name").GetComponent<TextMeshProUGUI>().text = profile.username;
+            PlayerProfilePanel.transform.Find("level").GetComponent<TextMeshProUGUI>().text = $"lvl {profile.level}";
+            PlayerProfilePanel.transform.Find("gold").GetComponent<TextMeshProUGUI>().text = $"gold {profile.gold}";
+        }
     }
 }
