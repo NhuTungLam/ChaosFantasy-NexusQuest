@@ -129,15 +129,13 @@ public class CharacterHandler : MonoBehaviourPun
         hp_text = null;
         if (statPanel != null)
         {
-            hp_cover = statPanel.transform.Find("hp_bar/cover").GetComponent<RectTransform>();
-            mana_cover = statPanel.transform.Find("mana_bar/cover").GetComponent<RectTransform>();
+            hp_cover = statPanel.transform.Find("hp_cover").GetComponent<RectTransform>();
+            mana_cover = statPanel.transform.Find("mana_cover").GetComponent<RectTransform>();
             hp_text = statPanel.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
             
             TakeDamage(0);
             UseMana(0);
 
-            hpteam = GameObject.Find("Canvas/hpteam/hp").GetComponent<TextMeshProUGUI>();
-            manateam = GameObject.Find("Canvas/hpteam/mana").GetComponent<TextMeshProUGUI>();
         }
     }
 
@@ -550,11 +548,27 @@ public class CharacterHandler : MonoBehaviourPun
     {
         RPC_FireProjectile(projectileName, position, direction, speed, lifespan, damage, 0);
     }
-    private TextMeshProUGUI hpteam;
-    private TextMeshProUGUI manateam;
-    [PunRPC]
-    public void RPC_UpdateStatTeammate(float currentHp, float currentMana,float MaxHp,float Mana)
+
+
+
+    private RectTransform tmViewHpCover, tmViewManaCover;
+    private TextMeshProUGUI tmViewHpTxt;
+    public void AssignTeammateView(RectTransform rt)
     {
-        hpteam.text = $"{currentHp}/{MaxHp}";
+        tmViewHpCover = rt.transform.Find("hp_cover").GetComponent<RectTransform>();
+        tmViewManaCover = rt.transform.Find("mana_cover").GetComponent <RectTransform>();
+        tmViewHpTxt = rt.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
+        rt.transform.Find("icon").GetComponent<Image>().sprite = characterData != null ? characterData.PlayerSprite : null;
+    }
+    [PunRPC]
+    public void RPC_UpdateStatTeammateHP(float currentHp, float maxHp)
+    {
+        tmViewHpCover.localScale = new Vector2(currentHp/maxHp, 1);
+        tmViewHpTxt.text = $"{currentHp}/{maxHp}";
+    }
+    [PunRPC]
+    public void RPC_UpdateStatTeammateMana(float currentMana, float maxMana)
+    {
+        tmViewHpCover.localScale = new Vector2(currentMana / maxMana, 1);
     }
 }

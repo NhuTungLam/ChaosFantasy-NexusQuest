@@ -73,6 +73,8 @@ MonoBehaviour:
   - RPC_RequestDestroySkillCard
   - RPC_DestroyPotion
   - RPC_RequestDestroyPotion
+  - RPC_UpdateStatTeammateHP
+  - RPC_UpdateStatTeammateMana
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

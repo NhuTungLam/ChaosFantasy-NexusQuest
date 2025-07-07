@@ -49,6 +49,7 @@ public class MessageBoard : MonoBehaviour
 
         // Entry animation
         Sequence seq = DOTween.Sequence();
+        seq.SetUpdate(true);
         seq.Append(cg.DOFade(1, fadeDuration));
         seq.Join(msgRect.DOAnchorPosY(yOffset + 10f, fadeDuration));
 
@@ -75,7 +76,7 @@ public class MessageBoard : MonoBehaviour
             RectTransform rect = activeMessages[i];
             float targetY = -i * verticalSpacing;
 
-            rect.DOAnchorPosY(targetY, 0.3f).SetEase(Ease.OutQuad);
+            rect.DOAnchorPosY(targetY, 0.3f).SetEase(Ease.OutQuad).SetUpdate(true);
         }
     }
 }
