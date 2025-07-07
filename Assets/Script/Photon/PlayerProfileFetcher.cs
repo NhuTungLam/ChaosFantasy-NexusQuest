@@ -98,7 +98,10 @@ public class PlayerProfileFetcher : MonoBehaviour
             }
             else
             {
-                MainMenu.Instance.ShowPlayerProfile(CurrentProfile);
+                if (MainMenu.Instance != null)
+                {
+                    MainMenu.Instance.ShowPlayerProfile(CurrentProfile);
+                }
             }
         }
     }

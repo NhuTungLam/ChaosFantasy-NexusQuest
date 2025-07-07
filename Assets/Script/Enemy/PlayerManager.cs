@@ -1,6 +1,7 @@
 ﻿using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerManager : MonoBehaviourPun
@@ -9,7 +10,12 @@ public class PlayerManager : MonoBehaviourPun
 
     // Dictionary: Key = PhotonView.ViewID, Value = Player Transform
     public Dictionary<int, Transform> playerList = new();
+    public List<CharacterHandler> allPlayers = new();
 
+    public bool AreAllPlayersDead()
+    {
+        return allPlayers.All(p => p == null || p.currentHealth <= 0);
+    }
     public void Awake()
     {
         Instance = this;
@@ -53,6 +59,11 @@ public class PlayerManager : MonoBehaviourPun
 
             if (ownerId > 0 && myId > 0)
                 StartCoroutine(DelayLoadTeammateProgress(ownerId, myId));
+        }
+        var handler = view.GetComponent<CharacterHandler>();
+        if (handler != null && !allPlayers.Contains(handler))
+        {
+            allPlayers.Add(handler);
         }
 
     }

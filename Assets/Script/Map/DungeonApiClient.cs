@@ -312,44 +312,5 @@ public class DungeonApiClient : MonoBehaviour
         ));
         
     }
-    public class RewardUpdateDTO
-    {
-        public int userId { get; set; }
-        public int expGained { get; set; }
-        public int goldGained { get; set; }
-    }
-
-
-    public IEnumerator UpdatePlayerReward(int userId, int exp, int gold)
-    {
-        var reward = new RewardUpdateDTO
-        {
-            userId = userId,
-            expGained = exp,
-            goldGained = gold
-        };
-
-        string json = JsonUtility.ToJson(reward);
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
-        using (UnityWebRequest req = new UnityWebRequest("http://localhost:5058/api/profile/update-reward", "POST"))
-        {
-            req.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            req.downloadHandler = new DownloadHandlerBuffer();
-            req.SetRequestHeader("Content-Type", "application/json");
-
-            yield return req.SendWebRequest();
-
-            if (req.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("✅ Reward updated successfully: " + req.downloadHandler.text);
-            }
-            else
-            {
-                Debug.LogError("❌ Failed to update reward: " + req.error);
-            }
-        }
-    }
-
 
 }

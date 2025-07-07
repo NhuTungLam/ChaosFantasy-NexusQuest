@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DungeonSystem;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class CharacterHandler : MonoBehaviourPun
 {
@@ -205,7 +206,6 @@ public class CharacterHandler : MonoBehaviourPun
     }
     public void TakeDamage(float dmg)
     {
-        Debug.LogWarning(dmg);
         if (isDowned) return;
         if (isInvincible) return;
         if (isBlocking) dmg *= 0.5f;
@@ -276,11 +276,37 @@ public class CharacterHandler : MonoBehaviourPun
     public void Knockdown()
     {
         CanMove(false);
+
         if (photonView.IsMine)
             PlayerStatTracker.Instance?.AddDeath();
 
         photonView.RPC("RPC_PlayKnockdown", RpcTarget.All);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
+            {
+                Die(); // Solo → Die luôn
+            }
+            else
+            {
+                StartCoroutine(CheckAllPlayersDownedThenDie());
+            }
+        }
     }
+    private IEnumerator CheckAllPlayersDownedThenDie()
+    {
+        yield return new WaitForSeconds(1.5f); // đợi animation RPC sync
+
+        bool allDowned = PlayerManager.Instance.allPlayers.All(p => p != null && p.isDowned);
+
+        if (allDowned)
+        {
+            Debug.LogWarning("[Knockdown] All players down → trigger Die()");
+            Die();
+        }
+    }
+
 
     [PunRPC]
     void RPC_PlayKnockdown()
@@ -325,7 +351,16 @@ public class CharacterHandler : MonoBehaviourPun
         {
             PhotonNetwork.Destroy(this.gameObject);
         }
+
+        if (PhotonNetwork.IsMasterClient && PlayerManager.Instance.AreAllPlayersDead())
+        {
+            var gm = FindObjectOfType<GameManager>();
+            if (gm != null)
+                gm.TriggerFullPartyWipe();
+        }
     }
+
+
 
     public void CanMove(bool value)
     {

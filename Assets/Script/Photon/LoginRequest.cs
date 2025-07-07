@@ -62,7 +62,8 @@ public class LoginRequest : MonoBehaviour
                 currentUsername = res.username;
                 currentUserId = res.id;
                 MessageBoard.Show("Login Successfully!");
-
+                //AuthToken.token = res.token;
+                //Debug.Log("[Login] Token = " + AuthToken.token);
                 PlayerProfileFetcher.Instance.FetchProfile(currentUserId, (profile) =>
                 {
                     MessageBoard.Show($"Loaded profile for {currentUsername}: Lv {profile.level}, Gold {profile.gold}");
