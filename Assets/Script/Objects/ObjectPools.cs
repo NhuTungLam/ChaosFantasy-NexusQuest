@@ -15,6 +15,7 @@ public static class ObjectPools
     // Set up an object pool of a specific type of object
     public static void SetupPool<T>(T ItemPrefab, int poolSize, string entry) where T : Component
     {
+        if (poolDictionary.ContainsKey(entry)) return;
         // Create an entry for the pool 
         poolDictionary.Add(entry, new Queue<Component>());
 

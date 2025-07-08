@@ -85,10 +85,20 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
 
         // 🟢 Save player progress to backend
         //Don't call this on teammate client
-        if (PlayerProfileFetcher.CurrentProfile != null)
+        if (PlayerProfileFetcher.CurrentProfile != null && RoomSessionManager.Instance.IsRoomOwner())
         {
-            StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(playerInstance.transform));
+            StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(playerInstance.transform, progressIdCallback:(progressId) =>
+            {
+                PlayerManager.Instance.photonView.RPC("RPC_OwnerProgressId", RpcTarget.AllBuffered, progressId);
+            }
+            ));
             //Debug.LogWarning("save progress");
+        }
+        if (PlayerProfileFetcher.CurrentProfile != null && !RoomSessionManager.Instance.IsRoomOwner())
+        {
+            int progressId = PlayerManager.Instance.ownerProgressId;
+            var progressdto = PlayerManager.Instance.GetPlayerProgress(userID);
+            StartCoroutine(DungeonApiClient.Instance.SaveTeammateProgress(userID, progressId, progressdto));
         }
     }
 }

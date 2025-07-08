@@ -8,6 +8,11 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+    public void Awake()
+    {
+        Instance = this;
+    }
     private bool isPaused = false;
 
     private RectTransform SettingPausePanel;
@@ -98,16 +103,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void TriggerFullPartyWipe()
-    {
-        StartCoroutine(ShowSummaryPanel());
-    }
 
-    private IEnumerator ShowSummaryPanel()
+    public void ShowSummaryPanel()
     {
-        yield return new WaitForSeconds(1f);
-
-        Time.timeScale = 0f;
 
         int kills = PlayerStatTracker.Instance?.enemyKillCount ?? 0;
         int deaths = PlayerStatTracker.Instance?.deathCount ?? 0;
@@ -119,15 +117,16 @@ public class GameManager : MonoBehaviour
         finalExp = PlayerProfileFetcher.Instance.CalculateExp(
             new DungeonApiClient.PlayerProgressDTO { enemyKills = kills, deathCount = deaths }, rooms);
 
-        SummaryPanel.transform.Find("enemy_kill").GetComponent<TextMeshProUGUI>().text = $"Enemies Defeated: {kills}";
-        SummaryPanel.transform.Find("room_clear").GetComponent<TextMeshProUGUI>().text = $"Rooms Cleared: {rooms}";
-        SummaryPanel.transform.Find("death_count").GetComponent<TextMeshProUGUI>().text = $"Deaths: {deaths}";
-        SummaryPanel.transform.Find("gold_earn").GetComponent<TextMeshProUGUI>().text = $"Gold Earned: {finalGold}";
-        SummaryPanel.transform.Find("exp_earn").GetComponent<TextMeshProUGUI>().text = $"Exp Gained: {finalExp}";
+        SummaryPanel.transform.Find("enemy_kill").GetComponent<TextMeshProUGUI>().text = $"{kills}";
+        SummaryPanel.transform.Find("room_clear").GetComponent<TextMeshProUGUI>().text = $"{rooms}";
+        SummaryPanel.transform.Find("death_count").GetComponent<TextMeshProUGUI>().text = $"{deaths}";
+        SummaryPanel.transform.Find("gold_earn").GetComponent<TextMeshProUGUI>().text = $"{finalGold}";
+        SummaryPanel.transform.Find("exp_earn").GetComponent<TextMeshProUGUI>().text = $"{finalExp}";
 
         var returnBtn = SummaryPanel.transform.Find("return_nexus").GetComponent<Button>();
         returnBtn.onClick.RemoveAllListeners();
         returnBtn.onClick.AddListener(() => StartCoroutine(SendRewardAndReturn()));
+        ShowPanel(SummaryPanel);
     }
 
     private IEnumerator SendRewardAndReturn()

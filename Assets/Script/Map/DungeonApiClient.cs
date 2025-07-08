@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using System.Text;
 using System;
 using Photon.Pun;
+using Unity.VisualScripting;
 
 public class DungeonApiClient : MonoBehaviour
 {
@@ -202,6 +203,7 @@ public class DungeonApiClient : MonoBehaviour
     }
     public IEnumerator SaveTeammateProgress(int userId, int ownerProgressId, PlayerProgressDTO dto)
     {
+        if (ownerProgressId == -1) yield break;
         string url = $"{apiBaseTeammate}/save-teammate-progress?userId={userId}&ownerProgressId={ownerProgressId}";
         string json = JsonUtility.ToJson(dto);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -252,8 +254,9 @@ public class DungeonApiClient : MonoBehaviour
     /// <param name="playerTransform"></param>
     /// <param name="otherPlayer"></param>
     /// <returns></returns>
-    public IEnumerator SaveProgressAfterSpawn(Transform playerTransform, List<int> otherPlayer = null)
+    public IEnumerator SaveProgressAfterSpawn(Transform playerTransform, List<int> otherPlayer = null,Action<int> progressIdCallback=null)
     {
+
         var handler = playerTransform.GetComponent<CharacterHandler>();
         if (handler == null )
         {
@@ -283,6 +286,7 @@ public class DungeonApiClient : MonoBehaviour
 
                 if (progressId > 0)
                 {
+                    progressIdCallback?.Invoke(progressId);
                     Debug.Log($"✅ SaveOwnerProgress returned ProgressId = {progressId}");
 
                     string layout = DungeonGenerator.Instance.SaveLayout();

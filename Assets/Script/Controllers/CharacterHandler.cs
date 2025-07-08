@@ -157,27 +157,28 @@ public class CharacterHandler : MonoBehaviourPun
         
 
         Recover();
-
-        if (Input.GetMouseButton(0) && currentWeapon != null)
+        if (!isDowned)
         {
-            currentWeapon.Attack(this);
-        }
+            if (Input.GetMouseButton(0) && currentWeapon != null)
+            {
+                currentWeapon.Attack(this);
+            }
 
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            TryInteract();
-        }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                TryInteract();
+            }
 
-        if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkill != null)
-        {
-            activeSkill.Activate(this);
-        }
+            if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkill != null)
+            {
+                activeSkill.Activate(this);
+            }
 
-        if (skillCooldownTimer > 0f)
-        {
-            skillCooldownTimer -= Time.deltaTime;
+            if (skillCooldownTimer > 0f)
+            {
+                skillCooldownTimer -= Time.deltaTime;
+            }
         }
-
         if (Input.GetKeyDown(KeyCode.J))
         {
             TakeDamage(40);
@@ -192,6 +193,7 @@ public class CharacterHandler : MonoBehaviourPun
             GetClosestInteractable();
             throttleInteractUpdateInterval = 0.1f;
         }
+        
     }
     private IEnumerator FlashCoroutine()
     {
@@ -290,7 +292,7 @@ public class CharacterHandler : MonoBehaviourPun
         {
             if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
             {
-                Die(); // Solo → Die luôn
+                GameManager.Instance.ShowSummaryPanel();
             }
         }
     }
@@ -306,6 +308,10 @@ public class CharacterHandler : MonoBehaviourPun
         if (movement != null)
         {
             movement.PlayDieAnimation(); 
+        }
+        if (RoomSessionManager.Instance.IsRoomOwner())
+        {
+            PlayerManager.Instance.CheckDie(photonView.ViewID,true);
         }
         currentWeapon.gameObject.SetActive(false);
         _reviveSystem.gameObject.SetActive(true);
@@ -332,22 +338,12 @@ public class CharacterHandler : MonoBehaviourPun
         _rb.isKinematic = false;
         _reviveSystem.gameObject.SetActive(false);
         isDowned = false;
-    }
-
-    public void Die()
-    {
-        if (photonView.IsMine)
+        if (RoomSessionManager.Instance.IsRoomOwner())
         {
-            PhotonNetwork.Destroy(this.gameObject);
-        }
-
-        if (PhotonNetwork.IsMasterClient )
-        {
-            var gm = FindObjectOfType<GameManager>();
-            if (gm != null)
-                gm.TriggerFullPartyWipe();
+            PlayerManager.Instance.CheckDie(photonView.ViewID, false);
         }
     }
+
 
 
 

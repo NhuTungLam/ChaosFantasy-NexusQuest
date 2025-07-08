@@ -6,10 +6,43 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviourPun
 {
     public static PlayerManager Instance;
-
+    public int ownerProgressId = -1;
+    [PunRPC]
+    public void RPC_OwnerProgressId(int Id)
+    {
+        ownerProgressId =Id;
+    }
+    public void CheckDie(int viewId,bool down)
+    {
+        var p = playerList[viewId];
+        p.isDown = down;
+        playerList[viewId] = p;
+        if (down)
+        {
+            bool allDown = true;
+            foreach (var v in playerList)
+            {
+                if (!v.Value.isDown)
+                {
+                    allDown = false;
+                    break;
+                }
+                
+            }
+            if (allDown == true)
+            {
+                photonView.RPC("RPC_Summary", RpcTarget.All);
+            }
+        }
+    }
+    [PunRPC]
+    public void RPC_Summary()
+    {
+        GameManager.Instance.ShowSummaryPanel();
+    }
     // Key = viewID, Value = (userId, playerTransform)
-    public Dictionary<int, (int userId, Transform playerTransform, RectTransform teammateUI)> playerList = new();
-
+    public Dictionary<int, (int userId, Transform playerTransform, RectTransform teammateUI,bool isDown)> playerList = new();
+   
     public void Awake()
     {
         Instance = this;
@@ -47,7 +80,7 @@ public class PlayerManager : MonoBehaviourPun
                     tmView = UIStatTeammateManager.Assign();
                     view.transform.GetComponent<CharacterHandler>().AssignTeammateView(tmView);
                 }
-                playerList.Add(viewID, (userID, view.transform, tmView));
+                playerList.Add(viewID, (userID, view.transform, tmView, false));
             }
         }
 
