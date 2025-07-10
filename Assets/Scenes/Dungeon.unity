@@ -4651,8 +4651,11 @@ MonoBehaviour:
   stageLevel: 1
   roomPrefabs:
   - {fileID: 4843577782144643279, guid: 943cf9e42e5d81240bf8669b285635cb, type: 3}
+  - {fileID: 4843577782144643279, guid: 5d3b14f546c77f646951ccd5cddfa0aa, type: 3}
+  - {fileID: 4843577782144643279, guid: 3d01714a2ba0bab4894a576981d6c7aa, type: 3}
   bossRooms:
   - {fileID: 4843577782144643279, guid: 3e418968d0fe7e6449256b66ea58645c, type: 3}
+  - {fileID: 4843577782144643279, guid: 76fe981b3dfc52341a3aa1136c7d358b, type: 3}
   specialRooms:
   - {fileID: 4843577782144643279, guid: 9fe23f6e61e1d3d4caef4233d657519c, type: 3}
   dungeonSize: 15
