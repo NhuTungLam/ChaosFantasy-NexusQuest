@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 public class P_SlashSkill : SkillCardBase
@@ -15,7 +16,7 @@ public class P_SlashSkill : SkillCardBase
 
         if (player.weaponHolder.childCount > 0)
         {
-            var weapon = player.weaponHolder.GetChild(0).GetComponent<MeleeWeapon>();
+            var weapon = player.weaponHolder.GetChild(0).GetComponent<WeaponSword>();
             if (weapon != null)
                 weapon.onAttack += OnWeaponAttack;
             Debug.Log("attackpassive");
@@ -26,7 +27,7 @@ public class P_SlashSkill : SkillCardBase
     {
         if (player.weaponHolder.childCount > 0)
         {
-            var weapon = player.weaponHolder.GetChild(0).GetComponent<MeleeWeapon>();
+            var weapon = player.weaponHolder.GetChild(0).GetComponent<WeaponSword>();
             if (weapon != null)
                 weapon.onAttack -= OnWeaponAttack;
             //player.currentMight += 5; cong chi so
@@ -36,7 +37,6 @@ public class P_SlashSkill : SkillCardBase
     {
         Debug.Log("wweapon slash atttack");
         Transform weapon = player.weaponHolder.childCount > 0 ? player.weaponHolder.GetChild(0) : player.weaponHolder;
-        Transform spawnPoint = weapon.Find("SpawnPoint");
 
         Vector2 direction = player.lastMoveDirection.normalized;
         float damage = player.currentMight * damageMultiplier;
@@ -44,10 +44,19 @@ public class P_SlashSkill : SkillCardBase
         if (Random.value <= player.currentCritRate)
             damage *= player.currentCritDamage;
 
-        GameObject proj = Instantiate(slashProjectilePrefab, spawnPoint != null ? spawnPoint.position : weapon.position, Quaternion.identity);
+        //GameObject proj = Instantiate(slashProjectilePrefab, spawnPoint != null ? spawnPoint.position : weapon.position, Quaternion.identity);
         //proj.GetComponent<Projectile>().Initialize(direction, damage);
 
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        proj.transform.rotation = Quaternion.Euler(0, 0, angle);
+        //float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        //proj.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        player.photonView.RPC("RPC_FireProjectile", RpcTarget.All,
+            "slash_skill",
+            weapon.position,
+            direction,
+            10f,
+            1f,
+            damage,
+            2);
     }
 }

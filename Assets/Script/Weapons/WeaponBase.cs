@@ -28,7 +28,7 @@ public abstract class WeaponBase : MonoBehaviourPunCallbacks, IInteractable
         return !isEquipped;
     }
 
-    public void Interact(CharacterHandler user = null)
+    public virtual void Interact(CharacterHandler user = null)
     {
         if (isEquipped || user == null) return;
         isEquipped = true;
