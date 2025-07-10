@@ -4670,7 +4670,7 @@ GameObject:
   - component: {fileID: 2591595802960715769}
   - component: {fileID: 1825451323673847651}
   - component: {fileID: 4368723687957389686}
-  - component: {fileID: 4018466857309237213}
+  - component: {fileID: 4954674831195702107}
   m_Layer: 0
   m_Name: Room_0 2
   m_TagString: Untagged
@@ -4736,8 +4736,8 @@ MonoBehaviour:
   leftDoor: {fileID: 4796784520413950020}
   rightDoor: {fileID: 1290932475458115409}
   chestSpawned: 0
---- !u!68 &4018466857309237213
-EdgeCollider2D:
+--- !u!61 &4954674831195702107
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -4746,30 +4746,22 @@ EdgeCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.22955322, y: 0.46783447}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 22.170143, y: 23.054798}
   m_EdgeRadius: 0
-  m_Points:
-  - {x: 3.9821634, y: 4.199164}
-  - {x: 4.868888, y: 3.9241214}
-  - {x: 12.8897085, y: 3.7613363}
-  - {x: 12.9577055, y: -3.973072}
-  - {x: 3.9140806, y: -4.039293}
-  - {x: 4.0379734, y: -12.986712}
-  - {x: -3.9449148, y: -12.943762}
-  - {x: -3.9451647, y: -3.9681108}
-  - {x: -12.908195, y: -3.9786026}
-  - {x: -12.957773, y: 3.932668}
-  - {x: -4.042613, y: 4.048628}
-  - {x: -3.9926467, y: 13.067326}
-  - {x: 3.8794453, y: 12.929229}
-  - {x: 3.8741944, y: 3.8101687}
-  m_AdjacentStartPoint: {x: 0, y: 0}
-  m_AdjacentEndPoint: {x: 0, y: 0}
-  m_UseAdjacentStartPoint: 0
-  m_UseAdjacentEndPoint: 0
 --- !u!1 &5663320605257601792
 GameObject:
   m_ObjectHideFlags: 0

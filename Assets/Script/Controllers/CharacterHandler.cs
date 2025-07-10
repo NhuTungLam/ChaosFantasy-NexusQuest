@@ -240,8 +240,6 @@ public class CharacterHandler : MonoBehaviourPun
             return;
         }
 
-
-        Debug.LogWarning("current" + dmg);
     }
     public void Heal(float amount)
     {

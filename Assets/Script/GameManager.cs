@@ -9,6 +9,7 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public bool defeated = false;
     public void Awake()
     {
         Instance = this;
@@ -106,7 +107,7 @@ public class GameManager : MonoBehaviour
 
     public void ShowSummaryPanel()
     {
-
+        defeated=true;
         int kills = PlayerStatTracker.Instance?.enemyKillCount ?? 0;
         int deaths = PlayerStatTracker.Instance?.deathCount ?? 0;
         int rooms = 1; // Replace with actual cleared room count if available

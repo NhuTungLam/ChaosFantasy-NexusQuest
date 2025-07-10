@@ -47,7 +47,7 @@ public class Room : MonoBehaviour
     {
         if (!RoomSessionManager.Instance.IsRoomOwner()) return;
 
-        if (doorsClosed && PhotonEnemySpawner.Instance != null && PhotonEnemySpawner.Instance.AllEnemiesDefeated)
+        if (doorsClosed && PhotonEnemySpawner.Instance != null && PhotonEnemySpawner.Instance.AllEnemiesDefeated && !GameManager.Instance.defeated)
         {
             DungeonSyncManager.Instance.photonView.RPC("RPC_OpenDoorsAndSpawnChest", RpcTarget.All, transform.position);
         }
