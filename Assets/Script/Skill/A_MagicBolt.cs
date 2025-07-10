@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 public class A_MagicBolt : SkillCardBase
@@ -30,14 +31,16 @@ public class A_MagicBolt : SkillCardBase
         if (Random.value <= player.currentCritRate)
         {
             damage *= player.currentCritDamage;
-            Debug.Log($"[MagicBolt] CRITICAL! Damage: {damage}");
+            //Debug.Log($"[MagicBolt] CRITICAL! Damage: {damage}");
         }
 
-        Transform origin = player.weaponHolder != null ? player.weaponHolder : player.transform;
-        GameObject bolt = GameObject.Instantiate(boltPrefab, origin.position, Quaternion.identity);
-        //bolt.GetComponent<Projectile>().Initialize(direction, damage);
-
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        bolt.transform.rotation = Quaternion.Euler(0, 0, angle);
+        player.photonView.RPC("RPC_FireProjectile", RpcTarget.All,
+            "spell_skill",
+            transform.position,
+            direction,
+            10f,
+            1f,
+            damage,
+            2);
     }
 }
