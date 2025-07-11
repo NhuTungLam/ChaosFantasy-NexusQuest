@@ -22,19 +22,20 @@ public class Staff_F : WeaponBase
 
         interval = cooldown;
 
-        Vector2 direction = firePoint.right;
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 shootDir = (mousePos - transform.position).normalized;
 
         for (int i = 0; i < bulletCount; i++)
         {
             float angle = Random.Range(-spreadAngle, spreadAngle);
             float speed = Random.Range(3f, 8f);
-            Vector2 rotatedDir = direction.Rotate(angle);
+            Vector2 rotatedDir = shootDir.Rotate(angle);
             float lifeSpan = Random.Range(0.5f, 2f);
 
             user.photonView.RPC("RPC_FireProjectile", RpcTarget.All,
                 "spell_3",
                 firePoint.position,
-                rotatedDir.normalized,
+                rotatedDir,
                 speed,
                 lifeSpan,
                 user.currentMight + damage,
