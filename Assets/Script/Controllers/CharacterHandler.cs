@@ -52,10 +52,13 @@ public class CharacterHandler : MonoBehaviourPun
 
     [HideInInspector] public float baseCritDamage;
     [HideInInspector] public float currentCritDamage;
+
     [Header("im losing my mind wth")]
     public RectTransform hp_cover, mana_cover;
     public TextMeshProUGUI hp_text;
-    PlayerCollector collector;
+    public Image active_img;
+    public List<Image> passive_img = new();
+
     public Camera mainCamera;
     public float zoomSpeed = 5f;
     public float minZoom = 2f;
@@ -128,6 +131,8 @@ public class CharacterHandler : MonoBehaviourPun
         hp_cover = null;
         mana_cover = null;
         hp_text = null;
+        active_img = null;
+        passive_img = new();
         if (statPanel != null)
         {
             hp_cover = statPanel.transform.Find("hp_cover").GetComponent<RectTransform>();
@@ -137,6 +142,11 @@ public class CharacterHandler : MonoBehaviourPun
             TakeDamage(0);
             UseMana(0);
 
+            active_img = statPanel.transform.Find("active/sprite").GetComponent<Image>();
+            for (int i = 0; i < 3; i++)
+            {
+                passive_img.Add(statPanel.transform.Find($"passive_{i}/sprite").GetComponent<Image>());
+            }
         }
     }
 
@@ -214,14 +224,13 @@ public class CharacterHandler : MonoBehaviourPun
             foreach (DamageModifier modifier in OnBeforeTakeDamage.GetInvocationList())
                 dmg = modifier.Invoke(dmg);
         }
-        if(photonView != null && photonView.IsMine){
+        if(photonView != null && photonView.IsMine)
+        {
             currentHealth -= dmg;
+            currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
             photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth,  characterData.MaxHealth);
         }
-        invincibilityTimer = invincibilityDuration;
-        isInvincible = true;
-        currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
-
+        
         if (hp_cover != null && photonView.IsMine)
         {
             hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
@@ -229,6 +238,8 @@ public class CharacterHandler : MonoBehaviourPun
         }
         if (dmg > 0)
         {
+            invincibilityTimer = invincibilityDuration;
+            isInvincible = true;
             DamagePopUp.Create(transform.position, Mathf.RoundToInt(dmg));
             StartCoroutine(FlashCoroutine());
         }
@@ -404,6 +415,9 @@ public class CharacterHandler : MonoBehaviourPun
     {
         activeSkill = skill;
         skill.gameObject.transform.SetParent(transform, false);
+        activeSkill.GetComponent<SpriteRenderer>().enabled = false;
+        active_img.enabled = true;
+        active_img.sprite = activeSkill.Icon;
     }
     public void SetPassiveSkill(SkillCardBase skill)
     {
@@ -413,6 +427,11 @@ public class CharacterHandler : MonoBehaviourPun
         if (spriteRenderer != null)
         {
             spriteRenderer.enabled = false;
+        }
+        for (int i = 0; i < Mathf.Min(passiveSkills.Count, 3); i++)
+        {
+            passive_img[i].enabled = true;
+            passive_img[i].sprite = passiveSkills[i].Icon;
         }
     }
 
@@ -467,10 +486,6 @@ public class CharacterHandler : MonoBehaviourPun
             Debug.LogError("CharacterHandler.Init(): characterData is null");
             return;
         }
-
-        collector = GetComponentInChildren<PlayerCollector>();
-        if (collector != null)
-            collector.SetRadius(characterData.Magnet);
 
         movement = GetComponent<IMovementController>();
         if (movement != null)

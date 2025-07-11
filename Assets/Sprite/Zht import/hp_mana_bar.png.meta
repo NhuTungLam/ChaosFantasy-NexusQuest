@@ -275,6 +275,48 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: hp_mana_bar_2
+      rect:
+        serializedVersion: 2
+        x: 148
+        y: 4
+        width: 25
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ae3f3f83a2eb1bf448c9ca1a36e431cc
+      internalID: -1858592564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: hp_mana_bar_8
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 5
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b730cd3cff327b542a72e9369dae5d73
+      internalID: -1435183453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -294,6 +336,7 @@ TextureImporter:
       hp_mana_bar_6: 2019004306
       hp_mana_bar_3: -808675558
       hp_mana_bar_0: -394066924
+      hp_mana_bar_8: -1435183453
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
