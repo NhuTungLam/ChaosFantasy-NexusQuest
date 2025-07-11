@@ -18,15 +18,17 @@ public class SkillCardBase : MonoBehaviourPun,IInteractable
     public virtual void Initialize(CharacterHandler player)
     {
         hasPick = true;
-        if (isActiveCard == true)
-        {
+
+        // Gán skill
+        if (isActiveCard)
             player.SetActiveSkill(this);
-        }
         else
-        {
             player.SetPassiveSkill(this);
-        }
+
+        // Đảm bảo là con của player
+        transform.SetParent(player.transform, false);
     }
+
     public virtual void OnRemoveSkill(CharacterHandler player)
     {
 
@@ -38,44 +40,42 @@ public class SkillCardBase : MonoBehaviourPun,IInteractable
     {
         if (hasPick) return;
 
-        Initialize(player);
+        Initialize(player); // Gán skill vào player và làm con trong hàm này
 
         PhotonView pv = GetComponent<PhotonView>();
         if (pv == null) return;
 
         if (PhotonNetwork.IsMasterClient)
         {
-            // ✅ Nếu là master thì có quyền gọi trực tiếp
-            pv.RPC("RPC_DestroySkillCard", RpcTarget.AllBuffered);
+            pv.RPC("RPC_HideSkillCard", RpcTarget.AllBuffered); // dùng RPC để ẩn
         }
         else
         {
-            // ❗ Nếu là client → gửi yêu cầu cho master
-            photonView.RPC("RPC_RequestDestroySkillCard", RpcTarget.MasterClient, pv.ViewID);
+            photonView.RPC("RPC_RequestHideSkillCard", RpcTarget.MasterClient, pv.ViewID);
         }
     }
 
     [PunRPC]
-    public void RPC_RequestDestroySkillCard(int viewID)
+    public void RPC_RequestHideSkillCard(int viewID)
     {
         PhotonView target = PhotonView.Find(viewID);
         if (target != null)
         {
-            target.RPC("RPC_DestroySkillCard", RpcTarget.AllBuffered);
+            target.RPC("RPC_HideSkillCard", RpcTarget.AllBuffered);
         }
     }
 
     [PunRPC]
-    public void RPC_DestroySkillCard()
+    public void RPC_HideSkillCard()
     {
-        if (photonView.IsMine || PhotonNetwork.IsMasterClient)
-        {
-            PhotonNetwork.Destroy(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (TryGetComponent<SpriteRenderer>(out var sr))
+            sr.enabled = false;
+
+        if (TryGetComponent<Collider2D>(out var col))
+            col.enabled = false;
+
+        // Tắt script nếu cần
+        //enabled = false;
     }
 
 
