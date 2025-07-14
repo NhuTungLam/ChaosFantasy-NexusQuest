@@ -19,6 +19,7 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
     public CharacterData CurrentCharacterData;
     public RectTransform CharacterChangePanel;
     public RectTransform PlayerProfilePanel;
+    public RectTransform UpgradeStatPanel;
     //public RectTransform RoomJoinUI;
     [Header("Animation Settings")]
     public float duration = 0.5f;
@@ -223,5 +224,11 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
             PlayerProfilePanel.transform.Find("level").GetComponent<TextMeshProUGUI>().text = $"lvl {profile.level}";
             PlayerProfilePanel.transform.Find("gold").GetComponent<TextMeshProUGUI>().text = $"gold {profile.gold}";
         }
+    }
+    public void ShowUpgradePanel()
+    {
+        ShowPanel(UpgradeStatPanel);
+        UpgradeStatPanel.transform.Find("close").GetComponent<Button>().onClick.RemoveAllListeners();
+        UpgradeStatPanel.transform.Find("close").GetComponent<Button>().onClick.AddListener(() => HidePanel(UpgradeStatPanel));
     }
 }

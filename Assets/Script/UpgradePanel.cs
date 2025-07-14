@@ -54,6 +54,8 @@ public class UpgradePanel : MonoBehaviour
     private Dictionary<Stat, List<Image>> cells = new();
     public static void ShowUpgrade(int point)
     {
+        Instance.ResetAllStat();
+
         Instance.maxPoint = point;
         Instance.currentPoint = point;
         Instance.pointTxt.color = Color.green;
@@ -72,7 +74,7 @@ public class UpgradePanel : MonoBehaviour
         Instance.refreshButton.onClick.RemoveAllListeners();
         Instance.refreshButton.onClick.AddListener(() => Instance.ResetAllStat());
 
-        GameManager.Instance.ShowUpgradePanel();
+        NexusChangeCharacter.Instance.ShowUpgradePanel();
     }
 
     private void Upgrade(Stat stat)
