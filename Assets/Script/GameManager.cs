@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
     private int finalGold;
     private int finalExp;
 
+    public RectTransform UpgradeStatPanel;
+
     private void Start()
     {
         SettingPausePanel = GameObject.FindGameObjectWithTag("Setting").GetComponent<RectTransform>();
@@ -41,6 +43,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ShowUpgradePanel()
+    {
+        ShowPanel(UpgradeStatPanel);
+        UpgradeStatPanel.transform.Find("return_nexus").GetComponent<Button>().onClick.RemoveAllListeners();
+        UpgradeStatPanel.transform.Find("return_nexus").GetComponent<Button>().onClick.AddListener(() => StartCoroutine(LeaveRoomAndLoadNexus()));
+    }
     public void TogglePauseMenu()
     {
         isPaused = !isPaused;
