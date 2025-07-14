@@ -78,6 +78,8 @@ MonoBehaviour:
   - RPC_OwnerProgressId
   - RPC_CheckDie
   - RPC_Summary
+  - RPC_HideSkillCard
+  - RPC_RequestHideSkillCard
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

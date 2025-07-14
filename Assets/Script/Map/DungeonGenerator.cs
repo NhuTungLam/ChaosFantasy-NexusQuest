@@ -149,7 +149,15 @@ public class DungeonGenerator : MonoBehaviour
             fromRoom = previous.room;
         }
 
-        GameObject prefab = roomPrefabs[Random.Range(0, roomPrefabs.Length)];
+        GameObject prefab = null;
+        if (position != Vector2Int.zero) 
+        { 
+            prefab = roomPrefabs[Random.Range(0, roomPrefabs.Length)];
+        }
+        else
+        {
+            prefab = FindRoomPrefabByName("start_room_1_1");
+        }
         GameObject roomGO = Instantiate(prefab, (Vector2)position * roomSize, Quaternion.identity);
         roomGO.name = "" + spawnedRooms.Count;
         Room room = roomGO.GetComponent<Room>();
@@ -347,7 +355,7 @@ public class DungeonGenerator : MonoBehaviour
 
     public void LoadLayout(string json, int stagelevel)
     {
-        
+        Debug.LogWarning(json);
         var layout = JsonUtility.FromJson<SerializableRoomLayout>(json);
         Dictionary<Vector2Int, (Direction, string)> loaded = layout.ToDictionary();
         var allMonoBehaviours = GameObject.FindObjectsOfType<MonoBehaviour>();
@@ -375,7 +383,7 @@ public class DungeonGenerator : MonoBehaviour
             Direction dir = kvp.Value.dir;
             string prefabName = kvp.Value.prefabName;
 
-            GameObject prefab =     FindRoomPrefabByName(prefabName);
+            GameObject prefab =FindRoomPrefabByName(prefabName);
             if (prefab == null)
             {
                 Debug.LogWarning($"Prefab '{prefabName}' not found!");

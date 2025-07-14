@@ -32,7 +32,7 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
 
     void TrySpawn()
     {
-
+        
         if (hasSpawned)
         {
             Debug.Log("⚠️ Already spawned.");
@@ -80,7 +80,6 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
             viewID,
             userID
         );
-
         hasSpawned = true;
 
         // 🟢 Save player progress to backend

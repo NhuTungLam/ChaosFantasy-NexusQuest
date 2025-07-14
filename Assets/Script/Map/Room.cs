@@ -38,11 +38,10 @@ public class Room : MonoBehaviour
             PlayerManager.Instance.photonView.RPC("RPC_SelfTeleport",RpcTarget.Others,(Vector2)other.transform.position);
             if (RoomSessionManager.Instance.IsRoomOwner() && PhotonEnemySpawner.Instance != null)
             {
-                PhotonEnemySpawner.Instance.SpawnWave(enewaveDatas, 0, transform.position);
+                PhotonEnemySpawner.Instance.SpawnWave(enewaveDatas.GetRandom(), transform.position);
             }
         }
     }
-
     private void Update()
     {
         if (!RoomSessionManager.Instance.IsRoomOwner()) return;
@@ -58,9 +57,6 @@ public class Room : MonoBehaviour
         if (!PhotonNetwork.IsMasterClient) return;
         PhotonNetwork.Instantiate("Chest/Chest", chestSpawnPoint.position, Quaternion.identity, 0, new object[] { chestData.name });
     }
-
-
-
 
     public void SpawnPortal()
     {

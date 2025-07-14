@@ -257,9 +257,10 @@ public class CharacterHandler : MonoBehaviourPun
         if (photonView != null && photonView.IsMine)
         {
             currentHealth += amount;
+            currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
             photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth, characterData.MaxHealth);
         }
-        currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
+
         if (hp_cover != null && photonView.IsMine)
         {
             hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
@@ -344,7 +345,10 @@ public class CharacterHandler : MonoBehaviourPun
         if (movement != null)
             movement.PlayDashAnimation(); // animation đứng dậy
         currentWeapon.gameObject.SetActive(true);
-        _rb.isKinematic = false;
+        if (photonView.IsMine)
+        {
+            _rb.isKinematic = false;
+        }
         _reviveSystem.gameObject.SetActive(false);
         isDowned = false;
         if (RoomSessionManager.Instance.IsRoomOwner())
@@ -413,8 +417,10 @@ public class CharacterHandler : MonoBehaviourPun
 
     public void SetActiveSkill(SkillCardBase skill)
     {
+
         activeSkill = skill;
         skill.gameObject.transform.SetParent(transform, false);
+        skill.transform.localPosition = Vector3.zero;
         activeSkill.GetComponent<SpriteRenderer>().enabled = false;
         active_img.enabled = true;
         active_img.sprite = activeSkill.Icon;
@@ -423,6 +429,7 @@ public class CharacterHandler : MonoBehaviourPun
     {
         passiveSkills.Add(skill);
         skill.gameObject.transform.SetParent(transform, false);
+        skill.transform.localPosition = Vector3.zero;
         SpriteRenderer spriteRenderer = skill.GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
@@ -598,12 +605,17 @@ public class CharacterHandler : MonoBehaviourPun
     [PunRPC]
     public void RPC_UpdateStatTeammateHP(float currentHp, float maxHp)
     {
+        if (tmViewHpCover == null)
+        {
+            return;
+        }
         tmViewHpCover.localScale = new Vector2(currentHp/maxHp, 1);
         tmViewHpTxt.text = $"{currentHp}/{maxHp}";
     }
     [PunRPC]
     public void RPC_UpdateStatTeammateMana(float currentMana, float maxMana)
     {
+        if (tmViewManaCover == null) return;
         tmViewManaCover.localScale = new Vector2(currentMana / maxMana, 1);
     }
 }

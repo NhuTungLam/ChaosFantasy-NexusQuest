@@ -272,5 +272,4 @@ public static class Extensions
     {
         return Quaternion.AngleAxis(degrees, Vector3.forward) * v;
     }
-
 }

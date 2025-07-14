@@ -1782,7 +1782,7 @@ GameObject:
   - component: {fileID: 4368723687957389686}
   - component: {fileID: 6231279235435788901}
   m_Layer: 0
-  m_Name: special_room1
+  m_Name: special_room_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1834,7 +1834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8b68a4adbac2c640b0b341ee183c0cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomname: special_room1
+  roomname: special_room_1
   roomType: 2
   enewaveDatas:
   - {fileID: 11400000, guid: d415af7604cb5014f8f3289b024657d8, type: 2}
@@ -1845,6 +1845,7 @@ MonoBehaviour:
   bottomDoor: {fileID: 8702434311815443935}
   leftDoor: {fileID: 4796784520413950020}
   rightDoor: {fileID: 1290932475458115409}
+  chestSpawned: 0
 --- !u!61 &6231279235435788901
 BoxCollider2D:
   m_ObjectHideFlags: 0

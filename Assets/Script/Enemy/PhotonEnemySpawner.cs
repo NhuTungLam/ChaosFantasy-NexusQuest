@@ -9,7 +9,7 @@ public class PhotonEnemySpawner : MonoBehaviourPunCallbacks
 
     void Awake() => Instance = this;
 
-    public void SpawnWave(List<EnewaveData> waveList, int index, Vector3 position)
+    public void SpawnWave(EnewaveData waveList, Vector3 position)
     {
         Debug.Log($"[Spawner] RoomSessionManager.Instance = {RoomSessionManager.Instance}");
 
@@ -20,24 +20,23 @@ public class PhotonEnemySpawner : MonoBehaviourPunCallbacks
         }
 
 
-        if (index >= 0 && index < waveList.Count)
+        
+        var wave = waveList;
+        for (int i = 0; i < wave.enemylist.Count; i++)
         {
-            var wave = waveList[index];
-            for (int i = 0; i < wave.enemylist.Count; i++)
-            {
-                int count = wave.enemycount[i];
-                string enemyName = wave.enemylist[i].name;
+            int count = wave.enemycount[i];
+            string enemyName = wave.enemylist[i].name;
 
-                for (int j = 0; j < count; j++)
-                {
-                    Vector3 spawnPos = position + new Vector3(Random.Range(-3, 3), Random.Range(-2, 2), 0);
-                    object[] data = new object[] { enemyName };
-                    PhotonNetwork.Instantiate(enemyPrefabPath, spawnPos, Quaternion.identity, 0, data);
-                    Debug.Log($"[Spawner] Spawned enemy {enemyName} at {spawnPos}");
-                }
+            for (int j = 0; j < count; j++)
+            {
+                Vector3 spawnPos = position + new Vector3(Random.Range(-3, 3), Random.Range(-2, 2), 0);
+                object[] data = new object[] { enemyName };
+                PhotonNetwork.Instantiate(enemyPrefabPath, spawnPos, Quaternion.identity, 0, data);
+                Debug.Log($"[Spawner] Spawned enemy {enemyName} at {spawnPos}");
             }
         }
+
     }
 
-    public bool AllEnemiesDefeated => GameObject.FindGameObjectsWithTag("Enemy").Length == 0;
+    public bool AllEnemiesDefeated => GameObject.FindGameObjectsWithTag("Enemy").Length == 0 ;
 }

@@ -77,6 +77,7 @@ public class PlayerManager : MonoBehaviourPun
                 RectTransform tmView = null;
                 if (!PhotonView.Find(viewID).IsMine)
                 {
+                    view.transform.GetComponent<Rigidbody2D>().isKinematic = true;
                     tmView = UIStatTeammateManager.Assign();
                     view.transform.GetComponent<CharacterHandler>().AssignTeammateView(tmView);
                 }

@@ -10,8 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd6b5739c0e85a04399fe5afd245ef1a, type: 3}
-  m_Name: wave_1
+  m_Name: wave_7
   m_EditorClassIdentifier: 
   enemylist:
+  - {fileID: 11400000, guid: dbcda34770a38124596b9aaeebb55dd4, type: 2}
   - {fileID: 11400000, guid: da1985a194ccb7a4d98c7061b2d62f50, type: 2}
-  enemycount: 04000000
+  - {fileID: 11400000, guid: e82cd7631de7fd1409f0bd7188509c9e, type: 2}
+  enemycount: 010000000200000001000000

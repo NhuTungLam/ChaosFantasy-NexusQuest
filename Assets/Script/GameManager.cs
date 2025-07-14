@@ -135,6 +135,7 @@ public class GameManager : MonoBehaviour
         var returnBtn = SummaryPanel.transform.Find("return_nexus").GetComponent<Button>();
         returnBtn.onClick.RemoveAllListeners();
         returnBtn.onClick.AddListener(() => StartCoroutine(SendRewardAndReturn()));
+
         ShowPanel(SummaryPanel);
     }
 
