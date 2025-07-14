@@ -62,6 +62,21 @@ public class Chest : MonoBehaviourPun, IInteractable
         isOpen = true;
         Debug.Log("Chest opened: " + data?.name);
 
+        //e.g. rate: 1.2f
+        //var rate = 1.2f;
+        //while (rate > 0)
+        //{
+        //    if (rate >= 1)
+        //    {
+        //        Spawn();
+        //    }
+        //    else if (Random.value < rate)
+        //    {
+        //        Spawn();
+        //    }
+        //    rate -= 1;
+        //}
+
         if (data.weaponItemNames != null && Random.value < data.weaponDropRate)
         {
             string name = data.weaponItemNames[Random.Range(0, data.weaponItemNames.Length)];

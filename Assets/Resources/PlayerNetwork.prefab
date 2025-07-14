@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 5236751931788353238}
   - component: {fileID: -7212995401428473214}
   - component: {fileID: 2275969679067169656}
+  - component: {fileID: 224305007018303237}
   m_Layer: 6
   m_Name: PlayerNetwork
   m_TagString: Player
@@ -341,11 +342,6 @@ MonoBehaviour:
   currentCritRate: 0
   baseCritDamage: 0
   currentCritDamage: 0
-  hp_cover: {fileID: 0}
-  mana_cover: {fileID: 0}
-  hp_text: {fileID: 0}
-  active_img: {fileID: 0}
-  passive_img: []
   mainCamera: {fileID: 0}
   zoomSpeed: 5
   minZoom: 2
@@ -356,16 +352,6 @@ MonoBehaviour:
   reviveHealthPercent: 0.5
   deadCount: 0
   invincibilityDuration: 0.5
-  levelRanges:
-  - startLevel: 1
-    endLevel: 2
-    expCapIncrease: 5
-  - startLevel: 1
-    endLevel: 20
-    expCapIncrease: 10
-  - startLevel: 21
-    endLevel: 40
-    expCapIncrease: 13
   currentWeapon: {fileID: 0}
 --- !u!114 &5236751931788353238
 MonoBehaviour:
@@ -419,3 +405,15 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.74061584, y: 0.96676636}
   m_EdgeRadius: 0
+--- !u!114 &224305007018303237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3293402300519869722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 852213c727e5f204c8461f9c216f76a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
