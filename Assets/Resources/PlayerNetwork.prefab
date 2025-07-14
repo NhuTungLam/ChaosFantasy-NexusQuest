@@ -344,6 +344,8 @@ MonoBehaviour:
   hp_cover: {fileID: 0}
   mana_cover: {fileID: 0}
   hp_text: {fileID: 0}
+  active_img: {fileID: 0}
+  passive_img: []
   mainCamera: {fileID: 0}
   zoomSpeed: 5
   minZoom: 2
