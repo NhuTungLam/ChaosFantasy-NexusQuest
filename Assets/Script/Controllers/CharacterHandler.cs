@@ -112,15 +112,6 @@ public class CharacterHandler : MonoBehaviourPun
             playerCanvas.sortingLayerName = "Ui";
         }
 
-        if (photonView == null || photonView.IsMine)
-        {
-            HealthBarUI ui = FindObjectOfType<HealthBarUI>();
-            if (ui != null)
-            {
-                ui.character = this;
-            }
-        }
-
         TryAttachStatBar();
         SceneManager.activeSceneChanged += OnSceneChanged;
     }
