@@ -77,13 +77,13 @@ public class NexusChangeCharacter : MonoBehaviour, IInteractable
                 yield return null;
             }
         }
-        float waitMasterTimeout = 5f;
+        float waitMasterTimeout = 2f;
         while (PhotonNetwork.NetworkClientState != ClientState.ConnectedToMasterServer && waitMasterTimeout > 0f)
         {
             waitMasterTimeout -= Time.deltaTime;
             yield return null;
         }
-
+        PhotonRoomManager.autoCreateRoom = true;
         MessageBoard.Show("Leaving Nexus...");
         SceneManager.LoadScene("Login");
     }

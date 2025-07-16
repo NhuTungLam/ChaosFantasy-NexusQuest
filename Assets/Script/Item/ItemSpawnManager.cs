@@ -30,60 +30,55 @@ public class ItemSpawnManager : MonoBehaviourPunCallbacks
 
     public void SpawnItem(ItemType type, string name, Vector3 position)
     {
-        if (!PhotonNetwork.IsMasterClient) return;
-
-        string id = Guid.NewGuid().ToString();
-        ItemState state = new ItemState
+        string path = type switch
         {
-            id = id,
-            itemType = type,
-            itemName = name,
-            position = position
-        };
-
-        InstantiateItemLocal(state);
-        photonView.RPC("RPC_SpawnItem", RpcTarget.Others, JsonUtility.ToJson(state));
-    }
-
-    [PunRPC]
-    private void RPC_SpawnItem(string json)
-    {
-        ItemState state = JsonUtility.FromJson<ItemState>(json);
-        InstantiateItemLocal(state);
-    }
-
-    private void InstantiateItemLocal(ItemState state)
-    {
-        string path = state.itemType switch
-        {
-            ItemType.Weapon => "Weapon/" + state.itemName,
-            ItemType.PassiveSkill => "SkillCard/Passive/" + state.itemName,
-            ItemType.ActiveSkill => "SkillCard/Active/" + state.itemName,
-            ItemType.Other => "Item/" + state.itemName,
+            ItemType.Weapon => "Weapon/" + name,
+            ItemType.PassiveSkill => "SkillCard/Passive/" + name,
+            ItemType.ActiveSkill => "SkillCard/Active/" + name,
+            ItemType.Other => "Item/" + name,
             _ => null
         };
 
         if (string.IsNullOrEmpty(path))
         {
-            Debug.LogWarning("[ItemSpawnManager] Invalid item path for: " + state.itemName);
+            Debug.LogWarning("[ItemSpawnManager] Invalid item path: " + name);
             return;
         }
 
-        if (state.itemType == ItemType.PassiveSkill ||
-            state.itemType == ItemType.ActiveSkill ||
-            state.itemType == ItemType.Other) 
+        if (type == ItemType.Weapon)
         {
-            PhotonNetwork.Instantiate(path, state.position, Quaternion.identity);
+            // ✅ Spawn weapon locally (no PhotonView needed)
+            GameObject prefab = Resources.Load<GameObject>(path);
+            if (prefab == null)
+            {
+                Debug.LogError("[ItemSpawnManager] Weapon prefab not found: " + path);
+                return;
+            }
+
+            GameObject weaponObj = Instantiate(prefab, position, Quaternion.identity);
+            string weaponId = Guid.NewGuid().ToString();
+
+            if (weaponObj.TryGetComponent<WeaponBase>(out var weapon))
+            {
+                weapon.Initialize(weaponId);
+                Debug.Log($"🗡️ [ItemSpawnManager] Locally spawned weapon: {name} ({weaponId}) at {position}");
+            }
+            else
+            {
+                Debug.LogWarning($"[ItemSpawnManager] Weapon prefab missing WeaponBase: {name}");
+            }
         }
         else
         {
-            GameObject prefab = Resources.Load<GameObject>(path);
-            if (prefab != null)
+            // ✅ Only MasterClient can spawn non-weapon items
+            if (!PhotonNetwork.IsMasterClient)
             {
-                Instantiate(prefab, state.position, Quaternion.identity);
+                Debug.LogWarning($"⛔ [ItemSpawnManager] Only MasterClient can spawn item: {name}");
+                return;
             }
+
+            Debug.Log($"✨ [ItemSpawnManager] Master spawning item: {name} ({type}) at {position}");
+            PhotonNetwork.Instantiate(path, position, Quaternion.identity);
         }
-
     }
-
 }

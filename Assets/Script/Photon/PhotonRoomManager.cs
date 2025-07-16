@@ -39,43 +39,10 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         Debug.Log("🧠 Scene Start() - Photon InRoom: " + PhotonNetwork.InRoom);
         PhotonNetwork.AutomaticallySyncScene = true;
         autoCreateRoom = true;
-        SceneManager.activeSceneChanged += (prevScene,currentScene) =>
-        {
-            roomNameInput = null;
-            createBtn = null;
-            autoCreateBtn = null;
-            continueBtn = null;
-            joinBtn = null;
-            switch (currentScene.name)
-            {
-                case "Nexus":
-                    roomPrefix = "Nexus_";
-                    targetScene = "Nexus";
-                    autoCreateRoom = true;
-                    break;
-
-                case "Enter_Dungeon":
-                    roomPrefix = "Dungeon_";
-                    targetScene = "Dungeon";
-                    roomNameInput = GameObject.Find("Canvas/RoomJoinPanel/room_id").GetComponent<TMP_InputField>();
-                    createBtn = GameObject.Find("Canvas/RoomJoinPanel/create").GetComponent<Button>();
-                    joinBtn = GameObject.Find("Canvas/RoomJoinPanel/join").GetComponent<Button>();
-                    autoCreateBtn = GameObject.Find("Canvas/RoomJoinPanel/auto_create").GetComponent<Button>();
-                    continueBtn = GameObject.Find("Canvas/RoomJoinPanel/continue").GetComponent<Button>();
-                    roomListContainer = GameObject.Find("Canvas/RoomJoinPanel/room_list/Viewport/Content").transform;
-                    roomItemPrefab = Resources.Load<GameObject>("room_name");
-
-                    createBtn.onClick.AddListener(CreateRoom);
-                    joinBtn.onClick.AddListener(JoinRoom);
-                    continueBtn.onClick.AddListener(LoadSave);
-                    autoCreateBtn.onClick.AddListener(QuickStart);
-
-                    UpdateRoomListUI();
-
-                    break;
-            }
-        };
-
+        SceneManager.activeSceneChanged += SceneChanged;
+            
+        
+        
         if (!PhotonNetwork.IsConnected)
         {
             if (PlayerProfileFetcher.CurrentProfile != null)
@@ -91,7 +58,49 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         }
 
     }
+    private void SceneChanged(Scene prev, Scene current)
+    {
+        roomNameInput = null;
+        createBtn = null;
+        autoCreateBtn = null;
+        continueBtn = null;
+        joinBtn = null;
+        switch (current.name)
+        {
+            case "Nexus":
+                roomPrefix = "Nexus_";
+                targetScene = "Nexus";
+                autoCreateRoom = true;
 
+                break;
+
+            case "Enter_Dungeon":
+                roomPrefix = "Dungeon_";
+                targetScene = "Dungeon";
+                roomNameInput = GameObject.Find("Canvas/RoomJoinPanel/room_id").GetComponent<TMP_InputField>();
+                createBtn = GameObject.Find("Canvas/RoomJoinPanel/create").GetComponent<Button>();
+                joinBtn = GameObject.Find("Canvas/RoomJoinPanel/join").GetComponent<Button>();
+                autoCreateBtn = GameObject.Find("Canvas/RoomJoinPanel/auto_create").GetComponent<Button>();
+                continueBtn = GameObject.Find("Canvas/RoomJoinPanel/continue").GetComponent<Button>();
+                roomListContainer = GameObject.Find("Canvas/RoomJoinPanel/room_list/Viewport/Content").transform;
+                roomItemPrefab = Resources.Load<GameObject>("room_name");
+
+                createBtn.onClick.AddListener(CreateRoom);
+                joinBtn.onClick.AddListener(JoinRoom);
+                continueBtn.onClick.AddListener(LoadSave);
+                autoCreateBtn.onClick.AddListener(QuickStart);
+
+                UpdateRoomListUI();
+
+                break;
+            case "Login":
+                PhotonNetwork.Disconnect();
+                Instance = null;
+                SceneManager.activeSceneChanged -= SceneChanged;
+                Destroy(gameObject);
+                break;
+        }
+    }
     public override void OnConnectedToMaster()
     {
         Debug.Log("✅ Connected to Photon Master Server.");

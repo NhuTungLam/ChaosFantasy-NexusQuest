@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chestPrefab: {fileID: 3219067575937509910, guid: 889089d7c70ed2743897e47d2918d1c5, type: 3}
   weaponItemNames:
-  - gold_sword
   - bow_0
   - bow_1
   - bow_2
@@ -34,7 +33,7 @@ MonoBehaviour:
   - {fileID: 4818234652911098146, guid: e11ffb75ac162774088a59280aad7b9c, type: 3}
   otherItems:
   - {fileID: 3327940096715508744, guid: 78c4e9e67f3b6204383df000754519e7, type: 3}
-  weaponDropRate: 0.59
-  passiveSkillDropRate: 0.64
-  activeSkillDropRate: 0.57
-  otherItemDropRate: 0.61
+  weaponDropRate: 0.91
+  passiveSkillDropRate: 1
+  activeSkillDropRate: 0.88
+  otherItemDropRate: 0.89

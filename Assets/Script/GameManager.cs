@@ -137,6 +137,11 @@ public class GameManager : MonoBehaviour
         returnBtn.onClick.AddListener(() => StartCoroutine(SendRewardAndReturn()));
 
         ShowPanel(SummaryPanel);
+        if (PlayerProfileFetcher.CurrentProfile != null)
+        {
+            StartCoroutine(DungeonApiClient.Instance.DeleteOwnerProgress(PlayerProfileFetcher.CurrentProfile.userId));
+        }
+        DungeonRestorerManager.Instance.ResetState();
     }
 
     private IEnumerator SendRewardAndReturn()

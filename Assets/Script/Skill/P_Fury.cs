@@ -15,7 +15,7 @@ public class P_Fury : SkillCardBase
     public override void Initialize(CharacterHandler player)
     {
         base.Initialize(player);
-       
+        this.player = player;
 
         player.OnBeforeTakeDamage += (float dmg) =>
         {

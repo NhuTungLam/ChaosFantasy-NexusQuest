@@ -4,7 +4,7 @@ using System.Collections;
 using System.Text;
 using Photon.Pun;
 using static DungeonApiClient;
-
+using UnityEngine.SceneManagement;
 public class PlayerProfileFetcher : MonoBehaviour
 {
     public static PlayerProfileFetcher Instance { get; private set; }
@@ -14,23 +14,30 @@ public class PlayerProfileFetcher : MonoBehaviour
     public int goldPerRoom = 5;
     public int deathPenalty = 4;
     private const string PlayerPrefsUserIdKey = "LastLoggedInUserId";
-
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
+            SceneManager.activeSceneChanged += (prev, current) =>
+            {
+                if (current.name == "Login")
+                {
+                    MainMenu.Instance.ShowPlayerProfile(CurrentProfile);
+                }
+            };
             // Try auto-load
             if (PlayerPrefs.HasKey(PlayerPrefsUserIdKey))
             {
                 int savedId = PlayerPrefs.GetInt(PlayerPrefsUserIdKey);
                 Debug.Log($"[ProfileFetcher] Auto-fetching saved user ID: {savedId}");
                 FetchProfile(savedId);
+
             }
         }
         else Destroy(gameObject);
+
     }
 
     public void FetchProfile(int userId, System.Action<PlayerProfile> onDone = null)
@@ -45,7 +52,10 @@ public class PlayerProfileFetcher : MonoBehaviour
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
             yield return request.SendWebRequest();
-
+            if (PlayerPrefs.HasKey("AuthToken"))
+            {
+                AuthToken.token = PlayerPrefs.GetString("AuthToken");   
+            }
             if (request.result == UnityWebRequest.Result.Success)
             {
                 CurrentProfile = JsonUtility.FromJson<PlayerProfile>(request.downloadHandler.text);
@@ -75,6 +85,7 @@ public class PlayerProfileFetcher : MonoBehaviour
 
         if (CurrentProfile != null)
         {
+            Debug.LogWarning(CurrentProfile.gold);
             StartCoroutine(UpdateProfileCoroutine(CurrentProfile));
         }
     }
@@ -90,6 +101,10 @@ public class PlayerProfileFetcher : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
 
+            if (!string.IsNullOrEmpty(AuthToken.token))
+                request.SetRequestHeader("Authorization", "Bearer " + AuthToken.token);
+
+
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.Success)
@@ -98,13 +113,12 @@ public class PlayerProfileFetcher : MonoBehaviour
             }
             else
             {
-                if (MainMenu.Instance != null)
-                {
-                    MainMenu.Instance.ShowPlayerProfile(CurrentProfile);
-                }
+                Debug.LogError($"[UpdateProfile] Failed with code {request.responseCode}: {request.error}");
+                Debug.LogError(request.downloadHandler.text);
             }
         }
     }
+
 
     public void SignOut()
     {
@@ -112,6 +126,7 @@ public class PlayerProfileFetcher : MonoBehaviour
 
         CurrentProfile = null;
         PlayerPrefs.DeleteKey(PlayerPrefsUserIdKey);
+        PlayerPrefs.DeleteKey("AuthToken");
         PlayerPrefs.Save();
 
         // Optional: go back to login screen or main menu

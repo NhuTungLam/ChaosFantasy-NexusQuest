@@ -40,20 +40,27 @@ public class SkillCardBase : MonoBehaviourPun,IInteractable
     {
         if (hasPick) return;
 
-        Initialize(player); // Gán skill vào player và làm con trong hàm này
+        Initialize(player);
 
         PhotonView pv = GetComponent<PhotonView>();
-        if (pv == null) return;
-
-        if (PhotonNetwork.IsMasterClient)
+        if (pv != null && pv.ViewID != 0)
         {
-            pv.RPC("RPC_HideSkillCard", RpcTarget.AllBuffered); // dùng RPC để ẩn
+            if (PhotonNetwork.IsMasterClient)
+            {
+                pv.RPC("RPC_HideSkillCard", RpcTarget.AllBuffered);
+            }
+            else
+            {
+                photonView.RPC("RPC_RequestHideSkillCard", RpcTarget.MasterClient, pv.ViewID);
+            }
         }
         else
         {
-            photonView.RPC("RPC_RequestHideSkillCard", RpcTarget.MasterClient, pv.ViewID);
+            Debug.LogWarning($"[SkillCardBase] {gameObject.name} has no valid PhotonView, hiding locally.");
+            gameObject.SetActive(false);
         }
     }
+
 
     [PunRPC]
     public void RPC_RequestHideSkillCard(int viewID)

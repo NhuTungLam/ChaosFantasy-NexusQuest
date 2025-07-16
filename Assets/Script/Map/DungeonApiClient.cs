@@ -6,11 +6,15 @@ using System.Text;
 using System;
 using Photon.Pun;
 using Unity.VisualScripting;
-
+[System.Serializable]
+public class SkillCardSaveData
+{
+    public string active;
+    public List<string> passive = new();
+}
 public class DungeonApiClient : MonoBehaviour
 {
     public static DungeonApiClient Instance;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -39,12 +43,14 @@ public class DungeonApiClient : MonoBehaviour
         public float currentHp;
         public float currentMana;
         public string currentClass;
-        public string currentCards;
+        public string currentCard;
         public string currentWeapon;
         public int enemyKills;
         public int deathCount;
 
     }
+    
+
     private const string apiBase = "http://localhost:5058/api/dungeon";
     private const string apiBaseProgress = "http://localhost:5058/api/progress";
     private const string apiBaseTeammate = "http://localhost:5058/api/teammate";
@@ -248,7 +254,25 @@ public class DungeonApiClient : MonoBehaviour
                 Debug.LogError($"❌ LoadTeammateProgress Error: {request.error}");
             }
         }
-    }/// <summary>
+    }
+    private string SerializeSkillCards(CharacterHandler handler)
+    {
+        SkillCardSaveData data = new SkillCardSaveData
+        {
+            active = handler.activeSkill != null ? handler.activeSkill.name.Replace("(Clone)", "").Trim() : ""
+        };
+
+        foreach (var passive in handler.GetPassiveSkills())
+        {
+            string clean = passive.name.Replace("(Clone)", "").Trim();
+            data.passive.Add(clean);
+        }
+
+        return JsonUtility.ToJson(data);
+    }
+
+
+    /// <summary>
     /// Don't call this on teammate client
     /// </summary>
     /// <param name="playerTransform"></param>
@@ -275,7 +299,7 @@ public class DungeonApiClient : MonoBehaviour
             currentMana = handler.currentMana,
             currentClass = handler.characterData.name,
             currentWeapon = handler.currentWeapon?.prefabName ?? "",
-            currentCards = "", // optional
+            currentCard = SerializeSkillCards(handler),
             enemyKills = PlayerStatTracker.Instance?.enemyKillCount ?? 0,
             deathCount = PlayerStatTracker.Instance?.deathCount ?? 0
         };

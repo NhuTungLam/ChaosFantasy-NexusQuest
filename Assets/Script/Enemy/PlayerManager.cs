@@ -139,12 +139,27 @@ public class PlayerManager : MonoBehaviourPun
                     currentMana = handler.currentMana,
                     currentClass = handler.characterData.name,
                     currentWeapon = handler.currentWeapon?.prefabName ?? "",
-                    currentCards = "" // TODO: serialize skill cards if needed
+                    currentCard = SerializeSkillCards(handler)
                 };
+
             }
         }
 
         return null;
+    }
+    private string SerializeSkillCards(CharacterHandler handler)
+    {
+        SkillCardSaveData data = new SkillCardSaveData
+        {
+            active = handler.activeSkill != null ? handler.activeSkill.name.Replace("(Clone)", "").Trim() : ""
+        };
+
+        foreach (var skill in handler.GetPassiveSkills())
+        {
+            data.passive.Add(skill.name.Replace("(Clone)", "").Trim());
+        }
+
+        return JsonUtility.ToJson(data);
     }
 
     public int? GetPlayerIdByTransform(Transform target)
