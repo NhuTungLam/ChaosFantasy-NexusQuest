@@ -150,7 +150,7 @@ MonoBehaviour:
   isActiveCard: 0
   CardName: Mana Shield
   Icon: {fileID: 21300000, guid: b6c8ec2ff38bd334e9bc344e1a9e4e16, type: 3}
-  CardDescription: 
+  CardDescription: 30% of dmg taken is convert to mana loss
   cooldown: 2
   hasPick: 0
   manaAbsorbPercent: 0.3

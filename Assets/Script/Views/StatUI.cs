@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -63,15 +64,17 @@ public class StatUI : MonoBehaviour
             return;
         mana_cover.localScale = new Vector3(current / max, 1, 1);
     }
-    public void UpdateActive(Sprite sprite)
+    public void UpdateActive(SkillCardBase skill)
     {
         active_img.enabled = true;
-        active_img.sprite = sprite;
+        active_img.sprite = skill.Icon;
+        IconInfo.Assign(active_img.transform.parent.GetComponent<ButtonUI>(), skill);
     }
-    public void UpdatePassive(Sprite sprite, int index)
+    public void UpdatePassive(SkillCardBase skill, int index)
     {
         passive_img[index].enabled = true;
-        passive_img[index].sprite = sprite;
+        passive_img[index].sprite = skill.Icon;
+        IconInfo.Assign(passive_img[index].transform.parent.GetComponent<ButtonUI>(), skill);
     }
     public void UpdateTeammateHp(float current, float max)
     {

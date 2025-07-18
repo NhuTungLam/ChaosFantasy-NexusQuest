@@ -150,7 +150,7 @@ MonoBehaviour:
   isActiveCard: 0
   CardName: Fury
   Icon: {fileID: 21300000, guid: 15a8c8c9524f5ab41b0d899eae39e05d, type: 3}
-  CardDescription: 
+  CardDescription: Become more powerful as you lose hp
   cooldown: 2
   hasPick: 0
   damageBoost: 1.5

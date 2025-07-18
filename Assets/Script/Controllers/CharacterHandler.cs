@@ -11,12 +11,12 @@ using System.Linq;
 
 public class CharacterHandler : MonoBehaviourPun
 {
-
+    private StatUI statUI;
     public CharacterData characterData;
     public IMovementController movement;
     public float interactionDistance = 2f;
     public SkillCardBase activeSkill;
-    
+
     private float skillCooldownTimer;
     public Transform weaponHolder;
     public delegate float DamageModifier(float dmg);
@@ -29,7 +29,7 @@ public class CharacterHandler : MonoBehaviourPun
     public float dashSpeed = 30f;
     [HideInInspector] public Vector2 dashDirection;
     [HideInInspector] public Vector2 lastMoveDirection = Vector2.right;
-   
+
     [Header("Shield Settings")]
     [HideInInspector] public bool isBlocking = false;
 
@@ -39,7 +39,7 @@ public class CharacterHandler : MonoBehaviourPun
     private float throttleInteractUpdateInterval = 0f;
 
     [Header("Stats")]
-     public float currentHealth;
+    public float currentHealth;
     [HideInInspector] public float currentMana;
     [HideInInspector] public float currentRecovery;
     [HideInInspector] public float currentMight;
@@ -53,12 +53,6 @@ public class CharacterHandler : MonoBehaviourPun
     [HideInInspector] public float baseCritDamage;
     [HideInInspector] public float currentCritDamage;
 
-    [Header("im losing my mind wth")]
-    public RectTransform hp_cover, mana_cover;
-    public TextMeshProUGUI hp_text;
-    public Image active_img;
-    public List<Image> passive_img = new();
-
     public Camera mainCamera;
     public float zoomSpeed = 5f;
     public float minZoom = 2f;
@@ -70,21 +64,11 @@ public class CharacterHandler : MonoBehaviourPun
     public float reviveHoldTime = 3f;
     public float reviveHealthPercent = 0.5f;
     public int deadCount = 0;
-    [System.Serializable]
-    public class LevelRange
-    {
-        public int startLevel;
-        public int endLevel;
-        public int expCapIncrease;
-    }
 
     [Header("I-Frames")]
     public float invincibilityDuration;
     private float invincibilityTimer;
     private bool isInvincible;
-
-    [Header("Level Ranges")]
-    public List<LevelRange> levelRanges;
 
     public WeaponBase currentWeapon;
 
@@ -99,6 +83,7 @@ public class CharacterHandler : MonoBehaviourPun
         _reviveSystem = GetComponentInChildren<ReviveSystem>();
         _reviveSystem.gameObject.SetActive(false);
         _rb = GetComponent<Rigidbody2D>();
+        statUI = GetComponent<StatUI>();
     }
 
     void Start()
@@ -111,40 +96,7 @@ public class CharacterHandler : MonoBehaviourPun
             playerCanvas.worldCamera = Camera.main;
             playerCanvas.sortingLayerName = "Ui";
         }
-
-        TryAttachStatBar();
-        SceneManager.activeSceneChanged += OnSceneChanged;
     }
-
-    void TryAttachStatBar()
-    {
-        var statPanel = GameObject.FindGameObjectWithTag("Hpbar");
-        hp_cover = null;
-        mana_cover = null;
-        hp_text = null;
-        active_img = null;
-        passive_img = new();
-        if (statPanel != null)
-        {
-            hp_cover = statPanel.transform.Find("hp_cover").GetComponent<RectTransform>();
-            mana_cover = statPanel.transform.Find("mana_cover").GetComponent<RectTransform>();
-            hp_text = statPanel.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
-
-            // ⚠️ Chỉ gọi nếu characterData đã sẵn sàng
-            if (characterData != null)
-            {
-                TakeDamage(0);
-                UseMana(0);
-            }
-
-            active_img = statPanel.transform.Find("active/sprite").GetComponent<Image>();
-            for (int i = 0; i < 3; i++)
-            {
-                passive_img.Add(statPanel.transform.Find($"passive_{i}/sprite").GetComponent<Image>());
-            }
-        }
-    }
-
 
     void Update()
     {
@@ -160,9 +112,6 @@ public class CharacterHandler : MonoBehaviourPun
             isInvincible = false;
         if (photonView != null && !photonView.IsMine) return;
 
-        
-
-        Recover();
         if (!isDowned)
         {
             if (Input.GetMouseButton(0) && currentWeapon != null)
@@ -197,9 +146,11 @@ public class CharacterHandler : MonoBehaviourPun
         else
         {
             GetClosestInteractable();
-            throttleInteractUpdateInterval = 0.1f;
+            throttleInteractUpdateInterval = 0.2f;
+            if (currentRecovery > 0)
+                Heal(currentRecovery);
         }
-        
+
     }
     private IEnumerator FlashCoroutine()
     {
@@ -220,18 +171,14 @@ public class CharacterHandler : MonoBehaviourPun
             foreach (DamageModifier modifier in OnBeforeTakeDamage.GetInvocationList())
                 dmg = modifier.Invoke(dmg);
         }
-        if(photonView != null && photonView.IsMine)
+        if (photonView != null && photonView.IsMine)
         {
             currentHealth -= dmg;
             currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
-            photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth,  characterData.MaxHealth);
+            photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth, characterData.MaxHealth);
+            statUI.UpdateHp(currentHealth, characterData.MaxHealth);
         }
-        
-        if (hp_cover != null && photonView.IsMine)
-        {
-            hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
-            hp_text.text = $"{currentHealth}/{characterData.MaxHealth}";
-        }
+
         if (dmg > 0)
         {
             invincibilityTimer = invincibilityDuration;
@@ -239,10 +186,9 @@ public class CharacterHandler : MonoBehaviourPun
             DamagePopUp.Create(transform.position, Mathf.RoundToInt(dmg));
             StartCoroutine(FlashCoroutine());
         }
-        
+
         if (currentHealth <= 0 && !isDowned && photonView.IsMine)
         {
-            
             Knockdown();
             return;
         }
@@ -255,12 +201,7 @@ public class CharacterHandler : MonoBehaviourPun
             currentHealth += amount;
             currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
             photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth, characterData.MaxHealth);
-        }
-
-        if (hp_cover != null && photonView.IsMine)
-        {
-            hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
-            hp_text.text = $"{currentHealth}/{characterData.MaxHealth}";
+            statUI.UpdateHp(currentHealth, characterData.MaxHealth);
         }
 
         if (amount > 0)
@@ -276,12 +217,11 @@ public class CharacterHandler : MonoBehaviourPun
         if (photonView != null && photonView.IsMine)
         {
             currentMana -= amount;
+            currentMana = Mathf.Clamp(currentMana, 0, characterData.MaxMana);
             photonView.RPC("RPC_UpdateStatTeammateMana", RpcTarget.Others, currentMana, characterData.MaxMana);
+            statUI.UpdateMana(currentMana, characterData.MaxMana);
         }
-        currentMana = Mathf.Clamp(currentMana, 0, characterData.MaxMana);
-        if (mana_cover != null)
-        mana_cover.localScale = new Vector3(currentMana/characterData.MaxMana, 1, 1);
-        
+
         return true;
     }
 
@@ -302,7 +242,7 @@ public class CharacterHandler : MonoBehaviourPun
             }
         }
     }
-    
+
 
 
     [PunRPC]
@@ -313,11 +253,11 @@ public class CharacterHandler : MonoBehaviourPun
         currentHealth = 0;
         if (movement != null)
         {
-            movement.PlayDieAnimation(); 
+            movement.PlayDieAnimation();
         }
         if (RoomSessionManager.Instance.IsRoomOwner())
         {
-            PlayerManager.Instance.CheckDie(photonView.ViewID,true);
+            PlayerManager.Instance.CheckDie(photonView.ViewID, true);
         }
         currentWeapon.gameObject.SetActive(false);
         _reviveSystem.gameObject.SetActive(true);
@@ -327,8 +267,6 @@ public class CharacterHandler : MonoBehaviourPun
     [PunRPC]
     public void RPC_Revive()
     {
-
-        
         currentHealth = characterData.MaxHealth * reviveHealthPercent;
         CanMove(true);
         photonView.RPC("RPC_OnRevive", RpcTarget.All);
@@ -360,32 +298,7 @@ public class CharacterHandler : MonoBehaviourPun
     {
         if (movement is PlayerController pc)
             pc.CanMove = value;
-        
-    }
 
-    //public void RecalculateStats()
-    //{
-    //    currentMight = baseMight;
-    //    currentCritRate = baseCritRate;
-    //    currentCritDamage = baseCritDamage;
-
-    //    foreach (var passive in passiveSkills)
-    //    {
-    //        currentCritRate += passive.bonusCritRate;
-    //        currentCritDamage += passive.bonusCritDamage; 
-    //    }
-
-    //    foreach (var passive in passiveSkills)
-    //    {
-    //        currentMight += passive.bonusDamage;
-    //    }
-    //}
-
-    void Recover()
-    {
-        if (currentRecovery == 0 || currentHealth >= characterData.MaxHealth) return;
-
-        TakeDamage(-currentRecovery);
     }
 
     public void EquipWeapon(WeaponBase newWeapon)
@@ -408,18 +321,13 @@ public class CharacterHandler : MonoBehaviourPun
         }
     }
 
-
-
-
     public void SetActiveSkill(SkillCardBase skill)
     {
-
         activeSkill = skill;
         skill.gameObject.transform.SetParent(transform, false);
         skill.transform.localPosition = Vector3.zero;
         activeSkill.GetComponent<SpriteRenderer>().enabled = false;
-        active_img.enabled = true;
-        active_img.sprite = activeSkill.Icon;
+        statUI.UpdateActive(skill);
     }
     public void SetPassiveSkill(SkillCardBase skill)
     {
@@ -433,11 +341,13 @@ public class CharacterHandler : MonoBehaviourPun
         }
         for (int i = 0; i < Mathf.Min(passiveSkills.Count, 3); i++)
         {
-            passive_img[i].enabled = true;
-            passive_img[i].sprite = passiveSkills[i].Icon;
+            statUI.UpdatePassive(skill, i);
         }
     }
-
+    public List<SkillCardBase> GetPassiveSkills()
+    {
+        return passiveSkills;
+    }
     public void SetInvincible(bool value)
     {
         isInvincible = value;
@@ -478,7 +388,7 @@ public class CharacterHandler : MonoBehaviourPun
             currentInteract.Interact(this);
     }
 
-   
+
 
     public void Init(CharacterData data)
     {
@@ -524,7 +434,6 @@ public class CharacterHandler : MonoBehaviourPun
     }
     public void ApplyLoadSave(DungeonApiClient.PlayerProgressDTO playerloadinfo)
     {
-        TryAttachStatBar();
         string className = playerloadinfo.currentClass;
         Debug.Log(className);
         CharacterData characterData = Resources.Load<CharacterData>("Characters/" + className);
@@ -538,63 +447,9 @@ public class CharacterHandler : MonoBehaviourPun
         currentMana = playerloadinfo.currentMana;
         TakeDamage(0);
         UseMana(0);
-        ApplySkillCardFromString(playerloadinfo.currentCard);
-
-    }
-    public List<SkillCardBase> GetPassiveSkills()
-    {
-        return passiveSkills;
-    }
-
-    public void ApplySkillCardFromString(string raw)
-    {
-        if (string.IsNullOrEmpty(raw)) return;
-
-        try
-        {
-            SkillCardSaveData data = JsonUtility.FromJson<SkillCardSaveData>(raw);
-
-            // Load active skill
-            if (!string.IsNullOrEmpty(data.active))
-            {
-                GameObject go = Instantiate(Resources.Load<GameObject>("SkillCard/Active/" + data.active), transform);
-                if (go.TryGetComponent<SkillCardBase>(out var active))
-                {
-                    active.Initialize(this); // ✅ sẽ gọi SetActiveSkill + set hasPick = true
-                }
-            }
-
-            // Load passive skills
-            foreach (string name in data.passive)
-            {
-                if (string.IsNullOrWhiteSpace(name)) continue;
-                GameObject go = Instantiate(Resources.Load<GameObject>("SkillCard/Passive/" + name), transform);
-                if (go.TryGetComponent<SkillCardBase>(out var passive))
-                {
-                    passive.Initialize(this); // ✅ gán + ẩn
-                }
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogWarning("⚠️ Failed to load skill cards from save: " + ex.Message);
-        }
     }
 
 
-
-    public float GetCurrentHealthPercent()
-    {
-        return currentHealth / characterData.MaxHealth;
-    }
-    private void OnDestroy()
-    {
-        SceneManager.activeSceneChanged -= OnSceneChanged;
-    }
-    private void OnSceneChanged(Scene s, Scene a)
-    {
-        TryAttachStatBar();
-    }
     [PunRPC]
     public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage, int rotationMode)
     {
@@ -624,39 +479,25 @@ public class CharacterHandler : MonoBehaviourPun
         hitbox.direction = direction;
         hitbox.speed = speed;
         hitbox.damage = damage;
-        
+
     }
     [PunRPC]
     public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage)
     {
         RPC_FireProjectile(projectileName, position, direction, speed, lifespan, damage, 0);
     }
-
-
-
-    private RectTransform tmViewHpCover, tmViewManaCover;
-    private TextMeshProUGUI tmViewHpTxt;
     public void AssignTeammateView(RectTransform rt)
     {
-        tmViewHpCover = rt.transform.Find("hp_cover").GetComponent<RectTransform>();
-        tmViewManaCover = rt.transform.Find("mana_cover").GetComponent <RectTransform>();
-        tmViewHpTxt = rt.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
-        rt.transform.Find("icon").GetComponent<Image>().sprite = characterData != null ? characterData.PlayerSprite : null;
+        statUI.AssignTeammateView(rt, characterData.PlayerSprite);
     }
     [PunRPC]
-    public void RPC_UpdateStatTeammateHP(float currentHp, float maxHp)
+    public void RPC_UpdateStatTeammateHP(float current, float max)
     {
-        if (tmViewHpCover == null)
-        {
-            return;
-        }
-        tmViewHpCover.localScale = new Vector2(currentHp/maxHp, 1);
-        tmViewHpTxt.text = $"{currentHp}/{maxHp}";
+        statUI.UpdateTeammateHp(current, max);
     }
     [PunRPC]
-    public void RPC_UpdateStatTeammateMana(float currentMana, float maxMana)
+    public void RPC_UpdateStatTeammateMana(float current, float max)
     {
-        if (tmViewManaCover == null) return;
-        tmViewManaCover.localScale = new Vector2(currentMana / maxMana, 1);
+        statUI.UpdateTeammateMana(current, max);
     }
 }

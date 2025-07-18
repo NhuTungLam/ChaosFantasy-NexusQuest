@@ -51,7 +51,7 @@ MonoBehaviour:
   isActiveCard: 1
   CardName: Magic Bolt
   Icon: {fileID: 21300000, guid: d6848a170c8f0164bb0d2c879b051534, type: 3}
-  CardDescription: 
+  CardDescription: Shoot a bolt of magic
   cooldown: 2
   hasPick: 0
   boltPrefab: {fileID: 6546155005657727647, guid: c82d3cb9023467249900a57125240057, type: 3}
