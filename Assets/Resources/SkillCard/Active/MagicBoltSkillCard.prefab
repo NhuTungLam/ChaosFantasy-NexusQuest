@@ -54,7 +54,6 @@ MonoBehaviour:
   CardDescription: Shoot a bolt of magic
   cooldown: 2
   hasPick: 0
-  boltPrefab: {fileID: 6546155005657727647, guid: c82d3cb9023467249900a57125240057, type: 3}
   damageMultiplier: 1.2
 --- !u!212 &-3568334315419956450
 SpriteRenderer:

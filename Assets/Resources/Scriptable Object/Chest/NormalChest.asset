@@ -22,6 +22,16 @@ MonoBehaviour:
   - smg_1
   - smg_2
   - sniper_1
+  - shotgun_1
+  - shotgun_2
+  - sword_0
+  - sword_1
+  - sword_2
+  - sword_3
+  - staff_1
+  - staff_2
+  - staff_3
+  - staff_4
   passiveSkillCards:
   - {fileID: 4818234652911098146, guid: 04f7731981c99c3478f401291f59959b, type: 3}
   - {fileID: 4818234652911098146, guid: 08a9e33c5a7591548b83e8f2e2cf7b45, type: 3}

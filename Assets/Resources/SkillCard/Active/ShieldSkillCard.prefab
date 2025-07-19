@@ -51,7 +51,7 @@ MonoBehaviour:
   isActiveCard: 1
   CardName: Shield
   Icon: {fileID: 21300000, guid: 4631efa8cb77bb44c9ce67ebebcba9f7, type: 3}
-  CardDescription: Gain a shield that blocks dmg
+  CardDescription: 
   cooldown: 10
   hasPick: 0
   duration: 2

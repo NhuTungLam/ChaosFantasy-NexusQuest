@@ -153,7 +153,6 @@ MonoBehaviour:
   CardDescription: '[Melee Only] Slash ahead every time you attack'
   cooldown: 2
   hasPick: 0
-  slashProjectilePrefab: {fileID: 5545222976611199574, guid: 1684b617ad31ffc4b896e91960b43045, type: 3}
   damageMultiplier: 1
 --- !u!114 &6105128584517084962
 MonoBehaviour:
