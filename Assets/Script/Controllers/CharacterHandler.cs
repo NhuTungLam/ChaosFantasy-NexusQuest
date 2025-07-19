@@ -339,10 +339,7 @@ public class CharacterHandler : MonoBehaviourPun
         {
             spriteRenderer.enabled = false;
         }
-        for (int i = 0; i < Mathf.Min(passiveSkills.Count, 3); i++)
-        {
-            statUI.UpdatePassive(skill, i);
-        }
+        statUI.UpdatePassive(skill, passiveSkills.Count - 1);
     }
     public List<SkillCardBase> GetPassiveSkills()
     {

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class A_MagicBolt : SkillCardBase
 {
-    public GameObject boltPrefab;
+    //public GameObject boltPrefab;
     public float damageMultiplier = 1.2f;
     private float interval;
 

@@ -7,7 +7,6 @@ public abstract class WeaponBase : MonoBehaviourPunCallbacks, IInteractable
     public float damage;
     public float cooldown;
     protected float interval;
-    protected Animator animator;
     public bool isEquipped = false;
     public string weaponName;
     public string prefabName;
@@ -15,7 +14,7 @@ public abstract class WeaponBase : MonoBehaviourPunCallbacks, IInteractable
 
     protected virtual void Awake()
     {
-        animator = GetComponent<Animator>();
+        //animator = GetComponent<Animator>();
     }
 
     public void Initialize(string id)

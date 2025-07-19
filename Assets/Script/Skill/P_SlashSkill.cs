@@ -6,7 +6,6 @@ using UnityEngine;
 public class P_SlashSkill : SkillCardBase
 {
     private CharacterHandler player;
-    public GameObject slashProjectilePrefab;
     public float damageMultiplier = 1.0f;
 
     public override void Initialize(CharacterHandler player)
@@ -38,7 +37,8 @@ public class P_SlashSkill : SkillCardBase
         Debug.Log("wweapon slash atttack");
         Transform weapon = player.weaponHolder.childCount > 0 ? player.weaponHolder.GetChild(0) : player.weaponHolder;
 
-        Vector2 direction = player.lastMoveDirection.normalized;
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePos - player.transform.position).normalized;
         float damage = player.currentMight * damageMultiplier;
 
         if (Random.value <= player.currentCritRate)

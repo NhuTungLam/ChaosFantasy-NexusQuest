@@ -36,7 +36,7 @@ public class SwordRapier : WeaponSword
         int shots = 3;
         while (shots-- > 0)
         {
-            
+            onAttack?.Invoke();
             user.photonView.RPC("RPC_FireProjectile", RpcTarget.All,
                 "slash_rapier",
                 firePoint.position + dir * 1f,

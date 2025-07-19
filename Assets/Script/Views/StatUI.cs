@@ -72,6 +72,7 @@ public class StatUI : MonoBehaviour
     }
     public void UpdatePassive(SkillCardBase skill, int index)
     {
+        if (index >= 3) return;
         passive_img[index].enabled = true;
         passive_img[index].sprite = skill.Icon;
         IconInfo.Assign(passive_img[index].transform.parent.GetComponent<ButtonUI>(), skill);
