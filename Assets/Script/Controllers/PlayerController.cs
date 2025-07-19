@@ -83,12 +83,31 @@ public class PlayerController : MonoBehaviourPunCallbacks, IMovementController
         return lastMoveDirection;
     }
 
+    private float lastFacingDirectionX = 1f;
+
     void RotatePlayerToMouse()
     {
         if (!photonView.IsMine) return;
 
         Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        transform.localScale = new Vector3(mousePos.x < transform.position.x ? -1 : 1, 1, 1);
+        float directionX = mousePos.x - transform.position.x;
+        float newFacing = directionX < 0 ? -1f : 1f;
+
+        if (newFacing != lastFacingDirectionX)
+        {
+            transform.localScale = new Vector3(newFacing, 1, 1);
+            photonView.RPC("RPC_SetFacing", RpcTarget.Others, directionX);
+            lastFacingDirectionX = newFacing;
+        }
+    }
+
+
+    [PunRPC]
+    public void RPC_SetFacing(float directionX)
+    {
+        Vector3 scale = transform.localScale;
+        scale.x = directionX < 0 ? -1 : 1;
+        transform.localScale = scale;
     }
 
 

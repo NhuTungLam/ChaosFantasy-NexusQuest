@@ -6883,7 +6883,7 @@ MonoBehaviour:
   roomname: boss_room_1_1
   roomType: 1
   enewaveDatas:
-  - {fileID: 11400000, guid: d415af7604cb5014f8f3289b024657d8, type: 2}
+  - {fileID: 11400000, guid: 4d62325ba86bc9a4bb5ff692a2f5229f, type: 2}
   needCloseDoor: 1
   chestData: {fileID: 11400000, guid: b877dd2df999ba143b2ae932b145a162, type: 2}
   chestSpawnPoint: {fileID: 7078109251090826541}

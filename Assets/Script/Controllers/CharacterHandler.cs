@@ -103,6 +103,11 @@ public class CharacterHandler : MonoBehaviourPun
 
     void Start()
     {
+        LatencyTest latencyTest = GetComponent<LatencyTest>();
+        if (latencyTest != null)
+        {
+            latencyTest.SendTestPing();
+        }
         if (mainCamera == null)
             mainCamera = Camera.main;
         Canvas playerCanvas = GetComponentInChildren<Canvas>(true);
@@ -130,7 +135,6 @@ public class CharacterHandler : MonoBehaviourPun
             mana_cover = statPanel.transform.Find("mana_cover").GetComponent<RectTransform>();
             hp_text = statPanel.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
 
-            // ⚠️ Chỉ gọi nếu characterData đã sẵn sàng
             if (characterData != null)
             {
                 TakeDamage(0);
@@ -339,7 +343,7 @@ public class CharacterHandler : MonoBehaviourPun
     void RPC_OnRevive()
     {
         if (movement != null)
-            movement.PlayDashAnimation(); // animation đứng dậy
+            movement.PlayDashAnimation();
         currentWeapon.gameObject.SetActive(true);
         if (photonView.IsMine)
         {

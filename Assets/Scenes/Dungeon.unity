@@ -800,6 +800,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defeated: 0
+  UpgradeStatPanel: {fileID: 0}
   duration: 0.5
   offsetY: -100
 --- !u!114 &217440272
@@ -2570,9 +2571,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6333bac189f0df34ab2df685766b7d8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpSlider: {fileID: 0}
-  manaSlider: {fileID: 0}
-  character: {fileID: 0}
 --- !u!114 &852057003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5117,7 +5115,7 @@ MonoBehaviour:
   - {fileID: 4843577782144643279, guid: 76fe981b3dfc52341a3aa1136c7d358b, type: 3}
   specialRooms:
   - {fileID: 4843577782144643279, guid: 9fe23f6e61e1d3d4caef4233d657519c, type: 3}
-  dungeonSize: 15
+  dungeonSize: 8
   maxComplexRooms: 3
   maxSpecialRoom: 2
   roomSize: {x: 30, y: 30}
@@ -5799,6 +5797,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1768580511}
+  - component: {fileID: 1768580512}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -5830,6 +5829,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1768580512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1768580510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35ce223af190f1a43a424af326b89c2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1955419139
 GameObject:
   m_ObjectHideFlags: 0
