@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Script/ButtonUI.cs.meta
 guid: f1c1c40f00320cb45980da71f5b0915e
+========
+guid: 35ce223af190f1a43a424af326b89c2c
+>>>>>>>> 60a43a78afd2568f7716b216d9e78f8cf402ea88:Assets/Script/FPSCounter.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
