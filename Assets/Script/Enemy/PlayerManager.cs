@@ -92,15 +92,7 @@ public class PlayerManager : MonoBehaviourPun
 
         if (!RoomSessionManager.Instance.IsRoomOwner() && PhotonView.Find(viewID).IsMine)
         {
-            
-            int ownerId = GetOwnerPlayerId();
-            int myId = PlayerProfileFetcher.CurrentProfile?.userId ?? -1;
-
-            if (ownerId > 0 && myId > 0)
-            {
-                Debug.LogError("..");
-                StartCoroutine(DelayLoadTeammateProgress(ownerId, myId));
-            }
+            StartCoroutine(DelayLoadTeammateProgress());
         }
     }
 
@@ -113,29 +105,32 @@ public class PlayerManager : MonoBehaviourPun
             myPlayer.position = position + new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
         }
     }
-    private IEnumerator DelayLoadTeammateProgress(int ownerId, int myId)
+    private IEnumerator DelayLoadTeammateProgress()
     {
-        
         yield return new WaitForSeconds(1.5f);
 
-        Debug.LogError($"[DELAYED] Loading teammate progress: ownerId={ownerId}, userId={myId}");
-
-        yield return StartCoroutine(DungeonApiClient.Instance.LoadTeammateProgress(ownerId, myId, (dto) =>
+        int ownerId = GetOwnerPlayerId();
+        int myId = PlayerProfileFetcher.CurrentProfile?.userId ?? -1;
+        //Debug.LogError($"[DELAYED] Loading teammate progress: ownerId={ownerId}, userId={myId}");
+        if (ownerId > 0 && myId > 0)
         {
-            MessageBoard.Show($"Loading {dto.currentClass}");
-            var view = GetMyPlayer()?.GetComponent<PhotonView>();
-            if (view != null)
+            yield return StartCoroutine(DungeonApiClient.Instance.LoadTeammateProgress(ownerId, myId, (dto) =>
             {
-                var handler = view.GetComponent<CharacterHandler>();
-                handler.ApplyLoadSave(dto);
+                MessageBoard.Show($"Loading {dto.currentClass}");
+                var view = GetMyPlayer()?.GetComponent<PhotonView>();
+                if (view != null)
+                {
+                    var handler = view.GetComponent<CharacterHandler>();
+                    handler.ApplyLoadSave(dto);
 
-                // Gửi visual cho người khác
-                //if (PhotonNetwork.IsConnectedAndReady)
-                //{
-                //    view.RPC("RPC_LoadTeammateVisual", RpcTarget.Others, dto.currentClass, dto.currentWeapon);
-                //}
-            }
-        }));
+                    // Gửi visual cho người khác
+                    //if (PhotonNetwork.IsConnectedAndReady)
+                    //{
+                    //    view.RPC("RPC_LoadTeammateVisual", RpcTarget.Others, dto.currentClass, dto.currentWeapon);
+                    //}
+                }
+            }));
+        }
     }
     
 
@@ -188,11 +183,11 @@ public class PlayerManager : MonoBehaviourPun
 
     public int GetOwnerPlayerId()
     {
-        foreach (var pair in playerList) 
-        {
-            Debug.LogError(pair.Key);  
-        }
-        Debug.LogError(ownerViewId);
+        //foreach (var pair in playerList)
+        //{
+        //    Debug.LogError(pair.Key);
+        //}
+        //Debug.LogError(ownerViewId);
         if (playerList.TryGetValue(ownerViewId,out var group))
         {
             return group.userId;
