@@ -47,30 +47,17 @@ public class ItemSpawnManager : MonoBehaviourPunCallbacks
 
         if (type == ItemType.Weapon)
         {
-            // ✅ Spawn weapon locally (no PhotonView needed)
-            GameObject prefab = Resources.Load<GameObject>(path);
-            if (prefab == null)
+            if (!PhotonNetwork.IsMasterClient)
             {
-                Debug.LogError("[ItemSpawnManager] Weapon prefab not found: " + path);
+                Debug.LogWarning($"⛔ [ItemSpawnManager] Only MasterClient can spawn weapon: {name}");
                 return;
             }
 
-            GameObject weaponObj = Instantiate(prefab, position, Quaternion.identity);
-            string weaponId = Guid.NewGuid().ToString();
-
-            if (weaponObj.TryGetComponent<WeaponBase>(out var weapon))
-            {
-                weapon.Initialize(weaponId);
-                Debug.Log($"🗡️ [ItemSpawnManager] Locally spawned weapon: {name} ({weaponId}) at {position}");
-            }
-            else
-            {
-                Debug.LogWarning($"[ItemSpawnManager] Weapon prefab missing WeaponBase: {name}");
-            }
+            Debug.Log($"🗡️ [ItemSpawnManager] MasterClient spawning weapon via WeaponSyncManager: {name} at {position}");
+            WeaponSyncManager.Instance.SpawnWeapon(name, position);
         }
         else
         {
-            // ✅ Only MasterClient can spawn non-weapon items
             if (!PhotonNetwork.IsMasterClient)
             {
                 Debug.LogWarning($"⛔ [ItemSpawnManager] Only MasterClient can spawn item: {name}");
@@ -80,5 +67,6 @@ public class ItemSpawnManager : MonoBehaviourPunCallbacks
             Debug.Log($"✨ [ItemSpawnManager] Master spawning item: {name} ({type}) at {position}");
             PhotonNetwork.Instantiate(path, position, Quaternion.identity);
         }
+
     }
 }

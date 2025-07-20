@@ -5581,7 +5581,7 @@ MonoBehaviour:
   - {fileID: 4843577782144643279, guid: 76fe981b3dfc52341a3aa1136c7d358b, type: 3}
   specialRooms:
   - {fileID: 4843577782144643279, guid: 9fe23f6e61e1d3d4caef4233d657519c, type: 3}
-  dungeonSize: 15
+  dungeonSize: 5
   maxComplexRooms: 3
   maxSpecialRoom: 2
   roomSize: {x: 30, y: 30}
