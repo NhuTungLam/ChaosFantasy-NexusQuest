@@ -24,6 +24,7 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
     [Header("Room UI (optional)")]
     private TMP_InputField roomNameInput = null;
     private Button joinBtn, createBtn, autoCreateBtn, continueBtn;
+    private TextMeshProUGUI continueLbl;
     [Header("Settings")]
     public int maxPlayersPerRoom = 4;
 
@@ -64,6 +65,7 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         createBtn = null;
         autoCreateBtn = null;
         continueBtn = null;
+        continueLbl = null;
         joinBtn = null;
         switch (current.name)
         {
@@ -82,12 +84,13 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
                 joinBtn = GameObject.Find("Canvas/RoomJoinPanel/join").GetComponent<Button>();
                 autoCreateBtn = GameObject.Find("Canvas/RoomJoinPanel/auto_create").GetComponent<Button>();
                 continueBtn = GameObject.Find("Canvas/RoomJoinPanel/continue").GetComponent<Button>();
+                continueLbl = GameObject.Find("Canvas/RoomJoinPanel/other_info").GetComponent<TextMeshProUGUI>();
                 roomListContainer = GameObject.Find("Canvas/RoomJoinPanel/room_list/Viewport/Content").transform;
                 roomItemPrefab = Resources.Load<GameObject>("room_name");
 
                 createBtn.onClick.AddListener(CreateRoom);
                 joinBtn.onClick.AddListener(JoinRoom);
-                continueBtn.onClick.AddListener(LoadSave);
+                InternalLoadSave();
                 autoCreateBtn.onClick.AddListener(QuickStart);
 
                 UpdateRoomListUI();
@@ -217,43 +220,50 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
     }
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
 
-    public void LoadSave()
+    private void InternalLoadSave()
     {
-        int userId = PlayerProfileFetcher.CurrentProfile !=null? PlayerProfileFetcher.CurrentProfile.userId: -1;
-        if(userId == -1)
+        int userId = PlayerProfileFetcher.CurrentProfile != null ? PlayerProfileFetcher.CurrentProfile.userId : -1;
+        if (userId == -1)
         {
-            MessageBoard.Show("Save/Load feature is not available in guest mode");
+            continueBtn.gameObject.SetActive(false);
+            continueLbl.text = "Guess mode";
+            return;
         }
         StartCoroutine(DungeonApiClient.Instance.LoadDungeonProgress(userId, (i) =>
         {
             if (DungeonRestorerManager.Instance.dungeoninfo != null)
             {
-                MessageBoard.Show("Loading save...");
-
-                // Tạo room trước khi vào dungeon
-                RoomOptions options = new RoomOptions
-                {
-                    MaxPlayers = 4, 
-                    IsVisible = true,
-                    CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
-                {
-                    { "roomOwner", PhotonNetwork.LocalPlayer.UserId }
-                },
-                    CustomRoomPropertiesForLobby = new string[] { "roomOwner" }
-                };
-
-                string roomName = "Dungeon_Loaded_" + UnityEngine.Random.Range(1000, 9999);
-                PhotonNetwork.CreateRoom(roomName, options); // khi OnJoinedRoom → LoadLevel("Dungeon")
+                continueBtn.gameObject.SetActive(true);
+                continueBtn.onClick.RemoveAllListeners();
+                continueBtn.onClick.AddListener(LoadSave);
+                continueLbl.text = "Save found. Continue?";
             }
             else
             {
-                MessageBoard.Show("No save found!");
+                continueBtn.gameObject.SetActive(false);
+                continueLbl.text = "No save found";
             }
         }));
     }
+    private void LoadSave()
+    {
+        MessageBoard.Show("Loading save...");
 
-    
+        // Tạo room trước khi vào dungeon
+        RoomOptions options = new RoomOptions
+        {
+            MaxPlayers = 4,
+            IsVisible = true,
+            CustomRoomProperties = new ExitGames.Client.Photon.Hashtable
+                {
+                    { "roomOwner", PhotonNetwork.LocalPlayer.UserId }
+                },
+            CustomRoomPropertiesForLobby = new string[] { "roomOwner" }
+        };
 
+        string roomName = "Dungeon_Loaded_" + UnityEngine.Random.Range(1000, 9999);
+        PhotonNetwork.CreateRoom(roomName, options); // khi OnJoinedRoom → LoadLevel("Dungeon")
+    }
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         foreach (RoomInfo room in roomList)
