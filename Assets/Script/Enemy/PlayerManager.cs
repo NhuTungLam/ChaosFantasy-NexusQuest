@@ -113,12 +113,6 @@ public class PlayerManager : MonoBehaviourPun
             myPlayer.position = position + new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
         }
     }
-
-    public bool ContainsPlayer(int viewID)
-    {
-        return playerList.ContainsKey(viewID);
-    }
-
     private IEnumerator DelayLoadTeammateProgress(int ownerId, int myId)
     {
         
@@ -194,11 +188,16 @@ public class PlayerManager : MonoBehaviourPun
 
     public int GetOwnerPlayerId()
     {
+        foreach (var pair in playerList) 
+        {
+            Debug.LogError(pair.Key);  
+        }
+        Debug.LogError(ownerViewId);
         if (playerList.TryGetValue(ownerViewId,out var group))
         {
             return group.userId;
         }
-
+        
         return -1;
     }
     public Transform GetMyPlayer()
