@@ -125,8 +125,6 @@ GameObject:
   - component: {fileID: -7212995401428473214}
   - component: {fileID: 2275969679067169656}
   - component: {fileID: 224305007018303237}
-  - component: {fileID: -2612704080408188909}
-  - component: {fileID: -5147085544297957240}
   m_Layer: 6
   m_Name: PlayerNetwork
   m_TagString: Player
@@ -429,29 +427,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 852213c727e5f204c8461f9c216f76a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-2612704080408188909
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3293402300519869722}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d187163b6c84c034b90ebb0f4efb22c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-5147085544297957240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3293402300519869722}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55fcb11f8fdebfb44b52a41c6498bee2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

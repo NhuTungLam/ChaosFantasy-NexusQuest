@@ -107,7 +107,7 @@ public class PlayerManager : MonoBehaviourPun
     }
     private IEnumerator DelayLoadTeammateProgress()
     {
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
 
         int ownerId = GetOwnerPlayerId();
         int myId = PlayerProfileFetcher.CurrentProfile?.userId ?? -1;

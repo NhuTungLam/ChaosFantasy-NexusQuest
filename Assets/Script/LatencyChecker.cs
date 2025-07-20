@@ -1,14 +1,23 @@
 using UnityEngine;
 using Photon.Pun;
+using TMPro;
 
 public class LatencyChecker : MonoBehaviourPun
 {
+    public TextMeshProUGUI pingText;
+    private float interval;
     void Update()
     {
-        if (PhotonNetwork.IsConnected)
+        if(interval > 0)
+        {
+            interval -= Time.deltaTime;
+        }
+  
+        else if (PhotonNetwork.IsConnected)
         {
             float ping = PhotonNetwork.GetPing();
-            Debug.Log("Current Ping: " + ping + "ms");
+            pingText.text = ping + "ms";
+            interval = 0.5f;
         }
     }
 }

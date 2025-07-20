@@ -16,7 +16,7 @@ public class StatUI : MonoBehaviour
     //teammate
     private RectTransform tmViewHpCover, tmViewManaCover;
     private TextMeshProUGUI tmViewHpTxt;
-
+    private Image tmIcon;
     private void Awake()
     {
         TryAttachStatBar();
@@ -47,9 +47,14 @@ public class StatUI : MonoBehaviour
         tmViewHpCover = rt.transform.Find("hp_cover").GetComponent<RectTransform>();
         tmViewManaCover = rt.transform.Find("mana_cover").GetComponent<RectTransform>();
         tmViewHpTxt = rt.transform.Find("hp_text").GetComponent<TextMeshProUGUI>();
-        rt.transform.Find("icon").GetComponent<Image>().sprite = sprite;
+        tmIcon = rt.transform.Find("icon").GetComponent<Image>();
+        UpdateTeammateIcon(sprite);
     }
-
+    public void UpdateTeammateIcon(Sprite sprite)
+    {
+        if (tmIcon == null) return;
+        tmIcon.sprite = sprite;
+    }
     public void UpdateHp(float current, float max)
     {
         //Debug.LogWarning(current);

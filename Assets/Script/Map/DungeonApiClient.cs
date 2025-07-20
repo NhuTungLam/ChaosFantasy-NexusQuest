@@ -235,7 +235,6 @@ public class DungeonApiClient : MonoBehaviour
 
     public IEnumerator LoadTeammateProgress(int ownerId, int userId, Action<PlayerProgressDTO> callback)
     {
-        Debug.LogError("load");
         string url = $"{apiBaseTeammate}/load-teammate-progress?ownerId={ownerId}&userId={userId}";
 
         using (UnityWebRequest request = UnityWebRequest.Get(url))
@@ -246,13 +245,13 @@ public class DungeonApiClient : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                Debug.LogError("✅ Loaded teammate progress");
+                Debug.Log("✅ Loaded teammate progress");
                 var dto = JsonUtility.FromJson<PlayerProgressDTO>(request.downloadHandler.text);
                 callback?.Invoke(dto);
             }
             else
             {
-                Debug.LogError($"❌ LoadTeammateProgress Error: {request.error}");
+                Debug.Log($"❌ LoadTeammateProgress Error: {request.error}");
             }
         }
     }

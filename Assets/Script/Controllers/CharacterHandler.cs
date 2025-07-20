@@ -9,6 +9,7 @@ using DungeonSystem;
 using UnityEngine.SceneManagement;
 using System.Linq;
 using System;
+using Unity.VisualScripting;
 
 public class CharacterHandler : MonoBehaviourPun
 {
@@ -519,7 +520,7 @@ public class CharacterHandler : MonoBehaviourPun
         }
 
         Init(characterData);
-
+        statUI.UpdateTeammateIcon(characterData.PlayerSprite);
         if (!string.IsNullOrEmpty(weapon))
         {
             GameObject wpPrefab = Resources.Load<GameObject>("Weapon/" + weapon);
