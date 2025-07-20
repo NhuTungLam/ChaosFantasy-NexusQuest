@@ -10,7 +10,7 @@ public class SwordRed : WeaponSword
         if (interval > 0) return;
         interval = cooldown;
         returnToIdleTimer = 0f;
-        onAttack?.Invoke();
+        user.onAttack?.Invoke();
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         //Vector2 direction = (mouseWorld - user.transform.position).normalized;
         bool isLeft = mouseWorld.x < user.transform.position.x;

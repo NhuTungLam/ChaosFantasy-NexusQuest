@@ -15,9 +15,7 @@ public class P_SlashSkill : SkillCardBase
 
         if (player.weaponHolder.childCount > 0)
         {
-            var weapon = player.weaponHolder.GetChild(0).GetComponent<WeaponSword>();
-            if (weapon != null)
-                weapon.onAttack += OnWeaponAttack;
+            player.onAttack += OnWeaponAttack;
             Debug.Log("attackpassive");
             //player.currentMight += 5; cong chi so
         }
@@ -26,14 +24,13 @@ public class P_SlashSkill : SkillCardBase
     {
         if (player.weaponHolder.childCount > 0)
         {
-            var weapon = player.weaponHolder.GetChild(0).GetComponent<WeaponSword>();
-            if (weapon != null)
-                weapon.onAttack -= OnWeaponAttack;
+            player.onAttack -= OnWeaponAttack;
             //player.currentMight += 5; cong chi so
         }
     }
     private void OnWeaponAttack()
     {
+        if(!player.currentWeapon.TryGetComponent<WeaponSword>(out var skill)) return;
         Debug.Log("wweapon slash atttack");
         Transform weapon = player.weaponHolder.childCount > 0 ? player.weaponHolder.GetChild(0) : player.weaponHolder;
 

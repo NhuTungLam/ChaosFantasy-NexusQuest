@@ -87,6 +87,8 @@ public class GameManager : MonoBehaviour
             }
 
             PhotonNetwork.LeaveRoom();
+            //PhotonRoomManager.Instance?.ClearRoomCacheAndUI();
+
             while (PhotonNetwork.InRoom)
                 yield return null;
 

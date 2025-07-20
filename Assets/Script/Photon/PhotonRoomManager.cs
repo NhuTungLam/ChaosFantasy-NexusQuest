@@ -295,5 +295,10 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
             }
         }
     }
+    //public void ClearRoomCacheAndUI()
+    //{
+    //    cachedRoomList.Clear();
+    //    UpdateRoomListUI();
+    //}
 
 }

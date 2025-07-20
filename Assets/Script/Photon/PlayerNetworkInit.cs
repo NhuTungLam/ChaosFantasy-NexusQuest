@@ -18,25 +18,31 @@ public class PlayerNetworkInit : MonoBehaviourPun, IPunInstantiateMagicCallback
             Debug.LogError("❌ Không tìm thấy CharacterData: " + className);
             return;
         }
-        if (DungeonRestorerManager.Instance != null && DungeonRestorerManager.Instance.playerinfo != null)
-        {
-            
-            handler.ApplyLoadSave(DungeonRestorerManager.Instance.playerinfo);
-        }
-        else
-        {
-            handler.Init(characterData);
-        }
-        Debug.Log($"✅ [{(photonView.IsMine ? "Local" : "Remote")}] Player Init with class: {className}");
 
+        // ✅ Không áp dụng load save ở đây nếu không phải local player
         if (photonView.IsMine)
         {
-            // ⚠️ Gán chính xác TagObject TẠI ĐÂY, chỉ cho player local
+            if (DungeonRestorerManager.Instance != null && DungeonRestorerManager.Instance.playerinfo != null)
+            {
+                handler.ApplyLoadSave(DungeonRestorerManager.Instance.playerinfo);
+            }
+            else
+            {
+                handler.Init(characterData);
+            }
+
             PhotonNetwork.LocalPlayer.TagObject = this.gameObject;
 
             if (CameraFollow.Instance != null)
                 CameraFollow.Instance.objToFollow = this.gameObject;
         }
+        else
+        {
+            // 🔁 Remote player chỉ init visual, sau đó chủ phòng gọi RPC_LoadTeammateVisual
+            handler.Init(characterData); // tạm thời init để render
+        }
+
+        Debug.Log($"✅ [{(photonView.IsMine ? "Local" : "Remote")}] Player Init with class: {className}");
     }
 
 }

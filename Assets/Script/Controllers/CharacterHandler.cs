@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using DungeonSystem;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using System;
 
 public class CharacterHandler : MonoBehaviourPun
 {
@@ -25,6 +26,7 @@ public class CharacterHandler : MonoBehaviourPun
     public bool isDashing = false;
     private List<SkillCardBase> passiveSkills = new List<SkillCardBase>();
 
+    public Action onAttack;
     [Header("Dash Settings")]
     public float dashSpeed = 30f;
     [HideInInspector] public Vector2 dashDirection;
@@ -442,8 +444,105 @@ public class CharacterHandler : MonoBehaviourPun
         Init(characterData);
         currentHealth = playerloadinfo.currentHp;
         currentMana = playerloadinfo.currentMana;
+        ApplySkillCardFromString(playerloadinfo.currentCard);
+        if (!string.IsNullOrEmpty(playerloadinfo.currentWeapon))
+        {
+            GameObject wpPrefab = Resources.Load<GameObject>("Weapon/" + playerloadinfo.currentWeapon);
+            if (wpPrefab != null)
+            {
+                GameObject wpInstance = Instantiate(wpPrefab);
+                if (wpInstance.TryGetComponent<WeaponBase>(out var weapon))
+                {
+                    string weaponId = Guid.NewGuid().ToString();
+                    weapon.Initialize(weaponId);
+                    EquipWeapon(weapon);
+                }
+                else
+                {
+                    Debug.LogWarning($"❌ Weapon prefab missing WeaponBase: {playerloadinfo.currentWeapon}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"❌ Không tìm thấy weapon prefab: {playerloadinfo.currentWeapon}");
+            }
+        }
+
         TakeDamage(0);
         UseMana(0);
+        photonView.RPC("RPC_LoadTeammateVisual", RpcTarget.OthersBuffered, playerloadinfo.currentClass, playerloadinfo.currentWeapon);
+    }
+    public void ApplySkillCardFromString(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return;
+
+        try
+        {
+            SkillCardSaveData data = JsonUtility.FromJson<SkillCardSaveData>(raw);
+
+            // Load active skill
+            if (!string.IsNullOrEmpty(data.active))
+            {
+                GameObject go = Instantiate(Resources.Load<GameObject>("SkillCard/Active/" + data.active), transform);
+                if (go.TryGetComponent<SkillCardBase>(out var active))
+                {
+                    active.Initialize(this); // ✅ sẽ gọi SetActiveSkill + set hasPick = true
+                }
+            }
+
+            // Load passive skills
+            foreach (string name in data.passive)
+            {
+                if (string.IsNullOrWhiteSpace(name)) continue;
+                GameObject go = Instantiate(Resources.Load<GameObject>("SkillCard/Passive/" + name), transform);
+                if (go.TryGetComponent<SkillCardBase>(out var passive))
+                {
+                    passive.Initialize(this); // ✅ gán + ẩn
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("⚠️ Failed to load skill cards from save: " + ex.Message);
+        }
+    }
+    [PunRPC]
+    public void RPC_LoadTeammateVisual(string className, string weapon)
+    {
+        if (photonView.IsMine) return;
+
+        CharacterData characterData = Resources.Load<CharacterData>("Characters/" + className);
+        if (characterData == null)
+        {
+            Debug.LogError("❌ Không tìm thấy CharacterData: " + className);
+            return;
+        }
+
+        Init(characterData);
+
+        if (!string.IsNullOrEmpty(weapon))
+        {
+            GameObject wpPrefab = Resources.Load<GameObject>("Weapon/" + weapon);
+            if (wpPrefab != null)
+            {
+                GameObject wpInstance = Instantiate(wpPrefab);
+                if (wpInstance.TryGetComponent<WeaponBase>(out var weaponBase))
+                {
+                    string weaponId = Guid.NewGuid().ToString();
+                    weaponBase.Initialize(weaponId);
+                    EquipWeapon(weaponBase);
+                }
+                else
+                {
+                    Debug.LogWarning($"[RPC_LoadTeammateVisual] Weapon prefab missing WeaponBase: {weapon}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[RPC_LoadTeammateVisual] Weapon prefab not found: {weapon}");
+            }
+        }
+
     }
 
 

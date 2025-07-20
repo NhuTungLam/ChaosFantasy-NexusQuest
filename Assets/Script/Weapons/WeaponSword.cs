@@ -8,7 +8,6 @@ using System;
 public class WeaponSword : WeaponBase
 {
     public float returnToIdleInterval;
-    public Action onAttack;
 
     protected float returnToIdleTimer;
     protected int currentSlashIndex = 0;
@@ -42,7 +41,7 @@ public class WeaponSword : WeaponBase
         interval = cooldown;
         returnToIdleTimer = 0f;
 
-        onAttack?.Invoke();
+        user.onAttack?.Invoke();
 
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         //Vector2 direction = (mouseWorld - user.transform.position).normalized;

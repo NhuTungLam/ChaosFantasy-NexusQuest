@@ -82,6 +82,7 @@ MonoBehaviour:
   - RPC_RequestHideSkillCard
   - RPC_SetFacing
   - ReceivePing
+  - RPC_LoadTeammateVisual
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

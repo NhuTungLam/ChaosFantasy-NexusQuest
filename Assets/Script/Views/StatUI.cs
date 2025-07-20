@@ -56,7 +56,7 @@ public class StatUI : MonoBehaviour
         if (hp_cover == null)
             return;
         hp_cover.localScale = new Vector3(current/max, 1, 1);
-        hp_text.text = $"{current}/{max}";
+        hp_text.text = $"{current.DecimalFormat(0)}/{max}";
     }
     public void UpdateMana(float current, float max)
     {
@@ -81,7 +81,7 @@ public class StatUI : MonoBehaviour
     {
         if (tmViewHpCover == null) return;
         tmViewHpCover.localScale = new Vector2(current / max, 1);
-        tmViewHpTxt.text = $"{current} / {max}";
+        tmViewHpTxt.text = $"{current.DecimalFormat(0)} / {max}";
     }
     public void UpdateTeammateMana(float current, float max)
     {

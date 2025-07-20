@@ -88,7 +88,7 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
         {
             StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(playerInstance.transform, progressIdCallback:(progressId) =>
             {
-                PlayerManager.Instance.photonView.RPC("RPC_OwnerProgressId", RpcTarget.AllBuffered, progressId);
+                PlayerManager.Instance.photonView.RPC("RPC_OwnerProgressId", RpcTarget.AllBuffered, progressId,viewID);
             }
             ));
             //Debug.LogWarning("save progress");

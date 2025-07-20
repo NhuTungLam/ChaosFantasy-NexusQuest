@@ -79,7 +79,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponId: 
-  damage: 5
+  damage: 20
   cooldown: 0.7
   isEquipped: 0
   weaponName: Black Sword
