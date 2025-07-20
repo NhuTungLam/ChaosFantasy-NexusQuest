@@ -204,7 +204,7 @@ public class CharacterHandler : MonoBehaviourPun
             statUI.UpdateHp(currentHealth, characterData.MaxHealth);
         }
 
-        if (amount > 0)
+        if (amount >= 10)
         {
             StartCoroutine(FlashCoroutine());
         }
