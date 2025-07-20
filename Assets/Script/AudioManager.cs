@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Audio;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
@@ -32,7 +33,9 @@ public class AudioManager : MonoBehaviour
 
     [Header("Music Dictionary")]
     [SerializeField] private List<AudioClip> sfxClipList;
-    private Dictionary<string,  AudioClip> sfxDictionary = new();
+    private Dictionary<string, AudioClip> sfxDictionary = new();
+    [SerializeField] private List<AudioClip> musicClipList;
+    private Dictionary<string, AudioClip> musicDictionary = new();
 
     private void Awake()
     {
@@ -47,6 +50,27 @@ public class AudioManager : MonoBehaviour
         {
             sfxDictionary[clip.name] = clip;
         }
+        foreach (AudioClip clip in musicClipList)
+        {
+            musicDictionary[clip.name] = clip;
+        }
+
+        //dont do this, this is for sake of convenient, call PlayMusic() somewhere else
+        SceneManager.activeSceneChanged += (prev, current) =>
+        {
+            switch (current.name)
+            {
+                case "Login":
+                    PlayMusic("menu");
+                    break;
+                case "Nexus":
+                    PlayMusic("standby");
+                    break;
+                case "Dungeon":
+                    PlayMusic("battle");
+                    break;
+            }
+        };
     }
 
     private void Start()
@@ -68,7 +92,15 @@ public class AudioManager : MonoBehaviour
             sfxPool.Enqueue(source);
         }
     }
-
+    public void PlayMusic(string name)
+    {
+        if (musicDictionary.TryGetValue(name, out var clip))
+        {
+            PlayMusic(clip);
+        }
+        else
+            Debug.LogWarning("No music clip with such name present.");
+    }
     public void PlayMusic(AudioClip clip)
     {
         if (musicSource.clip == clip) return; // Avoid restarting same track
@@ -152,7 +184,11 @@ public class AudioManager : MonoBehaviour
     public void PlaySFX(string clipName, float pitch = -1, float volume = -1)
     {
         var canGet = sfxDictionary.TryGetValue(clipName, out var audio);
-        if (!canGet) return;
+        if (!canGet)
+        {
+            Debug.LogWarning("No sfx with such name present.");
+            return;
+        }
 
         PlaySFX(audio, pitch, volume);
     }
