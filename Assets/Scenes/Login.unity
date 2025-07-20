@@ -6750,6 +6750,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a453713649cfe34b8c91be939507331, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseReward: 20
+  goldPerKill: 3
+  goldPerRoom: 5
+  deathPenalty: 4
 --- !u!4 &1414797315
 Transform:
   m_ObjectHideFlags: 0
@@ -8048,7 +8052,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -6684705616238852528, guid: 4ab1fe0d5ed2a5645bc0f3a033fccb6a, type: 2}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 9b65683f9a989914dae2939731d64323, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -8171,8 +8175,12 @@ MonoBehaviour:
   sfxVolume: 1
   fadeDuration: 1.2
   audioSourcePrefab: {fileID: 4565555332684309336, guid: 1df83eaad0281314a9874fa791bd7ca7, type: 3}
-  poolSize: 30
+  poolSize: 5
   sfxClipList: []
+  musicClipList:
+  - {fileID: 8300000, guid: 9b65683f9a989914dae2939731d64323, type: 3}
+  - {fileID: 8300000, guid: 739e5db27457a8443b1855c5effab2bd, type: 3}
+  - {fileID: 8300000, guid: 90cf1d8b9be0a4944b9f6b9ff30227d0, type: 3}
 --- !u!1 &1796831117
 GameObject:
   m_ObjectHideFlags: 0
