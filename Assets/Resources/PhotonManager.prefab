@@ -44,6 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b19ae2c50f9e54e4faa5218397005200, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomUIPanel: {fileID: 0}
-  roomNameInput: {fileID: 0}
+  roomItemPrefab: {fileID: 0}
+  roomListContainer: {fileID: 0}
   maxPlayersPerRoom: 4

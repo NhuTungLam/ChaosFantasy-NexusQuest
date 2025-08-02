@@ -39,7 +39,6 @@ public class RoomSessionManager : MonoBehaviourPunCallbacks
     public bool IsRoomOwner()
     {
         bool result = PhotonNetwork.LocalPlayer.UserId == roomOwnerId;
-        Debug.Log($"[RoomSessionManager] IsRoomOwner? {result}");
         return result;
     }
 

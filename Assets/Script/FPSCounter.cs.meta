@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Script/FPSCounter.cs.meta
+guid: 35ce223af190f1a43a424af326b89c2c
+========
+guid: d187163b6c84c034b90ebb0f4efb22c0
+>>>>>>>> 60a43a78afd2568f7716b216d9e78f8cf402ea88:Assets/Script/LatencyChecker.cs.meta
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

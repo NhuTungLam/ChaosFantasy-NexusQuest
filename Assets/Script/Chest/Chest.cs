@@ -1,86 +1,98 @@
 using UnityEngine;
+using Photon.Pun;
+using System.Collections.Generic;
 
-public class Chest : MonoBehaviour, IInteractable
+public class Chest : MonoBehaviourPun, IInteractable
 {
     private bool isOpen = false;
     private ChestData data;
-    public WeaponData[] weaponItems;
 
     public void ApplyData(ChestData chestData)
     {
         data = chestData;
     }
 
-    public void Interact(CharacterHandler player = null)
+    void Start()
     {
-        if (!CanInteract()) return;
-
-        isOpen = true;
-        Debug.Log("Chest opened: " + data?.name);
-        SpawnLoot();
-        Destroy(gameObject, 0.2f);
-    }
-
-    public bool CanInteract()
-    {
-        return !isOpen;
-    }
-
-    private void SpawnLoot()
-    {
-        int dropIndex = 0;
-
-        //  Weapon
-        if (Random.value < data.weaponDropRate && data.weaponItems.Length > 0)
+        if (photonView.InstantiationData != null && photonView.InstantiationData.Length > 0)
         {
-            WeaponData weapon = data.weaponItems[Random.Range(0, data.weaponItems.Length)];
-            Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 3); 
-            GameObject dropped = Instantiate(weapon.weaponPrefab, dropPos, Quaternion.identity);
-
-            if (dropped.TryGetComponent(out WeaponBase weaponBase))
+            string chestDataName = (string)photonView.InstantiationData[0];
+            ChestData loadedData = Resources.Load<ChestData>("Scriptable Object/Chest/" + chestDataName);
+            if (loadedData != null)
             {
-                weaponBase.weaponData = weapon;
-                weaponBase.SetFromData(weapon);
+                ApplyData(loadedData);
+            }
+            else
+            {
+                Debug.LogError("Failed to load ChestData: " + chestDataName);
             }
         }
-
-        //Active skill
-        if (Random.value < data.activeSkillDropRate && data.activeSkillCards.Length > 0)
-        {
-            GameObject prefab = data.activeSkillCards[Random.Range(0, data.activeSkillCards.Length)];
-            Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 3);
-            Instantiate(prefab, dropPos, Quaternion.identity);
-        }
-
-        // Passive skill
-        if (Random.value < data.passiveSkillDropRate && data.passiveSkillCards.Length > 0)
-        {
-            GameObject prefab = data.passiveSkillCards[Random.Range(0, data.passiveSkillCards.Length)];
-            Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 3);
-            Instantiate(prefab, dropPos, Quaternion.identity);
-        }
-        // Other Items (e.g., Health Potion)
-        if (Random.value < data.otherItemDropRate && data.otherItems.Length > 0)
-        {
-            GameObject prefab = data.otherItems[Random.Range(0, data.otherItems.Length)];
-            Vector3 dropPos = transform.position + GetOffsetByIndex(dropIndex++, 4);
-            Instantiate(prefab, dropPos, Quaternion.identity);
-        }
-
     }
-    private Vector3 GetOffsetByIndex(int index, int total, float radius = 1f)
+
+    public void Interact(CharacterHandler player = null)
     {
-        float angle = 360f / total * index;
-        float rad = angle * Mathf.Deg2Rad;
-        return new Vector3(Mathf.Cos(rad), Mathf.Sin(rad)) * radius;
+        if (isOpen) return;
+
+        // ? Always let MasterClient handle opening
+        photonView.RPC("RPC_RequestOpenChest", RpcTarget.MasterClient, photonView.ViewID);
     }
+
+    public bool CanInteract() => !isOpen;
+
+    [PunRPC]
+    public void RPC_RequestOpenChest(int viewID)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;  
+
+        photonView.RPC("RPC_OpenChestAndSpawnLoot", RpcTarget.All);
+
+    }
+
+
+    [PunRPC]
+    public void RPC_OpenChestAndSpawnLoot()
+    {
+        if (isOpen) return;
+        isOpen = true;
+
+        Debug.Log("Chest opened: " + data?.name);
+
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        if (data.weaponItemNames != null && Random.value < data.weaponDropRate)
+        {
+            string name = data.weaponItemNames[Random.Range(0, data.weaponItemNames.Length)];
+            ItemSpawnManager.Instance.SpawnItem(ItemType.Weapon, name, transform.position);
+        }
+
+        if (data.passiveSkillCards != null && Random.value < data.passiveSkillDropRate)
+        {
+            string name = data.passiveSkillCards[Random.Range(0, data.passiveSkillCards.Length)].name;
+            ItemSpawnManager.Instance.SpawnItem(ItemType.PassiveSkill, name, transform.position + Vector3.right);
+        }
+
+        if (data.activeSkillCards != null && Random.value < data.activeSkillDropRate)
+        {
+            string name = data.activeSkillCards[Random.Range(0, data.activeSkillCards.Length)].name;
+            ItemSpawnManager.Instance.SpawnItem(ItemType.ActiveSkill, name, transform.position + Vector3.left);
+        }
+
+        if (data.otherItems != null && Random.value < data.otherItemDropRate)
+        {
+            string name = data.otherItems[Random.Range(0, data.otherItems.Length)].name;
+            ItemSpawnManager.Instance.SpawnItem(ItemType.Other, name, transform.position + Vector3.up);
+        }
+
+        PhotonNetwork.Destroy(gameObject);
+    }
+
     public void InRangeAction(CharacterHandler user = null)
     {
         DungeonPickup.ShowPickup("Chest", transform.position);
     }
+
     public void CancelInRangeAction(CharacterHandler user = null)
     {
         DungeonPickup.HidePickup();
     }
-
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class ChestData : ScriptableObject
 {
     public GameObject chestPrefab;
-    public WeaponData[] weaponItems;
+    public string[] weaponItemNames;
     public GameObject[] passiveSkillCards;
     public GameObject[] activeSkillCards;
     public GameObject[] otherItems;

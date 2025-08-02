@@ -3,10 +3,8 @@ using System;
 [Serializable]
 public class PlayerProfile
 {
-    public string userId;              
-    public string username;
-    public string password;
-    public string @class;               
+    public int userId;              
+    public string username;              
     public int level = 1;            
     public int exp = 0;              
     public int gold = 0;            

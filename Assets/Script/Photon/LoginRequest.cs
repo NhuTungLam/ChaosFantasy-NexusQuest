@@ -15,6 +15,9 @@ public class LoginPayload
 public class LoginResult
 {
     public int id;
+    public string username;
+    public string email;
+    public string token;
 }
 
 public class LoginRequest : MonoBehaviour
@@ -56,10 +59,13 @@ public class LoginRequest : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 LoginResult res = JsonUtility.FromJson<LoginResult>(request.downloadHandler.text);
-                currentUsername = username;
+                currentUsername = res.username;
                 currentUserId = res.id;
                 MessageBoard.Show("Login Successfully!");
-
+                AuthToken.token = res.token;
+                Debug.Log("[Login] Token = " + AuthToken.token);
+                PlayerPrefs.SetString("AuthToken", res.token);
+                PlayerPrefs.Save();
                 PlayerProfileFetcher.Instance.FetchProfile(currentUserId, (profile) =>
                 {
                     MessageBoard.Show($"Loaded profile for {currentUsername}: Lv {profile.level}, Gold {profile.gold}");

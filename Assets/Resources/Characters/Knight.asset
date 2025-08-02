@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 065b214fd51e1674ea3184f47dcac5f6, type: 3}
   m_Name: Knight
   m_EditorClassIdentifier: 
-  playerSprite: {fileID: 1728296500, guid: be2fadbafd65bb749a839e5b1659605e, type: 3}
+  playerSprite: {fileID: 1631176977, guid: a43ed2011fc8e504a95affccaaf6c0cd, type: 3}
   animationController: {fileID: 9100000, guid: 898a44c60973c9f479cac13f2ba4625e, type: 2}
-  startingWeapon: {fileID: 11400000, guid: 0234c3e0e3ec45c4c8d27d5c228d6ad2, type: 2}
+  startingWeapon: {fileID: 2938612543670398264, guid: 5227e929d4086194b8f53d85c6ff4ce5, type: 3}
   maxHealth: 100
   maxMana: 1000
   moveSpeed: 10
-  recovery: 3
+  recovery: 0.1
   might: 2
   projectileSpeed: 2
   magnet: 2

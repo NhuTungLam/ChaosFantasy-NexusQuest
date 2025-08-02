@@ -15,11 +15,11 @@ MonoBehaviour:
   AppSettings:
     AppIdRealtime: 8d8188cc-be5a-4335-9022-be62c4735dd1
     AppIdFusion: 
-    AppIdChat: 
+    AppIdChat: 282f1b24-361a-4318-94df-9545e38e9f98
     AppIdVoice: 
-    AppVersion: 
+    AppVersion: 1.0
     UseNameServer: 1
-    FixedRegion: 
+    FixedRegion: asia
     Server: 
     Port: 0
     ProxyServer: 
@@ -43,6 +43,46 @@ MonoBehaviour:
   - RPC_TakeDamage
   - RPC_FireProjectile
   - RPC_AddPlayerToList
+  - RPC_SpawnRoomPrefab
+  - RPC_RequestDungeonLayout
+  - RPC_OnRevive
+  - RPC_PlayKnockdown
+  - RPC_Revive
+  - RPC_UpdateVisual
+  - RPC_Interact
+  - RPC_TeleportPlayer
+  - RPC_CloseDoors
+  - RPC_RequestCloseDoors
+  - RPC_OpenDoorsAndSpawnChest
+  - SelfTeleport
+  - RPC_SelfTeleport
+  - RPC_EquipWeapon
+  - RPC_RemoveWeapon
+  - RPC_SpawnWeapon
+  - RPC_SyncWeapons
+  - RequestOpenChest
+  - SyncOpenChest
+  - RPC_OpenChestAndSpawnLoot
+  - RPC_RequestOpenChest
+  - RPC_ApplyData
+  - RPC_SpawnLootBatch
+  - RPC_RequestPickupWeapon
+  - RPC_SpawnItem
+  - RPC_UpdateStatTeammate
+  - RPC_DestroySkillCard
+  - RPC_RequestDestroySkillCard
+  - RPC_DestroyPotion
+  - RPC_RequestDestroyPotion
+  - RPC_UpdateStatTeammateHP
+  - RPC_UpdateStatTeammateMana
+  - RPC_OwnerProgressId
+  - RPC_CheckDie
+  - RPC_Summary
+  - RPC_HideSkillCard
+  - RPC_RequestHideSkillCard
+  - RPC_SetFacing
+  - ReceivePing
+  - RPC_LoadTeammateVisual
   DisableAutoOpenWizard: 1
-  ShowSettings: 0
+  ShowSettings: 1
   DevRegionSetOnce: 1

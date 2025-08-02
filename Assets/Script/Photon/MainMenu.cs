@@ -112,13 +112,14 @@ public class MainMenu : MonoBehaviour
 
     private void ShowPanel(RectTransform panel)
     {
-        panel.gameObject.SetActive(true);
-
         var cg = GetOrAddCanvasGroup(panel);
+        cg.interactable = true;
         cg.alpha = 0;
         panel.anchoredPosition = new Vector2(0, -300);
 
         Sequence seq = DOTween.Sequence();
+        seq.SetUpdate(true);
+
         seq.Append(cg.DOFade(1, duration));
         seq.Join(panel.DOAnchorPosY(offsetY, duration).SetEase(Ease.OutCubic));
     }
@@ -126,12 +127,15 @@ public class MainMenu : MonoBehaviour
     private Tween HidePanel(RectTransform panel)
     {
         var cg = GetOrAddCanvasGroup(panel);
+        cg.interactable = false;
         panel.anchoredPosition = new Vector2(0, offsetY);
 
         Sequence seq = DOTween.Sequence();
+        seq.SetUpdate(true);
+
         seq.Append(cg.DOFade(0, duration));
         seq.Join(panel.DOAnchorPosY(panel.anchoredPosition.y + 100, duration).SetEase(Ease.InCubic));
-        seq.OnComplete(() => panel.gameObject.SetActive(false));
+        seq.OnComplete(() => panel.anchoredPosition = new Vector2(-2000, -2000));
         return seq;
     }
 }

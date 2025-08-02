@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Script/IconInfo.cs.meta
+guid: d202a53fda87c44438a9b057ce33f9ae
+========
+guid: 55fcb11f8fdebfb44b52a41c6498bee2
+>>>>>>>> 60a43a78afd2568f7716b216d9e78f8cf402ea88:Assets/Script/LatencyTest.cs.meta
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

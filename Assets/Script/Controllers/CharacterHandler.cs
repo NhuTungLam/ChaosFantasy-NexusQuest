@@ -7,18 +7,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using DungeonSystem;
 using UnityEngine.SceneManagement;
+using System.Linq;
+using System;
+using Unity.VisualScripting;
 
 public class CharacterHandler : MonoBehaviourPun
 {
-    public PlayerProfile profile; // Account-level persistent data
-    public DungeonPlayerState state;     // In-room transient combat state
-
+    private StatUI statUI;
     public CharacterData characterData;
-    public WeaponData weaponData;
     public IMovementController movement;
     public float interactionDistance = 2f;
-    private SkillCardBase activeSkill;
-    
+    public SkillCardBase activeSkill;
+
     private float skillCooldownTimer;
     public Transform weaponHolder;
     public delegate float DamageModifier(float dmg);
@@ -27,11 +27,12 @@ public class CharacterHandler : MonoBehaviourPun
     public bool isDashing = false;
     private List<SkillCardBase> passiveSkills = new List<SkillCardBase>();
 
+    public Action onAttack;
     [Header("Dash Settings")]
     public float dashSpeed = 30f;
     [HideInInspector] public Vector2 dashDirection;
     [HideInInspector] public Vector2 lastMoveDirection = Vector2.right;
-   
+
     [Header("Shield Settings")]
     [HideInInspector] public bool isBlocking = false;
 
@@ -41,7 +42,7 @@ public class CharacterHandler : MonoBehaviourPun
     private float throttleInteractUpdateInterval = 0f;
 
     [Header("Stats")]
-    [HideInInspector] public float currentHealth;
+    public float currentHealth;
     [HideInInspector] public float currentMana;
     [HideInInspector] public float currentRecovery;
     [HideInInspector] public float currentMight;
@@ -55,123 +56,90 @@ public class CharacterHandler : MonoBehaviourPun
     [HideInInspector] public float baseCritDamage;
     [HideInInspector] public float currentCritDamage;
 
-    PlayerCollector collector;
+    public Camera mainCamera;
+    public float zoomSpeed = 5f;
+    public float minZoom = 2f;
+    public float maxZoom = 20f;
 
-    [System.Serializable]
-    public class LevelRange
-    {
-        public int startLevel;
-        public int endLevel;
-        public int expCapIncrease;
-    }
+    [Header("Revive System")]
+    [HideInInspector] public bool isDowned = false;
+    public float reviveRange = 2.5f;
+    public float reviveHoldTime = 3f;
+    public float reviveHealthPercent = 0.5f;
+    public int deadCount = 0;
 
     [Header("I-Frames")]
     public float invincibilityDuration;
     private float invincibilityTimer;
     private bool isInvincible;
 
-    [Header("Level Ranges")]
-    public List<LevelRange> levelRanges;
+    public WeaponBase currentWeapon;
 
-    public int weaponId;
-    public int itemId;
-
-    private WeaponBase currentWeapon;
-
+    private SpriteRenderer _spriteRenderer;
+    private ReviveSystem _reviveSystem;
+    private Rigidbody2D _rb;
     public void Awake()
     {
         if (GetComponent<Rigidbody2D>() == null)
             Debug.LogError("CharacterHandler: Missing Rigidbody2D");
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _reviveSystem = GetComponentInChildren<ReviveSystem>();
+        _reviveSystem.gameObject.SetActive(false);
+        _rb = GetComponent<Rigidbody2D>();
+        statUI = GetComponent<StatUI>();
     }
 
     void Start()
     {
+        if (mainCamera == null)
+            mainCamera = Camera.main;
         Canvas playerCanvas = GetComponentInChildren<Canvas>(true);
         if (playerCanvas != null)
         {
             playerCanvas.worldCamera = Camera.main;
             playerCanvas.sortingLayerName = "Ui";
         }
-
-        if (photonView == null || photonView.IsMine)
-        {
-            HealthBarUI ui = FindObjectOfType<HealthBarUI>();
-            if (ui != null)
-            {
-                ui.character = this;
-            }
-        }
-
-
-        // Initialize player state from profile
-        if (profile != null)
-        {
-            Position playerPos = new Position
-            {
-                x = transform.position.x,
-                y = transform.position.y
-            };
-
-            state = new DungeonPlayerState
-            {
-                userId = profile.userId,
-                @class = profile.@class,
-                hp = currentHealth,
-                mana = currentMana,
-                position = playerPos
-            };
-
-        }
-        TryAttachStatBar();
-        SceneManager.activeSceneChanged += (s, a) => TryAttachStatBar();
-        
-    }
-    void TryAttachStatBar()
-    {
-        var statPanel = GameObject.FindGameObjectWithTag("Hpbar");
-        hp_cover = null;
-        mana_cover = null;
-        if (statPanel != null)
-        {
-            hp_cover = statPanel.transform.Find("hp_bar/cover").GetComponent<RectTransform>();
-            mana_cover = statPanel.transform.Find("mana_bar/cover").GetComponent<RectTransform>();
-        }
     }
 
     void Update()
     {
-        if (photonView != null && !photonView.IsMine) return;
-
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (Mathf.Abs(scroll) > 0.01f)
+        {
+            float newSize = mainCamera.orthographicSize - scroll * zoomSpeed;
+            mainCamera.orthographicSize = Mathf.Clamp(newSize, minZoom, maxZoom);
+        }
         if (invincibilityTimer > 0)
             invincibilityTimer -= Time.deltaTime;
         else if (isInvincible)
             isInvincible = false;
+        if (photonView != null && !photonView.IsMine) return;
 
-        Recover();
-
-        if (Input.GetMouseButtonDown(0) && currentWeapon != null)
+        if (!isDowned)
         {
-            currentWeapon.Attack(this);
-        }
+            if (Input.GetMouseButton(0) && currentWeapon != null)
+            {
+                currentWeapon.Attack(this);
+            }
 
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            TryInteract();
-        }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                TryInteract();
+            }
 
-        if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkill != null)
-        {
-            activeSkill.Activate(this);
-        }
+            if (Input.GetKeyDown(KeyCode.Q) && skillCooldownTimer <= 0f && activeSkill != null)
+            {
+                activeSkill.Activate(this);
+            }
 
-        if (skillCooldownTimer > 0f)
-        {
-            skillCooldownTimer -= Time.deltaTime;
+            if (skillCooldownTimer > 0f)
+            {
+                skillCooldownTimer -= Time.deltaTime;
+            }
         }
-
         if (Input.GetKeyDown(KeyCode.J))
         {
-            TakeDamage(10);
+            TakeDamage(40);
         }
 
         if (throttleInteractUpdateInterval > 0)
@@ -181,128 +149,205 @@ public class CharacterHandler : MonoBehaviourPun
         else
         {
             GetClosestInteractable();
-            throttleInteractUpdateInterval = 0.1f;
+            throttleInteractUpdateInterval = 0.2f;
+            if (currentRecovery > 0)
+                Heal(currentRecovery);
         }
+
     }
-    [Header("im losing my mind wth")]
-    public RectTransform hp_cover, mana_cover;
+    private IEnumerator FlashCoroutine()
+    {
+        //flashMaterial.SetColor(FlashColor, flashColor);
+        _spriteRenderer.material.SetFloat("_FlashAmount", 1f);
+
+        yield return new WaitForSeconds(0.15f);
+
+        _spriteRenderer.material.SetFloat("_FlashAmount", 0f);
+    }
     public void TakeDamage(float dmg)
     {
+        if (isDowned) return;
         if (isInvincible) return;
-
-        // Shield Block
-        if (isBlocking)
-            dmg *= 0.5f;
-
-        // Passive damage modifiers (e.g., Mana Shield)
+        if (isBlocking) dmg *= 0.5f;
         if (OnBeforeTakeDamage != null)
+        {
             foreach (DamageModifier modifier in OnBeforeTakeDamage.GetInvocationList())
                 dmg = modifier.Invoke(dmg);
+        }
+        if (photonView != null && photonView.IsMine)
+        {
+            currentHealth -= dmg;
+            currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
+            photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth, characterData.MaxHealth);
+            statUI.UpdateHp(currentHealth, characterData.MaxHealth);
+        }
 
-        currentHealth -= dmg;
-        invincibilityTimer = invincibilityDuration;
-        isInvincible = true;
+        if (dmg > 0)
+        {
+            invincibilityTimer = invincibilityDuration;
+            isInvincible = true;
+            DamagePopUp.Create(transform.position, Mathf.RoundToInt(dmg));
+            StartCoroutine(FlashCoroutine());
+        }
 
-        currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
-        hp_cover.localScale = new Vector3(GetCurrentHealthPercent(), 1, 1);
+        if (currentHealth <= 0 && !isDowned && photonView.IsMine)
+        {
+            Knockdown();
+            return;
+        }
 
-        if (currentHealth == 0)
-            Die();
+    }
+    public void Heal(float amount)
+    {
+        if (photonView != null && photonView.IsMine)
+        {
+            currentHealth += amount;
+            currentHealth = Mathf.Clamp(currentHealth, 0f, characterData.MaxHealth);
+            photonView.RPC("RPC_UpdateStatTeammateHP", RpcTarget.Others, currentHealth, characterData.MaxHealth);
+            statUI.UpdateHp(currentHealth, characterData.MaxHealth);
+        }
 
-        Debug.Log($"[Damage] Final HP: {currentHealth}, Mana: {currentMana}");
+        if (amount >= 10)
+        {
+            StartCoroutine(FlashCoroutine());
+        }
+    }
+    public bool UseMana(float amount)
+    {
+        if (currentMana < amount)
+            return false;
+
+        if (photonView != null && photonView.IsMine)
+        {
+            currentMana -= amount;
+            currentMana = Mathf.Clamp(currentMana, 0, characterData.MaxMana);
+            photonView.RPC("RPC_UpdateStatTeammateMana", RpcTarget.Others, currentMana, characterData.MaxMana);
+            statUI.UpdateMana(currentMana, characterData.MaxMana);
+        }
+
+        return true;
+    }
+
+    public void Knockdown()
+    {
+        CanMove(false);
+
+        if (photonView.IsMine)
+            PlayerStatTracker.Instance?.AddDeath();
+
+        photonView.RPC("RPC_PlayKnockdown", RpcTarget.All);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
+            {
+                GameManager.Instance.ShowSummaryPanel();
+            }
+        }
     }
 
 
-    [ContextMenu("testdie")]
-    public virtual void Die()
+
+    [PunRPC]
+    void RPC_PlayKnockdown()
+    {
+        if (isDowned) return;
+        isDowned = true;
+        currentHealth = 0;
+        if (movement != null)
+        {
+            movement.PlayDieAnimation();
+        }
+        if (RoomSessionManager.Instance.IsRoomOwner())
+        {
+            PlayerManager.Instance.CheckDie(photonView.ViewID, true);
+        }
+        currentWeapon.gameObject.SetActive(false);
+        _reviveSystem.gameObject.SetActive(true);
+        _rb.isKinematic = true;
+    }
+
+    [PunRPC]
+    public void RPC_Revive()
+    {
+        currentHealth = characterData.MaxHealth * reviveHealthPercent;
+        CanMove(true);
+        photonView.RPC("RPC_OnRevive", RpcTarget.All);
+        TakeDamage(0);
+    }
+
+    [PunRPC]
+    void RPC_OnRevive()
+    {
+        if (movement != null)
+            movement.PlayDashAnimation(); // animation đứng dậy
+        currentWeapon.gameObject.SetActive(true);
+        if (photonView.IsMine)
+        {
+            _rb.isKinematic = false;
+        }
+        _reviveSystem.gameObject.SetActive(false);
+        isDowned = false;
+        if (RoomSessionManager.Instance.IsRoomOwner())
+        {
+            PlayerManager.Instance.CheckDie(photonView.ViewID, false);
+        }
+    }
+
+
+
+
+    public void CanMove(bool value)
     {
         if (movement is PlayerController pc)
-            pc.PlayDieAnimation();
-        else if (movement is PlayerOffController poc)
-            poc.PlayDieAnimation();
-    }
-    //public void RecalculateStats()
-    //{
-    //    currentMight = baseMight;
-    //    currentCritRate = baseCritRate;
-    //    currentCritDamage = baseCritDamage;
+            pc.CanMove = value;
 
-    //    foreach (var passive in passiveSkills)
-    //    {
-    //        currentCritRate += passive.bonusCritRate;
-    //        currentCritDamage += passive.bonusCritDamage; 
-    //    }
-
-    //    foreach (var passive in passiveSkills)
-    //    {
-    //        currentMight += passive.bonusDamage;
-    //    }
-    //}
-
-    void Recover()
-    {
-        if (currentRecovery == 0 || currentHealth >= characterData.MaxHealth) return;
-
-        TakeDamage(-currentRecovery);
     }
 
-    public void EquipWeapon(WeaponData newData)
+    public void EquipWeapon(WeaponBase newWeapon)
     {
         DropWeapon();
-
-        GameObject wp = Instantiate(newData.weaponPrefab, weaponHolder.position, weaponHolder.rotation, weaponHolder);
-
-        currentWeapon = wp.GetComponent<WeaponBase>();
-        currentWeapon.weaponData = newData;
-        currentWeapon.damage = newData.damage;
-        currentWeapon.cooldown = newData.cooldown;
-        currentWeapon.isEquipped = true;
-
-        Animator anim = wp.GetComponent<Animator>();
-        if (anim != null && newData.animatorController != null)
-            anim.runtimeAnimatorController = newData.animatorController;
-
-        SpriteRenderer sr = wp.GetComponent<SpriteRenderer>();
-        if (sr != null && newData.weaponSprite != null)
-            sr.sprite = newData.weaponSprite;
-
+        currentWeapon = newWeapon;
+        currentWeapon.transform.SetParent(weaponHolder);
         currentWeapon.transform.localPosition = Vector3.zero;
         currentWeapon.transform.localRotation = Quaternion.identity;
+        currentWeapon.isEquipped = true;
     }
 
     private void DropWeapon()
     {
-        if (currentWeapon == null || currentWeapon.weaponData == null) return;
-
-        WeaponData oldData = currentWeapon.weaponData;
-        GameObject dropped = Instantiate(oldData.weaponPrefab, transform.position, Quaternion.identity);
-
-        if (dropped.TryGetComponent(out WeaponBase weaponBase))
+        if (currentWeapon != null)
         {
-            weaponBase.weaponData = oldData;
-            weaponBase.SetFromData(oldData);
+            currentWeapon.transform.SetParent(null);
+            Destroy(currentWeapon.gameObject);
+            currentWeapon = null;
         }
-
-        Destroy(currentWeapon.gameObject);
-        currentWeapon = null;
     }
 
     public void SetActiveSkill(SkillCardBase skill)
     {
         activeSkill = skill;
         skill.gameObject.transform.SetParent(transform, false);
+        skill.transform.localPosition = Vector3.zero;
+        activeSkill.GetComponent<SpriteRenderer>().enabled = false;
+        statUI.UpdateActive(skill);
     }
     public void SetPassiveSkill(SkillCardBase skill)
     {
         passiveSkills.Add(skill);
         skill.gameObject.transform.SetParent(transform, false);
+        skill.transform.localPosition = Vector3.zero;
         SpriteRenderer spriteRenderer = skill.GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
             spriteRenderer.enabled = false;
         }
+        statUI.UpdatePassive(skill, passiveSkills.Count - 1);
     }
-
+    public List<SkillCardBase> GetPassiveSkills()
+    {
+        return passiveSkills;
+    }
     public void SetInvincible(bool value)
     {
         isInvincible = value;
@@ -336,7 +381,6 @@ public class CharacterHandler : MonoBehaviourPun
             currentInteract = closestInteractable;
             currentInteract?.InRangeAction(this);
         }
-        //print(currentInteract);
     }
     void TryInteract()
     {
@@ -344,14 +388,7 @@ public class CharacterHandler : MonoBehaviourPun
             currentInteract.Interact(this);
     }
 
-   
-    public IEnumerator FireProjectileDelayed(Transform origin, Vector2 direction, float delay, GameObject projectilePrefab, float damage)
-    {
-        yield return new WaitForSeconds(delay);
-        GameObject proj = Instantiate(projectilePrefab, origin.position, Quaternion.identity);
-        Projectile projectile = proj.GetComponent<Projectile>();
-        projectile.Initialize(direction, damage);
-    }
+
 
     public void Init(CharacterData data)
     {
@@ -362,10 +399,6 @@ public class CharacterHandler : MonoBehaviourPun
             Debug.LogError("CharacterHandler.Init(): characterData is null");
             return;
         }
-
-        collector = GetComponentInChildren<PlayerCollector>();
-        if (collector != null)
-            collector.SetRadius(characterData.Magnet);
 
         movement = GetComponent<IMovementController>();
         if (movement != null)
@@ -387,16 +420,181 @@ public class CharacterHandler : MonoBehaviourPun
 
         currentCritRate = baseCritRate;
         currentCritDamage = baseCritDamage;
+        TakeDamage(0);
+        UseMana(0);
+        if (characterData.StartingWeapon != null)
+        {
+            GameObject dropped = Instantiate(data.StartingWeapon);
+            var weaponBase = dropped.GetComponent<WeaponBase>();
+            string newId = System.Guid.NewGuid().ToString();
+            weaponBase.Initialize(newId);
+            EquipWeapon(weaponBase);
+        }
 
-        weaponData = characterData.StartingWeapon;
-        if (weaponData != null)
-            EquipWeapon(weaponData);
     }
-
-    public float GetCurrentHealthPercent()
+    public void ApplyLoadSave(DungeonApiClient.PlayerProgressDTO playerloadinfo)
     {
-        return currentHealth / characterData.MaxHealth;
+        string className = playerloadinfo.currentClass;
+        Debug.Log(className);
+        CharacterData characterData = Resources.Load<CharacterData>("Characters/" + className);
+        if (characterData == null)
+        {
+            Debug.LogError("❌ Không tìm thấy CharacterData: " + className);
+            return;
+        }
+        Init(characterData);
+        currentHealth = playerloadinfo.currentHp;
+        currentMana = playerloadinfo.currentMana;
+        ApplySkillCardFromString(playerloadinfo.currentCard);
+        if (!string.IsNullOrEmpty(playerloadinfo.currentWeapon))
+        {
+            GameObject wpPrefab = Resources.Load<GameObject>("Weapon/" + playerloadinfo.currentWeapon);
+            if (wpPrefab != null)
+            {
+                GameObject wpInstance = Instantiate(wpPrefab);
+                if (wpInstance.TryGetComponent<WeaponBase>(out var weapon))
+                {
+                    string weaponId = Guid.NewGuid().ToString();
+                    weapon.Initialize(weaponId);
+                    EquipWeapon(weapon);
+                }
+                else
+                {
+                    Debug.LogWarning($"❌ Weapon prefab missing WeaponBase: {playerloadinfo.currentWeapon}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"❌ Không tìm thấy weapon prefab: {playerloadinfo.currentWeapon}");
+            }
+        }
+
+        TakeDamage(0);
+        UseMana(0);
+        photonView.RPC("RPC_LoadTeammateVisual", RpcTarget.OthersBuffered, playerloadinfo.currentClass, playerloadinfo.currentWeapon);
+    }
+    public void ApplySkillCardFromString(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return;
+
+        try
+        {
+            SkillCardSaveData data = JsonUtility.FromJson<SkillCardSaveData>(raw);
+
+            // Load active skill
+            if (!string.IsNullOrEmpty(data.active))
+            {
+                GameObject go = Instantiate(Resources.Load<GameObject>("SkillCard/Active/" + data.active), transform);
+                if (go.TryGetComponent<SkillCardBase>(out var active))
+                {
+                    active.Initialize(this); // ✅ sẽ gọi SetActiveSkill + set hasPick = true
+                }
+            }
+
+            // Load passive skills
+            foreach (string name in data.passive)
+            {
+                if (string.IsNullOrWhiteSpace(name)) continue;
+                GameObject go = Instantiate(Resources.Load<GameObject>("SkillCard/Passive/" + name), transform);
+                if (go.TryGetComponent<SkillCardBase>(out var passive))
+                {
+                    passive.Initialize(this); // ✅ gán + ẩn
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("⚠️ Failed to load skill cards from save: " + ex.Message);
+        }
+    }
+    [PunRPC]
+    public void RPC_LoadTeammateVisual(string className, string weapon)
+    {
+        if (photonView.IsMine) return;
+
+        CharacterData characterData = Resources.Load<CharacterData>("Characters/" + className);
+        if (characterData == null)
+        {
+            Debug.LogError("❌ Không tìm thấy CharacterData: " + className);
+            return;
+        }
+
+        Init(characterData);
+        statUI.UpdateTeammateIcon(characterData.PlayerSprite);
+        if (!string.IsNullOrEmpty(weapon))
+        {
+            GameObject wpPrefab = Resources.Load<GameObject>("Weapon/" + weapon);
+            if (wpPrefab != null)
+            {
+                GameObject wpInstance = Instantiate(wpPrefab);
+                if (wpInstance.TryGetComponent<WeaponBase>(out var weaponBase))
+                {
+                    string weaponId = Guid.NewGuid().ToString();
+                    weaponBase.Initialize(weaponId);
+                    EquipWeapon(weaponBase);
+                }
+                else
+                {
+                    Debug.LogWarning($"[RPC_LoadTeammateVisual] Weapon prefab missing WeaponBase: {weapon}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[RPC_LoadTeammateVisual] Weapon prefab not found: {weapon}");
+            }
+        }
+
     }
 
 
+    [PunRPC]
+    public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage, int rotationMode)
+    {
+        direction.Normalize();
+        GameObject prefab = Resources.Load<GameObject>($"Weapon/{projectileName}");
+        if (prefab == null)
+        {
+            Debug.LogWarning($"Missing projectile prefab: {projectileName}");
+            return;
+        }
+
+        GameObject proj = Instantiate(prefab, position, Quaternion.identity);
+        proj.GetComponent<SpriteRenderer>().flipX = rotationMode == 1;
+        if (rotationMode == 2)
+        {
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            proj.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        }
+
+        var hitbox = proj.GetComponent<Projectile>();
+        if (hitbox == null)
+        {
+            return;
+        }
+
+        hitbox.lifetime = lifespan;
+        hitbox.direction = direction;
+        hitbox.speed = speed;
+        hitbox.damage = damage;
+
+    }
+    [PunRPC]
+    public void RPC_FireProjectile(string projectileName, Vector3 position, Vector2 direction, float speed, float lifespan, float damage)
+    {
+        RPC_FireProjectile(projectileName, position, direction, speed, lifespan, damage, 0);
+    }
+    public void AssignTeammateView(RectTransform rt)
+    {
+        statUI.AssignTeammateView(rt, characterData.PlayerSprite);
+    }
+    [PunRPC]
+    public void RPC_UpdateStatTeammateHP(float current, float max)
+    {
+        statUI.UpdateTeammateHp(current, max);
+    }
+    [PunRPC]
+    public void RPC_UpdateStatTeammateMana(float current, float max)
+    {
+        statUI.UpdateTeammateMana(current, max);
+    }
 }

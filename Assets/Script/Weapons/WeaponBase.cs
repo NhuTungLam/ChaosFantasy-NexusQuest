@@ -1,57 +1,56 @@
+using Photon.Pun;
 using UnityEngine;
 
-public abstract class WeaponBase : MonoBehaviour, IInteractable
+public abstract class WeaponBase : MonoBehaviourPunCallbacks, IInteractable
 {
+    public string weaponId; // unique id
     public float damage;
     public float cooldown;
-    protected float nextAttackTime;
-    protected Animator animator;
+    protected float interval;
     public bool isEquipped = false;
-    public WeaponData weaponData;
-    
+    public string weaponName;
+    public string prefabName;
+    public float manaCost;
 
     protected virtual void Awake()
     {
-        animator = GetComponent<Animator>();
+        //animator = GetComponent<Animator>();
     }
+
+    public void Initialize(string id)
+    {
+        weaponId = id;
+    }
+
+    public bool CanInteract()
+    {
+        return !isEquipped;
+    }
+
+    public virtual void Interact(CharacterHandler user = null)
+    {
+        if (isEquipped || user == null) return;
+        isEquipped = true;
+        int viewID = user.photonView.ViewID;
+        string dropWeaponType = user.currentWeapon != null ? user.currentWeapon.prefabName : "";
+
+        // G?i request lên MasterClient ?? x? lý nh?t + drop
+        PhotonView photonView = WeaponSyncManager.Instance.photonView;
+        photonView.RPC("RPC_RequestPickupWeapon", RpcTarget.MasterClient, weaponId, viewID, prefabName, dropWeaponType, user.transform.position);
+    }
+
 
     public abstract void Attack(CharacterHandler user);
 
-    // ---- IInteractable ----
-    public bool CanInteract()
-    {
-        return weaponData != null && transform.parent == null;
-    }
-
-    public void Interact(CharacterHandler user=null)
-    {
-        CharacterHandler player = FindObjectOfType<CharacterHandler>();
-        if (player != null && CanInteract())
-        {
-            player.EquipWeapon(weaponData);
-            Destroy(gameObject);
-        }
-    }
-    public virtual void SetFromData(WeaponData data)
-    {
-        weaponData = data;
-        damage = data.damage;
-        cooldown = data.cooldown;
-
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null && data.weaponSprite != null)
-            sr.sprite = data.weaponSprite;
-
-        Animator anim = GetComponent<Animator>();
-        if (anim != null && data.animatorController != null)
-            anim.runtimeAnimatorController = data.animatorController;
-    }
     public void InRangeAction(CharacterHandler user = null)
     {
-        DungeonPickup.ShowPickup(weaponData.weaponName, transform.position);
+        if (isEquipped || user == null) return;
+        DungeonPickup.ShowPickup(weaponName, transform.position);
     }
+
     public void CancelInRangeAction(CharacterHandler user = null)
     {
+        if (isEquipped || user == null) return;
         DungeonPickup.HidePickup();
     }
 }

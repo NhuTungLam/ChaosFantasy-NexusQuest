@@ -15,7 +15,7 @@ public class DamagePopUp : MonoBehaviour
 
     void Update()
     {
-        float moveYSpeed = 0.2f;
+        float moveYSpeed = 1f;
         transform.position += new Vector3(0, moveYSpeed) * Time.deltaTime;
 
         lifeTime -= Time.deltaTime;
@@ -25,7 +25,7 @@ public class DamagePopUp : MonoBehaviour
             transform.localScale += 1.5f * Time.deltaTime * Vector3.one; // Inflate the text
         } else
         {
-            transform.localScale -= 1f * Time.deltaTime * Vector3.one; // Deflate the text
+            transform.localScale -= 0.5f * Time.deltaTime * Vector3.one; // Deflate the text
         }
 
         if (lifeTime <= 0) // if life time ends then start disappearing

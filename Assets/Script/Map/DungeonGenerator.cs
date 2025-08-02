@@ -1,11 +1,18 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Linq;
 using System;
 using Random = UnityEngine.Random;
+using Photon.Pun;
 public class DungeonGenerator : MonoBehaviour
 {
+    public static DungeonGenerator Instance;
+    public void Awake()
+    {
+        Instance = this;
+    }
+    public int stageLevel;
     public GameObject[] roomPrefabs;
     public GameObject[] bossRooms;
     public GameObject[] specialRooms;
@@ -41,29 +48,30 @@ public class DungeonGenerator : MonoBehaviour
 
     public void Start()
     {
-
-        string json = PlayerPrefs.GetString("SavedDungeonLayout", null);
-
-        if (!string.IsNullOrEmpty(json))
-        {
-            var layout = JsonUtility.FromJson<SerializableRoomLayout>(json);
-            Dictionary<Vector2Int, (Direction dir, string prefabName)> loaded = layout.ToDictionary();
-            GenerateDungeonFromLayout(loaded);
-            Debug.Log("Loaded dungeon layout from PlayerPrefs");
-        }
-        else
-        {
-            GenerateDungeon();
-            SaveLayoutToPrefs();
-            Debug.Log("Generated new dungeon layout and saved to PlayerPrefs");
-        }
+        stageLevel = 1;
     }
 
     [ContextMenu("gen")]
     public void GenerateDungeon()
     {
+        var allMonoBehaviours = GameObject.FindObjectsOfType<MonoBehaviour>();
+
+        var allInteractables = allMonoBehaviours
+            .Where(m => m is IInteractable)
+            .ToList(); 
+
+        foreach ( var interactable in allInteractables)
+        {
+            if ((interactable as IInteractable).CanInteract())
+            Destroy(interactable.gameObject);
+        }
         currentComplexRoomCount = 0;
         lastSpawnedRoom = Vector2Int.zero;
+        foreach (var room in spawnedRooms.Values)
+        {
+            Destroy(room.room.gameObject);
+            
+        }
         spawnedRooms.Clear();
         roomDepths.Clear();
         deadEnds.Clear();
@@ -87,10 +95,22 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         PlaceSpecialRooms();
+
         MergeAllRoomTilemaps();
         GenerateAllCorridors();
         GenerateCorridorWalls();
     }
+    public Dictionary<(int x,int y), (Direction dir, string prefabName)> GetSpawnedRooms()
+    {
+        Dictionary<(int x,int y), (Direction dir, string prefabName)> layout = new();
+        foreach(var v in spawnedRooms)
+        {
+            layout[(v.Key.x,v.Key.y)] = (v.Value.dir, v.Value.room.roomname);
+            
+        }
+        return layout;
+    }
+
 
     public int RoomConCount(bool reroll = false)
     {
@@ -129,7 +149,15 @@ public class DungeonGenerator : MonoBehaviour
             fromRoom = previous.room;
         }
 
-        GameObject prefab = roomPrefabs[Random.Range(0, roomPrefabs.Length)];
+        GameObject prefab = null;
+        if (position != Vector2Int.zero) 
+        { 
+            prefab = roomPrefabs[Random.Range(0, roomPrefabs.Length)];
+        }
+        else
+        {
+            prefab = FindRoomPrefabByName("start_room_1_1");
+        }
         GameObject roomGO = Instantiate(prefab, (Vector2)position * roomSize, Quaternion.identity);
         roomGO.name = "" + spawnedRooms.Count;
         Room room = roomGO.GetComponent<Room>();
@@ -309,65 +337,8 @@ public class DungeonGenerator : MonoBehaviour
     {
         return Vector2Int.RoundToInt(input - new Vector3(0.5f, 0.5f));
     }
-    public void GenerateDungeonFromLayout(Dictionary<Vector2Int, Direction> roomLayout)
-    {
-        // Clear existing state
-        currentComplexRoomCount = 0;
-        spawnedRooms.Clear();
-        roomDepths.Clear();
-        deadEnds.Clear();
-        corridorTilemap.ClearAllTiles();
-        wallTilemap.ClearAllTiles();
-        corridorPositionsVertical.Clear();
-        corridorPositionsHorizontal.Clear();
-
-        // Spawn all rooms
-        foreach (var kvp in roomLayout)
-        {
-            Vector2Int pos = kvp.Key;
-            Direction fromDir = kvp.Value;
-            Vector2Int fromPos = pos + DirectionHelper.ToVector2Int(fromDir);
-
-            Room fromRoom = null;
-            if (spawnedRooms.TryGetValue(fromPos, out var prevRoomInfo))
-            {
-                fromRoom = prevRoomInfo.room;
-            }
-
-            GameObject prefab = roomPrefabs[Random.Range(0, roomPrefabs.Length)];
-            GameObject roomGO = Instantiate(prefab, (Vector2)pos * roomSize, Quaternion.identity);
-            Room room = roomGO.GetComponent<Room>();
-            roomGO.name = $"Room_{pos}";
-
-            spawnedRooms[pos] = (room, fromDir, 0); // You could derive depth via BFS if needed
-            roomDepths[pos] = 0;
-
-            if (fromRoom != null)
-            {
-                room.DisableDoor(DirectionHelper.GetOpposite(fromDir));
-                fromRoom.DisableDoor(fromDir);
-            }
-            else
-            {
-                room.EnableDoor(DirectionHelper.GetOpposite(fromDir));
-            }
-        }
-
-        // Generate corridors
-        foreach (var kvp in roomLayout)
-        {
-            Vector2Int to = kvp.Key;
-            Vector2Int from = to + DirectionHelper.ToVector2Int(kvp.Value);
-            SpawnCorridor(from, to, kvp.Value);
-        }
-
-        // Merge tiles
-        MergeAllRoomTilemaps();
-        GenerateCorridorWalls();
-    }
    
-    [ContextMenu("SaveLayout")]
-    public void SaveLayoutToPrefs()
+    public string SaveLayout()
     {
         Dictionary<Vector2Int, (Direction dir, string prefabName)> data = new();
         foreach (var kvp in spawnedRooms)
@@ -379,23 +350,29 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         string json = JsonUtility.ToJson(new SerializableRoomLayout(data));
-        PlayerPrefs.SetString("SavedDungeonLayout", json);
-        PlayerPrefs.Save();
-        Debug.Log("Dungeon layout saved to PlayerPrefs");
+        return json;
     }
 
-    [ContextMenu("LoadLayout")]
-    public void LoadLayoutFromPrefs()
+    public void LoadLayout(string json, int stagelevel)
     {
-        string json = PlayerPrefs.GetString("SavedDungeonLayout", null);
-        if (string.IsNullOrEmpty(json)) return;
-
+        Debug.LogWarning(json);
         var layout = JsonUtility.FromJson<SerializableRoomLayout>(json);
         Dictionary<Vector2Int, (Direction, string)> loaded = layout.ToDictionary();
+        var allMonoBehaviours = GameObject.FindObjectsOfType<MonoBehaviour>();
 
+        var allInteractables = allMonoBehaviours
+            .Where(m => m is IInteractable)
+            .ToList();
+
+        foreach (var interactable in allInteractables)
+        {
+            if ((interactable as IInteractable).CanInteract())
+                Destroy(interactable.gameObject);
+        }
+        stageLevel = stagelevel;
         GenerateDungeonFromLayout(loaded);
     }
-
+    
     public void GenerateDungeonFromLayout(Dictionary<Vector2Int, (Direction dir, string prefabName)> layout)
     {
         ClearExistingDungeon();
@@ -406,7 +383,7 @@ public class DungeonGenerator : MonoBehaviour
             Direction dir = kvp.Value.dir;
             string prefabName = kvp.Value.prefabName;
 
-            GameObject prefab = FindRoomPrefabByName(prefabName);
+            GameObject prefab =FindRoomPrefabByName(prefabName);
             if (prefab == null)
             {
                 Debug.LogWarning($"Prefab '{prefabName}' not found!");
@@ -440,7 +417,7 @@ public class DungeonGenerator : MonoBehaviour
         GenerateCorridorWalls();
     }
 
-    GameObject FindRoomPrefabByName(string prefabName)
+    public GameObject FindRoomPrefabByName(string prefabName)
     {
         return roomPrefabs.Concat(specialRooms).Concat(bossRooms)
             .FirstOrDefault(p => p.TryGetComponent(out Room r) && r.roomname == prefabName);

@@ -22,47 +22,47 @@ public class Room : MonoBehaviour
     private List<Direction> directions = new();
     private bool isTriggered = false;
     private bool doorsClosed = false;
-    private bool chestSpawned = false;
+    public bool chestSpawned = false;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isTriggered || !other.CompareTag("Player")) return;
         isTriggered = true;
+        if (transform.position == Vector3.zero)
+            return;
 
         if (needCloseDoor)
         {
             getActiveDoor();
             CloseDoors();
-
+            PlayerManager.Instance.photonView.RPC("RPC_SelfTeleport",RpcTarget.Others,(Vector2)other.transform.position);
             if (RoomSessionManager.Instance.IsRoomOwner() && PhotonEnemySpawner.Instance != null)
             {
-                PhotonEnemySpawner.Instance.SpawnWave(enewaveDatas, 0, transform.position);
+                PhotonEnemySpawner.Instance.SpawnWave(enewaveDatas.GetRandom(), transform.position);
             }
         }
     }
-
     private void Update()
     {
-        if (doorsClosed && PhotonEnemySpawner.Instance != null && PhotonEnemySpawner.Instance.AllEnemiesDefeated)
-        {
-            OpenDoors();
-            doorsClosed = false;
+        if (!RoomSessionManager.Instance.IsRoomOwner()) return;
 
-            if (!chestSpawned && chestData != null && chestSpawnPoint != null)
-            {
-                SpawnChest();
-                chestSpawned = true;
-            }
+        if (doorsClosed && PhotonEnemySpawner.Instance != null && PhotonEnemySpawner.Instance.AllEnemiesDefeated && !GameManager.Instance.defeated)
+        {
+            DungeonSyncManager.Instance.photonView.RPC("RPC_OpenDoorsAndSpawnChest", RpcTarget.All, transform.position);
         }
     }
 
-    private void SpawnChest()
+    public void SpawnChest()
     {
-        GameObject chestObj = Instantiate(chestData.chestPrefab, chestSpawnPoint.position, Quaternion.identity);
-        Chest chest = chestObj.GetComponent<Chest>();
-        if (chest != null) chest.ApplyData(chestData);
+        if (!PhotonNetwork.IsMasterClient) return;
+        PhotonNetwork.Instantiate("Chest/Chest", chestSpawnPoint.position, Quaternion.identity, 0, new object[] { chestData.name });
     }
 
+    public void SpawnPortal()
+    {
+        var portalPrefab = Resources.Load<GameObject>("NextStagePortal");
+        Instantiate(portalPrefab, chestSpawnPoint.position + new Vector3(0, 10f), Quaternion.identity);
+    }
     public void getActiveDoor()
     {
         directions.Clear();
@@ -72,13 +72,13 @@ public class Room : MonoBehaviour
         if (!IsDoorOpen(Direction.Right)) directions.Add(Direction.Right);
     }
 
-    private void CloseDoors()
+    public void CloseDoors()
     {
         foreach (var dir in directions) EnableDoor(dir);
         doorsClosed = true;
     }
 
-    private void OpenDoors()
+    public void OpenDoors()
     {
         foreach (var dir in directions) DisableDoor(dir);
     }

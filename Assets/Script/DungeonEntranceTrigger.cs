@@ -16,11 +16,8 @@ public class DungeonEntranceTrigger : MonoBehaviour, IInteractable
 
     IEnumerator LeaveRoomThenLoadLobbyScene()
     {
-        PhotonRoomManager.skipAutoCreateRoom = true;
-
         if (PhotonNetwork.InRoom)
         {
-            // ✅ Dọn player trước khi rời room
             if (PhotonNetwork.LocalPlayer.TagObject is GameObject go)
             {
                 PhotonNetwork.Destroy(go);
@@ -37,14 +34,14 @@ public class DungeonEntranceTrigger : MonoBehaviour, IInteractable
             }
         }
 
-        float waitMasterTimeout = 5f;
+        float waitMasterTimeout = 1f;
         while (PhotonNetwork.NetworkClientState != ClientState.ConnectedToMasterServer && waitMasterTimeout > 0f)
         {
             waitMasterTimeout -= Time.deltaTime;
             yield return null;
         }
 
-        Debug.Log("🏁 Loading Enter_Dungeon...");
+        PhotonRoomManager.autoCreateRoom = true;
         SceneManager.LoadScene("Enter_Dungeon");
     }
 

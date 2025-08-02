@@ -9,9 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5125073725075142934}
-  - component: {fileID: -3189653374416899211}
-  - component: {fileID: 6318927500162312028}
-  - component: {fileID: 585754685497355344}
+  - component: {fileID: 5104845105035549176}
+  - component: {fileID: 315707128364193289}
+  - component: {fileID: 2647018847181990601}
+  - component: {fileID: 3733251403613624792}
+  - component: {fileID: -9074702394638249330}
   m_Layer: 7
   m_Name: Fury
   m_TagString: Untagged
@@ -28,13 +30,13 @@ Transform:
   m_GameObject: {fileID: 4818234652911098146}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &-3189653374416899211
+--- !u!61 &5104845105035549176
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -51,37 +53,37 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 6, y: 1.8125}
-    newSize: {x: 6, y: 1.8125}
+    oldSize: {x: 1.5, y: 1.5}
+    newSize: {x: 6.25, y: 8}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.2, y: 0.12}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &6318927500162312028
-MonoBehaviour:
+--- !u!50 &315707128364193289
+Rigidbody2D:
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4818234652911098146}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9ac372b99e324147a70cd96812fe6de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isActiveCard: 0
-  CardName: Fury
-  Icon: {fileID: 0}
-  CardDescription: 
-  cooldown: 2
-  hasPick: 0
-  damageBoost: 1.5
-  damageReduction: 0.5
-  healthThreshold: 0.3
---- !u!212 &585754685497355344
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!212 &2647018847181990601
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,15 +123,59 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 859120589
   m_SortingLayer: 3
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 2070214803, guid: 0fcd47896b4b35f4b83f6baeb68d59c1, type: 3}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: 15a8c8c9524f5ab41b0d899eae39e05d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 6, y: 1.8125}
+  m_Size: {x: 6.25, y: 8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3733251403613624792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4818234652911098146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9ac372b99e324147a70cd96812fe6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isActiveCard: 0
+  CardName: Fury
+  Icon: {fileID: 21300000, guid: 15a8c8c9524f5ab41b0d899eae39e05d, type: 3}
+  CardDescription: 
+  cooldown: 2
+  hasPick: 0
+  damageBoost: 1.5
+  damageReduction: 0.5
+  healthThreshold: 0.3
+  isFuryActive: 0
+--- !u!114 &-9074702394638249330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4818234652911098146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0

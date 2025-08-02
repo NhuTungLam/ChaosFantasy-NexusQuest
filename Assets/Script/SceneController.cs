@@ -24,13 +24,6 @@ public class SceneController : MonoBehaviour
     }
     public void StartGame()
     {
-        // B?t ??u connect Photon n?u ch?a k?t n?i
-        if (!PhotonNetwork.IsConnected)
-        {
-            PhotonNetwork.ConnectUsingSettings();
-            Debug.Log("?? SceneController: Connecting to Photon...");
-        }
-
         BlackScreen.Instance.BlackIn();
         this.Invoke(() => SceneManager.LoadScene("Nexus"), 1.2f);
     }

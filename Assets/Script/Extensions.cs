@@ -262,5 +262,14 @@ public static class Extensions
         animator.Play(stateName, layer, normalizedTime);
         return true; // Animation played successfully
     }
-
+    /// <summary>
+    /// Rotate a Vector2 by an angle clockwise
+    /// </summary>
+    /// <param name="v"></param>
+    /// <param name="degrees"></param>
+    /// <returns></returns>
+    public static Vector2 Rotate(this Vector2 v, float degrees)
+    {
+        return Quaternion.AngleAxis(degrees, Vector3.forward) * v;
+    }
 }

@@ -11,10 +11,15 @@ public class BlackScreen : MonoBehaviour
     private Image _bScreen;
     private void Awake()
     {
-        _bScreen = GetComponent<Image>();
+        if (Instance != null) return;
         Instance = this;
+        _bScreen = GetComponent<Image>();
 
-        SceneManager.activeSceneChanged += (s, a) => BlackOut();
+        SceneManager.activeSceneChanged += (s, a) =>
+        {
+            //_bScreen = GetComponent<Image>();
+            BlackOut();
+        };
     }
 
     public void BlackIn()

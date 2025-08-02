@@ -35,7 +35,7 @@ public class RegisterRequest : MonoBehaviour
 
     IEnumerator RegisterCoroutine(string username, string password)
     {
-        var payload = new RegisterPayload { username = username, password = password,email = "lam@" };
+        var payload = new RegisterPayload { username = username, password = password, email = "lam@" };
         string json = JsonUtility.ToJson(payload);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -51,7 +51,7 @@ public class RegisterRequest : MonoBehaviour
             {
                 // Parse new user ID
                 var loginResult = JsonUtility.FromJson<LoginResult>(request.downloadHandler.text);
-                currentUsername = username;
+                currentUsername = loginResult.username;
                 currentUserId = loginResult.id;
 
                 MessageBoard.Show("Registration successful!");
@@ -61,7 +61,7 @@ public class RegisterRequest : MonoBehaviour
                 {
                     if (profile != null)
                     {
-                        MessageBoard.Show($"Profile created for {currentUsername}: Class = {profile.@class}");
+                        MessageBoard.Show($"Profile created for {currentUsername}");
                         MainMenu.Instance.HideRegister();
                     }
                     else
@@ -73,7 +73,7 @@ public class RegisterRequest : MonoBehaviour
                 });
 
             }
-            else if (request.responseCode == 409)
+            else if (request.responseCode == 400)
             {
                 MessageBoard.Show("Username already exists!");
             }

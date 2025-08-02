@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using Photon.Pun;
+using System.Collections;
+using System.Collections.Generic;
 
 public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
 {
@@ -8,8 +10,10 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
     public Vector2 spawnAreaMax = new Vector2(3, 3);
 
     private bool hasSpawned = false;
+
     void Start()
     {
+
         Debug.Log("🟦 MultiplayerSpawnManager.Start() is alive.");
 
         if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
@@ -19,31 +23,21 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
         }
     }
 
-
     public override void OnJoinedRoom()
     {
         Debug.Log("🟢 OnJoinedRoom (MultiplayerSpawnManager)");
         TrySpawn();
+
     }
 
     void TrySpawn()
     {
+        
         if (hasSpawned)
         {
             Debug.Log("⚠️ Already spawned.");
             return;
         }
-        Debug.Log($"🏠 LocalPlayer.UserId: {PhotonNetwork.LocalPlayer.UserId}");
-        if (RoomSessionManager.Instance != null)
-        {
-            Debug.Log($"🏠 RoomOwner: {RoomSessionManager.Instance.GetRoomOwner()}");
-            Debug.Log($"🏠 IsRoomOwner(): {RoomSessionManager.Instance.IsRoomOwner()}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ RoomSessionManager.Instance is NULL");
-        }
-
 
         if (CharacterSelector.Instance == null)
         {
@@ -77,17 +71,33 @@ public class MultiplayerSpawnManager : MonoBehaviourPunCallbacks
             0,
             new object[] { className }
         );
-        int viewID = playerInstance.GetComponent<PhotonView>().ViewID;
 
+        int viewID = playerInstance.GetComponent<PhotonView>().ViewID;
+        int userID = PlayerProfileFetcher.CurrentProfile != null? PlayerProfileFetcher.CurrentProfile.userId : -1;
         PlayerManager.Instance.photonView.RPC(
             "RPC_AddPlayerToList",
             RpcTarget.AllBuffered,
-            viewID
+            viewID,
+            userID
         );
-
-        Debug.Log(PlayerManager.Instance.playerList.Count);
-        Debug.Log(playerInstance.transform);
-        Debug.Log($"✅ Spawned player with class: {className}");
         hasSpawned = true;
+
+        // 🟢 Save player progress to backend
+        //Don't call this on teammate client
+        if (PlayerProfileFetcher.CurrentProfile != null && RoomSessionManager.Instance.IsRoomOwner())
+        {
+            StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(playerInstance.transform, progressIdCallback:(progressId) =>
+            {
+                PlayerManager.Instance.photonView.RPC("RPC_OwnerProgressId", RpcTarget.AllBuffered, progressId,viewID);
+            }
+            ));
+            //Debug.LogWarning("save progress");
+        }
+        if (PlayerProfileFetcher.CurrentProfile != null && !RoomSessionManager.Instance.IsRoomOwner())
+        {
+            int progressId = PlayerManager.Instance.ownerProgressId;
+            var progressdto = PlayerManager.Instance.GetPlayerProgress(userID);
+            StartCoroutine(DungeonApiClient.Instance.SaveTeammateProgress(userID, progressId, progressdto));
+        }
     }
 }

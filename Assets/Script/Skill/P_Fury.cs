@@ -15,25 +15,25 @@ public class P_Fury : SkillCardBase
     public override void Initialize(CharacterHandler player)
     {
         base.Initialize(player);
-       
+        this.player = player;
 
         player.OnBeforeTakeDamage += (float dmg) =>
         {
-            if (player.GetCurrentHealthPercent() < 0.30f && isFuryActive == false)
+            if (GetCurrentHpPercent() < 0.30f && isFuryActive == false)
             {
                 float boost = player.baseMight * damageBoost;
                 player.currentMight += boost;
                 isFuryActive=true;
                 Debug.Log("ffury active");
             }
-            if(player.GetCurrentHealthPercent() > 0.30f && isFuryActive == true)
+            if (GetCurrentHpPercent() > 0.30f && isFuryActive == true)
             {
                 float boost = player.baseMight * damageBoost;
                 player.currentMight -= boost;
                 isFuryActive=false;
                 Debug.Log(("fury deactive"));
             }
-            if (player.GetCurrentHealthPercent() < 0.30f)
+            if (GetCurrentHpPercent() < 0.30f)
             {
                 dmg *= (1 - damageReduction);
             }
@@ -42,4 +42,10 @@ public class P_Fury : SkillCardBase
 
         Debug.Log("P_Fury Activated: Increased damage and reduced damage taken.");
     }
+
+    private float GetCurrentHpPercent()
+    {
+        return player.currentHealth / player.characterData.MaxHealth;
+    }
 }
+
