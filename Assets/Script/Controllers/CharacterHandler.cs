@@ -344,6 +344,7 @@ public class CharacterHandler : MonoBehaviourPun
         }
         statUI.UpdatePassive(skill, passiveSkills.Count - 1);
     }
+    
     public List<SkillCardBase> GetPassiveSkills()
     {
         return passiveSkills;

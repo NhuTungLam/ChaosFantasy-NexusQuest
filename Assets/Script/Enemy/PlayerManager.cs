@@ -243,4 +243,11 @@ public class PlayerManager : MonoBehaviourPun
 
         return otherPlayerIds;
     }
+    [PunRPC]
+    public void RPC_TeammateSave()
+    {
+        int userId = PlayerProfileFetcher.CurrentProfile?.userId ?? -1;
+        if(userId == -1) return;
+        StartCoroutine(DungeonApiClient.Instance.SaveTeammateProgress(userId, ownerProgressId, GetPlayerProgress(userId)));
+    }
 }

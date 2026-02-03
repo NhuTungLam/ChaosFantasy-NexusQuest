@@ -25,14 +25,18 @@ public class DungeonSyncManager : MonoBehaviourPunCallbacks
 
         if (RoomSessionManager.Instance.IsRoomOwner())
         {
+
+
+            if (DungeonRestorerManager.Instance.loadSave)
+           
+            {
             string savedLayout = DungeonRestorerManager.Instance?.dungeoninfo?.dungeonLayout;
             var stageLevel = DungeonRestorerManager.Instance?.dungeoninfo?.stageLevel;
-            if (!string.IsNullOrEmpty(savedLayout))
-            {
+            Debug.Log("🟢 Room Owner loading saved layout...");
+                if (!string.IsNullOrEmpty(savedLayout))
+                    DungeonGenerator.Instance.LoadLayout(savedLayout,stageLevel!=null? (int)stageLevel :1);
 
-                Debug.Log("🟢 Room Owner loading saved layout...");
-                DungeonGenerator.Instance.LoadLayout(savedLayout,stageLevel!=null? (int)stageLevel :1);
-                photonView.RPC("RPC_SpawnRoomPrefab", RpcTarget.Others, savedLayout);
+            photonView.RPC("RPC_SpawnRoomPrefab", RpcTarget.Others, savedLayout);
             }
             else
             {

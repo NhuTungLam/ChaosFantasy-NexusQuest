@@ -18,11 +18,13 @@ public class RegisterRequest : MonoBehaviour
     public static int currentUserId;
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
+    public TMP_InputField emailInput;
 
     public void OnRegisterClick()
     {
         string username = usernameInput.text.Trim();
         string password = passwordInput.text;
+        string email = emailInput.text.Trim();
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
@@ -30,12 +32,12 @@ public class RegisterRequest : MonoBehaviour
             return;
         }
 
-        StartCoroutine(RegisterCoroutine(username, password));
+        StartCoroutine(RegisterCoroutine(username, password,email));
     }
 
-    IEnumerator RegisterCoroutine(string username, string password)
+    IEnumerator RegisterCoroutine(string username, string password, string email)
     {
-        var payload = new RegisterPayload { username = username, password = password, email = "lam@" };
+        var payload = new RegisterPayload { username = username, password = password, email = email };
         string json = JsonUtility.ToJson(payload);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 

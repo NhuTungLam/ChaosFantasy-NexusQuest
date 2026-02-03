@@ -22,7 +22,7 @@ public class PlayerNetworkInit : MonoBehaviourPun, IPunInstantiateMagicCallback
         // ✅ Không áp dụng load save ở đây nếu không phải local player
         if (photonView.IsMine)
         {
-            if (DungeonRestorerManager.Instance != null && DungeonRestorerManager.Instance.playerinfo != null)
+            if (DungeonRestorerManager.Instance != null && DungeonRestorerManager.Instance.loadSave)
             {
                 handler.ApplyLoadSave(DungeonRestorerManager.Instance.playerinfo);
             }

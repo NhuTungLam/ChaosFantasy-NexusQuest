@@ -39,7 +39,7 @@ public class NextStagePortal : MonoBehaviour, IInteractable
             if (myPlayer != null && PlayerProfileFetcher.CurrentProfile != null)
             {
                 MessageBoard.Show("Saving progress...");
-                yield return StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(myPlayer, PlayerManager.Instance.GetOtherPlayer()));
+                yield return StartCoroutine(DungeonApiClient.Instance.SaveProgressAfterSpawn(myPlayer));
             }
             else
             {

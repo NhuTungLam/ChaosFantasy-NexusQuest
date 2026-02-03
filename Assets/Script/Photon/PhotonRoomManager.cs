@@ -232,6 +232,7 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
         StartCoroutine(DungeonApiClient.Instance.LoadDungeonProgress(userId, (i) =>
         {
             if (DungeonRestorerManager.Instance.dungeoninfo != null)
+
             {
                 continueBtn.gameObject.SetActive(true);
                 continueBtn.onClick.RemoveAllListeners();
@@ -248,7 +249,7 @@ public class PhotonRoomManager : MonoBehaviourPunCallbacks
     private void LoadSave()
     {
         MessageBoard.Show("Loading save...");
-
+        DungeonRestorerManager.Instance.loadSave = true;
         // Tạo room trước khi vào dungeon
         RoomOptions options = new RoomOptions
         {

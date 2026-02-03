@@ -7,6 +7,7 @@ public class DungeonRestorerManager : MonoBehaviour
     public static DungeonRestorerManager Instance { get; private set; }
     public DungeonApiClient.DungeonProgressDTO dungeoninfo;
     public DungeonApiClient.PlayerProgressDTO playerinfo;
+    public bool loadSave = false;
     void Awake()
     {
         if (Instance == null)
@@ -23,6 +24,7 @@ public class DungeonRestorerManager : MonoBehaviour
 
     public void ResetState()
     {
+        loadSave = false;
         dungeoninfo = null; 
         playerinfo = null; 
     }

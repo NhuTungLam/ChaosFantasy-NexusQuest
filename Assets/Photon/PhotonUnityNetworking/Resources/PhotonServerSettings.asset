@@ -83,6 +83,7 @@ MonoBehaviour:
   - RPC_SetFacing
   - ReceivePing
   - RPC_LoadTeammateVisual
+  - RPC_TeammateSave
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

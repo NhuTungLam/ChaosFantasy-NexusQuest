@@ -278,7 +278,7 @@ public class DungeonApiClient : MonoBehaviour
     /// <param name="playerTransform"></param>
     /// <param name="otherPlayer"></param>
     /// <returns></returns>
-    public IEnumerator SaveProgressAfterSpawn(Transform playerTransform, List<int> otherPlayer = null,Action<int> progressIdCallback=null)
+    public IEnumerator SaveProgressAfterSpawn(Transform playerTransform,Action<int> progressIdCallback=null)
     {
 
         var handler = playerTransform.GetComponent<CharacterHandler>();
@@ -329,15 +329,7 @@ public class DungeonApiClient : MonoBehaviour
                     };
 
                     StartCoroutine(SaveDungeon(dungeon));
-                    if (otherPlayer != null)
-                    {
-                        foreach (var tmId in otherPlayer)
-                        {
-                           if(tmId == -1) { continue; }
-                           var tmdto = PlayerManager.Instance.GetPlayerProgress(tmId);
-                            StartCoroutine(SaveTeammateProgress(tmId,progressId,tmdto));
-                        }
-                    }
+                    PlayerManager.Instance.photonView.RPC("RPC_TeammateSave", RpcTarget.Others);
 
                 }
 
